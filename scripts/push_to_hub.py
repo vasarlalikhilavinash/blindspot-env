@@ -34,4 +34,17 @@ api.upload_folder(
     repo_type="model",
     commit_message="Blindspot GRPO LoRA adapter",
 )
+
+# Upload the model card as README so it shows on the Hub page
+card = REPO_ROOT / "training" / "MODEL_CARD.md"
+if card.exists():
+    api.upload_file(
+        path_or_fileobj=str(card),
+        path_in_repo="README.md",
+        repo_id=REPO_ID,
+        repo_type="model",
+        commit_message="Add model card",
+    )
+    print("✓ uploaded model card")
+
 print(f"✓ pushed: https://huggingface.co/{REPO_ID}")

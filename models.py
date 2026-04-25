@@ -157,3 +157,7 @@ class BlindspotState(State):
     inspect_count: int = Field(default=0)
     surface_count: int = Field(default=0)
     cumulative_reward: float = Field(default=0.0)
+    reasoning_log: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Per-step action log with reward and outcome note.",
+    )

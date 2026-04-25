@@ -138,6 +138,15 @@ class BlindspotDemo:
             self.demo_cache = json.load(open(cache_path)) if cache_path.exists() else {}
         except Exception:
             self.demo_cache = {}
+        # Pre-training cache (base Qwen, adapter disabled) — powers the
+        # "Before / After" toggle on the demo so judges see the actual lift.
+        pretrain_path = DATA / "demo_cache_pretrain.json"
+        try:
+            self.demo_cache_pretrain = (
+                json.load(open(pretrain_path)) if pretrain_path.exists() else {}
+            )
+        except Exception:
+            self.demo_cache_pretrain = {}
 
     # ------------------------------- helpers -------------------------------
 
@@ -238,23 +247,68 @@ class BlindspotDemo:
         return [c for c, _ in sims[:k]], "Picks the 3 cosine-nearest concepts (you likely already know these)."
 
     def policy_blindspot(self, profile, candidates, k=3,
-                         cache_key: Optional[str] = None) -> Tuple[List[str], str, Dict[str, Any]]:
+                         cache_key: Optional[str] = None,
+                         pretrain: bool = False) -> Tuple[List[str], str, Dict[str, Any]]:
         """Trained RL agent. Resolution order:
           1. Pre-computed cache (instant, no GPU needed)  -- ideal for hosted Space
           2. Live `self.llm_generate` callable (when adapter is loaded in-process)
           3. kNN-informed proxy (pre-training placeholder)
+
+        If pretrain=True, serves from the `demo_cache_pretrain` (base Qwen, adapter
+        disabled) — used by the Before / After toggle.
         """
-        meta = {"used_trained_model": False, "used_cache": False, "reasoning": ""}
+        meta = {"used_trained_model": False, "used_cache": False, "reasoning": "",
+                "variant": "pretrain" if pretrain else "trained"}
+        active_cache = self.demo_cache_pretrain if pretrain else self.demo_cache
 
         # 1. Cache hit
-        if cache_key and cache_key in self.demo_cache:
-            entry = self.demo_cache[cache_key]
+        if cache_key and cache_key in active_cache:
+            entry = active_cache[cache_key]
             picked = [str(c) for c in entry.get("surfaced", [])][:k]
             if picked:
                 meta["used_trained_model"] = True
                 meta["used_cache"] = True
-                meta["reasoning"] = entry.get("reasoning", "(served from precomputed trained-policy cache)")
-                return picked, "Trained Blindspot policy (GRPO-finetuned Qwen-9B, served from cache).", meta
+                meta["reasoning"] = entry.get("reasoning", "(served from precomputed cache)")
+                label = ("Pre-training Blindspot (base Qwen-9B, adapter OFF, cached)."
+                         if pretrain else
+                         "Trained Blindspot (GRPO-finetuned Qwen-9B, cached).")
+                return picked, label, meta
+
+        # If pretrain mode and no cache hit, return a relevance-only baseline
+        # (matches what a non-finetuned model with no Blindspot training tends to do)
+        # so the Before/After toggle never collapses to the same proxy as Trained.
+        if pretrain:
+            q = profile["query_vec"]
+            sims = sorted(candidates, key=lambda c:
+                          -float(self.concept_vecs[self.concept_ids.index(c)] @ q))
+            picked = sims[:k]
+            meta["reasoning"] = (
+                "Pre-training stand-in: base Qwen-9B with no Blindspot reward signal "
+                "tends to pick high-relevance trending concepts (≈ dense retrieval).\n"
+                "Real pre-training cache will replace this once it's built in Colab."
+            )
+            return picked, "Pre-training Blindspot (relevance-only stand-in).", meta
+
+        # 1b. Paragraph-mode fallback: find the nearest cached user and serve their
+        # trained-policy response. Beats the proxy when the trained model isn't loaded.
+        if not pretrain and cache_key is None and active_cache:
+            uid = profile.get("matched_user_id")
+            nn_key = f"user::{uid}"
+            if nn_key in active_cache:
+                entry = active_cache[nn_key]
+                # Filter to the candidate pool so concept ids stay in-bounds
+                cand_set = {str(c) for c in candidates}
+                picked = [str(c) for c in entry.get("surfaced", []) if str(c) in cand_set][:k]
+                if picked:
+                    meta["used_trained_model"] = True
+                    meta["used_cache"] = True
+                    meta["used_nearest_neighbor"] = uid
+                    meta["reasoning"] = (
+                        f"\U0001F501 Nearest-neighbor lookup: paragraph matched user {uid}, "
+                        f"serving that user's cached trained-policy response.\n\n"
+                        + entry.get("reasoning", "")
+                    )
+                    return picked, "Trained Blindspot (nearest-neighbor cached response).", meta
 
         # 2. Live model
         if self.llm_generate is not None:
@@ -412,18 +466,36 @@ class BlindspotDemo:
             "policies": {},
         }
 
+        import time
         runners = [
             ("Random",   self.policy_random),
             ("Trending", self.policy_trending),
             ("Dense Retrieval", self.policy_dense_retrieval),
+            ("Blindspot (pre-training)", self.policy_blindspot),
             ("Blindspot RL",   self.policy_blindspot),
         ]
         for name, fn in runners:
+            t0 = time.perf_counter()
             if name == "Blindspot RL":
                 surfaced, descr, meta = fn(profile, candidates, cache_key=cache_key)
+            elif name == "Blindspot (pre-training)":
+                surfaced, descr, meta = fn(profile, candidates,
+                                           cache_key=cache_key, pretrain=True)
+                # If pretrain cache is empty, fall back to a relevance-only proxy
+                # so the column always renders.
+                if not surfaced:
+                    q = profile["query_vec"]
+                    sims = sorted(candidates, key=lambda c:
+                                  -float(self.concept_vecs[self.concept_ids.index(c)] @ q))
+                    surfaced = sims[:3]
+                    descr = "Pre-training proxy (relevance-only, base model)."
+                    meta = {"variant": "pretrain", "used_cache": False,
+                            "used_trained_model": False,
+                            "reasoning": "Pre-training cache not yet built; using relevance-only stand-in."}
             else:
                 surfaced, descr = fn(profile, candidates)
                 meta = {}
+            latency_ms = (time.perf_counter() - t0) * 1000.0
             cards = [self.render_concept(c, uid) for c in surfaced]
             r = self._reward_for(uid, surfaced)
             out["policies"][name] = {
@@ -432,6 +504,7 @@ class BlindspotDemo:
                 "cards": cards,
                 "reward": r,
                 "meta": meta,
+                "latency_ms": latency_ms,
             }
 
         # GPT-4 generic comparison (best-effort)

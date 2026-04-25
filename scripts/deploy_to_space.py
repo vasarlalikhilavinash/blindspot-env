@@ -2,13 +2,16 @@
 """Deploy the Gradio demo to a Hugging Face Space.
 
 Uploads the minimum file set needed for the Space to run:
-    spaces/app.py          → app.py            (Space entrypoint)
-    spaces/README.md       → README.md         (Space metadata frontmatter)
-    spaces/requirements.txt→ requirements.txt
+    spaces/app.py                    → app.py            (Space entrypoint)
+    spaces/README.md                 → README.md         (Space metadata frontmatter)
+    spaces/requirements.txt          → requirements.txt
     scripts/blindspot_demo.py        → scripts/blindspot_demo.py
-    scripts/precompute_demo_cache.py → scripts/precompute_demo_cache.py  (PERSONAS dict only)
-    data/*.json                       → data/*.json
-    data/demo_cache.json              → data/demo_cache.json
+    scripts/precompute_demo_cache.py → scripts/precompute_demo_cache.py
+    data/*.json                      → data/*.json
+
+In particular, the Space expects both cache variants when available:
+    data/demo_cache.json
+    data/demo_cache_pretrain.json
 
 Usage (set HF_TOKEN with write access first):
     HF_TOKEN=hf_xxx python scripts/deploy_to_space.py
@@ -28,6 +31,8 @@ from huggingface_hub import HfApi, create_repo  # type: ignore
 
 api = HfApi(token=TOKEN)
 
+EXPECTED_CACHE_FILES = ["demo_cache.json", "demo_cache_pretrain.json"]
+
 print(f"creating Space {SPACE_ID} (if missing) ...")
 create_repo(SPACE_ID, repo_type="space", space_sdk="gradio",
             exist_ok=True, token=TOKEN, private=False)
@@ -43,6 +48,10 @@ uploads = [
 # All JSON data files
 for jf in (REPO_ROOT / "data").glob("*.json"):
     uploads.append((f"data/{jf.name}", f"data/{jf.name}"))
+
+for cache_name in EXPECTED_CACHE_FILES:
+    if not (REPO_ROOT / "data" / cache_name).exists():
+        print(f"warning: data/{cache_name} not found; Space will fall back to non-cached behavior")
 
 # Empty __init__.py so 'scripts' is importable as a package
 init_marker = REPO_ROOT / "scripts" / "__init__.py"

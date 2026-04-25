@@ -2,7 +2,11 @@
 """Run the trained policy on every cacheable input and save responses.
 
 This makes the hosted Space serve trained-policy results with ZERO GPU at
-request time — the GPU is only needed once, here. Output: data/demo_cache.json
+request time — the GPU is only needed once, here.
+
+Outputs TWO caches so the Before/After toggle on the demo shows the real lift:
+  - data/demo_cache.json          (LoRA adapter ON  — trained Blindspot policy)
+  - data/demo_cache_pretrain.json (LoRA adapter OFF — base Qwen, no Blindspot reward)
 
 Cacheable inputs:
   - All 17 real users  (key = "user::<user_id>")
@@ -27,26 +31,29 @@ from scripts.blindspot_demo import BlindspotDemo
 
 ADAPTER_PATH = os.environ.get("ADAPTER_PATH", "training/checkpoints/grpo")
 BASE_MODEL = os.environ.get("BASE_MODEL", "unsloth/Qwen3.5-9B-bnb-4bit")
-OUT = REPO_ROOT / "data" / "demo_cache.json"
+OUT_TRAINED  = REPO_ROOT / "data" / "demo_cache.json"
+OUT_PRETRAIN = REPO_ROOT / "data" / "demo_cache_pretrain.json"
 
 
 # Same personas as notebooks/03_demo.ipynb — keep these in sync.
 PERSONAS = {
-    "healthcare_ai_lead": (
-        "I lead an applied AI team at a healthcare company. We build clinical decision-support "
-        "agents using LLMs and RAG over electronic health records. Lately I worry about "
-        "hallucination in long-form medical answers and whether our QA evaluations are even "
-        "meaningful without expensive doctor reviews."
+    "llm_agents_researcher": (
+        "I am a researcher at a frontier-model lab working on LLM agents — tool use, "
+        "long-horizon planning, multi-agent coordination, and RL fine-tuning of large "
+        "language models. I read arxiv daily but feel like I'm missing important work "
+        "outside the agents/RL bubble that would change how I design my training loops."
     ),
-    "fintech_ml_engineer": (
-        "I am a senior ML engineer at a fintech, building retrieval-augmented LLM systems for "
-        "compliance Q&A. I work with embeddings, vector search, and prompt engineering. I want "
-        "to know what I am missing — agentic patterns? new fine-tuning tricks? something else?"
+    "diffusion_phd_student": (
+        "I am a PhD student working on diffusion models for image and video generation. "
+        "I focus on architectures, sampling efficiency, and conditional generation. I've "
+        "been heads-down on diffusion for two years and worry I'm missing important "
+        "developments in alternative generative paradigms or in evaluation methodology."
     ),
-    "bio_ai_founder": (
-        "I am a founder building protein-design LLMs for early-stage drug discovery. We "
-        "fine-tune on assay data and use RAG over molecular databases. I am drowning in arxiv "
-        "and feel like I am always 6 months behind on alignment / evaluation / safety methods."
+    "ml_infra_engineer": (
+        "I am an ML infrastructure engineer at a 50-person AI startup. I build training "
+        "and inference platforms — distributed training, KV-cache management, model "
+        "serving, observability. I want to know which research papers will actually "
+        "change my infra stack in the next 6 months, not which ones go viral on Twitter."
     ),
 }
 
@@ -56,11 +63,12 @@ def main():
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=BASE_MODEL, max_seq_length=4096 + 128, load_in_4bit=True
     )
-    if Path(ADAPTER_PATH).is_dir():
+    has_adapter = Path(ADAPTER_PATH).is_dir()
+    if has_adapter:
         model.load_adapter(ADAPTER_PATH)
         print("✓ adapter loaded")
     else:
-        print(f"⚠️ adapter dir not found at {ADAPTER_PATH} — caching base-model responses")
+        print(f"⚠️ adapter dir not found at {ADAPTER_PATH} — caching base-model responses only")
     FastLanguageModel.for_inference(model)
 
     def llm_generate(messages):
@@ -71,46 +79,66 @@ def main():
             out = model.generate(inputs, max_new_tokens=64, do_sample=False, temperature=0.0)
         return tokenizer.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
 
-    demo = BlindspotDemo(llm_generate=llm_generate)
+    def build_cache(label: str) -> dict:
+        demo = BlindspotDemo(llm_generate=llm_generate)
+        cache: dict = {}
+        # 1. All real users
+        print(f"\n[{label}] running on {len(demo.users)} real users...")
+        for i, uid in enumerate(demo.users.keys()):
+            try:
+                r = demo.compare_all(user_id=uid)
+                blind = r["policies"]["Blindspot RL"]
+                cache[f"user::{uid}"] = {
+                    "surfaced": blind["surfaced"],
+                    "reasoning": blind["meta"].get("reasoning", "")[:600],
+                    "reward_total": blind["reward"]["total"],
+                }
+                print(f"  [{i+1}/{len(demo.users)}] user {uid}: surfaced {blind['surfaced']} "
+                      f"(reward {blind['reward']['total']:+.2f})")
+            except Exception as e:
+                print(f"  [{i+1}] user {uid} FAILED: {e}")
+        # 2. Personas
+        print(f"\n[{label}] running on {len(PERSONAS)} personas...")
+        for name, paragraph in PERSONAS.items():
+            try:
+                r = demo.compare_all(paragraph=paragraph, persona_key=name)
+                blind = r["policies"]["Blindspot RL"]
+                cache[f"persona::{name}"] = {
+                    "surfaced": blind["surfaced"],
+                    "reasoning": blind["meta"].get("reasoning", "")[:600],
+                    "reward_total": blind["reward"]["total"],
+                    "matched_user": r["profile"]["matched_user_id"],
+                }
+                print(f"  persona {name}: surfaced {blind['surfaced']} "
+                      f"(reward {blind['reward']['total']:+.2f})")
+            except Exception as e:
+                print(f"  persona {name} FAILED: {e}")
+        return cache
 
-    cache: dict = {}
+    OUT_TRAINED.parent.mkdir(exist_ok=True)
 
-    # 1. All 17 real users
-    print(f"\nrunning trained policy on {len(demo.users)} real users...")
-    for i, uid in enumerate(demo.users.keys()):
+    # Pass 1 — TRAINED policy (adapter ON, if present)
+    trained_cache = build_cache("TRAINED")
+    OUT_TRAINED.write_text(json.dumps(trained_cache, indent=2))
+    print(f"\n✓ wrote {OUT_TRAINED} with {len(trained_cache)} entries")
+
+    # Pass 2 — PRE-TRAINING policy (adapter OFF) for the Before/After toggle
+    if has_adapter:
         try:
-            r = demo.compare_all(user_id=uid)
-            blind = r["policies"]["Blindspot RL"]
-            cache[f"user::{uid}"] = {
-                "surfaced": blind["surfaced"],
-                "reasoning": blind["meta"].get("reasoning", "")[:600],
-                "reward_total": blind["reward"]["total"],
-            }
-            print(f"  [{i+1}/{len(demo.users)}] user {uid}: surfaced {blind['surfaced']} "
-                  f"(reward {blind['reward']['total']:+.2f})")
+            print("\n=== switching to PRE-TRAINING (disabling adapter) ===")
+            model.disable_adapters()
+            pretrain_cache = build_cache("PRETRAIN")
+            OUT_PRETRAIN.write_text(json.dumps(pretrain_cache, indent=2))
+            print(f"\n✓ wrote {OUT_PRETRAIN} with {len(pretrain_cache)} entries")
         except Exception as e:
-            print(f"  [{i+1}] user {uid} FAILED: {e}")
-
-    # 2. The 3 personas
-    print(f"\nrunning trained policy on {len(PERSONAS)} personas...")
-    for name, paragraph in PERSONAS.items():
-        try:
-            r = demo.compare_all(paragraph=paragraph, persona_key=name)
-            blind = r["policies"]["Blindspot RL"]
-            cache[f"persona::{name}"] = {
-                "surfaced": blind["surfaced"],
-                "reasoning": blind["meta"].get("reasoning", "")[:600],
-                "reward_total": blind["reward"]["total"],
-                "matched_user": r["profile"]["matched_user_id"],
-            }
-            print(f"  persona {name}: surfaced {blind['surfaced']} "
-                  f"(reward {blind['reward']['total']:+.2f})")
-        except Exception as e:
-            print(f"  persona {name} FAILED: {e}")
-
-    OUT.parent.mkdir(exist_ok=True)
-    OUT.write_text(json.dumps(cache, indent=2))
-    print(f"\n✓ wrote {OUT} with {len(cache)} entries")
+            print(f"⚠️ pre-training cache step failed: {e}")
+        finally:
+            try:
+                model.enable_adapters()
+            except Exception:
+                pass
+    else:
+        print("(skipping pre-training cache — no adapter to disable)")
 
 
 if __name__ == "__main__":

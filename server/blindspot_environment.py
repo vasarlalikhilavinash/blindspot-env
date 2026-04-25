@@ -78,6 +78,10 @@ class BlindspotEnvironment(
         self._done: bool = False
         self._episode_id: str = str(uuid4())
         self._max_steps: int = DEFAULT_INSPECT_BUDGET + DEFAULT_SURFACE_BUDGET + 2
+        # Per-step reasoning log (interpretability hook). Each entry:
+        #   {"step": int, "action": str, "concept_id": int|None, "reward": float, "note": str}
+        # Populated by step(); exposed via state.reasoning_log when available.
+        self._reasoning_log: List[Dict[str, Any]] = []
 
     # ------------------------------------------------------------------
     # OpenEnv interface
@@ -116,6 +120,7 @@ class BlindspotEnvironment(
         self._cumulative_reward = 0.0
         self._done = False
         self._episode_id = episode_id or str(uuid4())
+        self._reasoning_log = []
 
         return self._make_observation(
             message=(
@@ -149,27 +154,37 @@ class BlindspotEnvironment(
 
         # Hard step cap as a safety belt (budget caps usually trigger first)
         if self._step_count > self._max_steps:
-            return self._end_episode(
+            obs = self._end_episode(
                 message=(
                     f"Step limit ({self._max_steps}) exceeded — terminating episode."
                 ),
             )
+            self._record_reasoning(action, obs)
+            return obs
 
         if verb == "inspect":
-            return self._do_inspect(action.concept_id)
+            obs = self._do_inspect(action.concept_id)
+            self._record_reasoning(action, obs)
+            return obs
         if verb == "surface":
-            return self._do_surface(action.concept_id)
+            obs = self._do_surface(action.concept_id)
+            self._record_reasoning(action, obs)
+            return obs
         if verb == "stop":
-            return self._end_episode(message="Agent emitted 'stop'.")
+            obs = self._end_episode(message="Agent emitted 'stop'.")
+            self._record_reasoning(action, obs)
+            return obs
 
         # Unknown verb — small penalty, episode continues
-        return self._make_observation(
+        obs = self._make_observation(
             message=(
                 f"Unknown action type '{verb}'. Valid: {', '.join(ACTION_TYPES)}."
             ),
             reward=-0.01,
             done=False,
         )
+        self._record_reasoning(action, obs)
+        return obs
 
     @property
     def state(self) -> BlindspotState:
@@ -181,6 +196,7 @@ class BlindspotEnvironment(
             inspect_count=self._inspect_count,
             surface_count=self._surface_count,
             cumulative_reward=self._cumulative_reward,
+            reasoning_log=list(self._reasoning_log),
         )
 
     def close(self) -> None:
@@ -351,6 +367,22 @@ class BlindspotEnvironment(
     # ------------------------------------------------------------------
     # Observation builder
     # ------------------------------------------------------------------
+
+    def _record_reasoning(
+        self,
+        action: BlindspotAction,
+        obs: BlindspotObservation,
+    ) -> None:
+        self._reasoning_log.append(
+            {
+                "step": self._step_count,
+                "action": action.type,
+                "concept_id": action.concept_id,
+                "reward": float(obs.reward),
+                "done": bool(obs.done),
+                "note": obs.message.splitlines()[0] if obs.message else "",
+            }
+        )
 
     def _make_observation(
         self,
