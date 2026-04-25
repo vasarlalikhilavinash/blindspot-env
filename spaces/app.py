@@ -75,6 +75,226 @@ PALETTE = {'Random': '#888', 'Trending': '#cc7733', 'Dense Retrieval': '#3377cc'
            'Blindspot (pre-training)': '#aa4488', 'Blindspot RL': '#22aa66'}
 
 
+# ──────────────────────────── RL visual sections ────────────────────────────
+def render_rl_visual(report):
+    """Three visual panels that show what RL actually learned:
+    1. Before vs After diff — which concepts changed and why
+    2. Per-concept reward trace — each pick graded against real ground truth
+    3. Full adoption matrix — which policy found which adopted concept
+    """
+    policies = report['policies']
+    pre = policies.get('Blindspot (pre-training)', {})
+    rl  = policies.get('Blindspot RL', {})
+    if not pre or not rl:
+        return ""
+
+    out = []
+    out.append("<div style='margin:28px 0;padding:22px;background:#f8f9fa;"
+               "border-radius:14px;border:1px solid #dde;'>")
+    out.append("<h2 style='margin-top:0;margin-bottom:4px;font-size:18px;'>"
+               "🔬 Inside the RL training — what did GRPO actually learn?</h2>")
+    out.append("<p style='color:#666;font-size:13px;margin-bottom:24px;'>"
+               "Same researcher. Same 40-concept pool. Same question asked. "
+               "Below: the base model's answer vs the RL-trained model's answer — "
+               "and whether each choice matched real adoption ground truth.</p>")
+
+    # ── Build card lookup ──
+    card_lookup = {}
+    for res in policies.values():
+        for card in res.get('cards', []):
+            card_lookup[card['concept_id']] = card
+
+    pre_ids = list(pre.get('surfaced', []))
+    rl_ids  = list(rl.get('surfaced', []))
+    pre_set = set(pre_ids)
+    rl_set  = set(rl_ids)
+
+    # ─────────────────────────────────────────────────────────────────
+    # PANEL 1: Side-by-side before/after diff
+    # ─────────────────────────────────────────────────────────────────
+    out.append("<h3 style='margin-bottom:10px;font-size:15px;'>"
+               "1️⃣ &nbsp;What changed after GRPO training?</h3>")
+    out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
+               "Green card = researcher actually adopted this concept. "
+               "Red card = wasted recommendation (not adopted).</p>")
+    out.append("<div style='display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;'>")
+
+    def _concept_card_mini(cid, tag_html=""):
+        card = card_lookup.get(cid)
+        if not card:
+            return f"<div style='margin:4px 0;padding:8px;background:#eee;border-radius:6px;font-size:12px;'>{cid}</div>"
+        hit = card['adopted_by_user']
+        bg   = '#e8f5e9' if hit else '#fce8e8'
+        border = '#22aa66' if hit else '#cc3333'
+        icon = '✅' if hit else '❌'
+        trend = '🔥 Trending' if card['is_trending'] else '💎 Under the radar'
+        return (f"<div style='margin:5px 0;padding:10px 12px;background:{bg};"
+                f"border-left:4px solid {border};border-radius:0 7px 7px 0;'>"
+                f"<div style='font-size:13px;font-weight:600;'>{icon} {html.escape(card['title'][:48])}</div>"
+                f"<div style='font-size:11px;color:#777;margin-top:3px;'>{trend}{tag_html}</div>"
+                f"</div>")
+
+    # Before column
+    out.append("<div>")
+    pre_total = pre.get('reward', {}).get('total', 0)
+    out.append(f"<div style='font-weight:700;font-size:14px;color:#aa4488;margin-bottom:8px;'>"
+               f"Base model (before GRPO) &nbsp; "
+               f"<span style='background:#aa448820;padding:2px 8px;border-radius:12px;font-size:13px;'>"
+               f"Score: {pre_total:+.2f}</span></div>")
+    for cid in pre_ids:
+        dropped = cid not in rl_set
+        tag = ' &nbsp;<span style="background:#cc333320;color:#cc3333;padding:1px 5px;border-radius:4px;font-size:10px;">dropped by RL</span>' if dropped else \
+              ' &nbsp;<span style="background:#22aa6620;color:#22aa66;padding:1px 5px;border-radius:4px;font-size:10px;">kept by RL</span>'
+        out.append(_concept_card_mini(cid, tag))
+    out.append("</div>")
+
+    # After column
+    out.append("<div>")
+    rl_total = rl.get('reward', {}).get('total', 0)
+    out.append(f"<div style='font-weight:700;font-size:14px;color:#22aa66;margin-bottom:8px;'>"
+               f"After GRPO training &nbsp; "
+               f"<span style='background:#22aa6620;padding:2px 8px;border-radius:12px;font-size:13px;'>"
+               f"Score: {rl_total:+.2f}</span></div>")
+    for cid in rl_ids:
+        is_new = cid not in pre_set
+        card = card_lookup.get(cid, {})
+        hit = card.get('adopted_by_user', False)
+        if is_new and hit:
+            tag = ' &nbsp;<span style="background:#22aa6620;color:#22aa66;padding:1px 5px;border-radius:4px;font-size:10px;font-weight:700;">★ new discovery</span>'
+        elif is_new:
+            tag = ' &nbsp;<span style="background:#cc773320;color:#cc7733;padding:1px 5px;border-radius:4px;font-size:10px;">new pick</span>'
+        else:
+            tag = ' &nbsp;<span style="background:#3377cc20;color:#3377cc;padding:1px 5px;border-radius:4px;font-size:10px;">kept</span>'
+        out.append(_concept_card_mini(cid, tag))
+    out.append("</div>")
+    out.append("</div>")  # end grid
+
+    # ─────────────────────────────────────────────────────────────────
+    # PANEL 2: Per-concept reward trace (RL policy)
+    # ─────────────────────────────────────────────────────────────────
+    out.append("<h3 style='margin-bottom:8px;font-size:15px;'>"
+               "2️⃣ &nbsp;RL reward earned — concept by concept</h3>")
+    out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
+               "This is the exact reward signal the model was trained on. "
+               "Every bar = one concept the RL model surfaced. "
+               "Green = the researcher adopted it (the model got paid). "
+               "Red = recommendation wasted (penalty).</p>")
+
+    out.append("<div style='background:white;padding:14px 16px;border-radius:10px;"
+               "border:1px solid #eee;margin-bottom:24px;'>")
+    for card in rl.get('cards', []):
+        adopted = card['adopted_by_user']
+        novel   = not card['is_trending']
+        comp    = card.get('comprehension_lift', 0.0)
+        r_adopt = 1.0 if adopted else -0.1
+        r_novel = 0.5 if (adopted and novel) else 0.0
+        r_comp  = min(comp, 1.0) if adopted else 0.0
+        r_total = r_adopt + r_novel + r_comp
+        bar_max = 200
+        bar_w = max(4, int(min(abs(r_total) / 2.5, 1.0) * bar_max))
+        bar_color = '#22aa66' if r_total > 0 else '#cc3333'
+        adopted_txt = "✅ Adopted by this researcher" if adopted else "❌ Not adopted — penalty"
+        components = []
+        if r_adopt > 0:
+            components.append(f"+{r_adopt:.1f} adoption")
+        else:
+            components.append(f"{r_adopt:.1f} penalty")
+        if r_novel > 0:
+            components.append(f"+{r_novel:.1f} novelty bonus")
+        if r_comp > 0:
+            components.append(f"+{r_comp:.2f} comprehension")
+        component_str = " · ".join(components)
+        out.append(f"<div style='display:flex;align-items:center;gap:12px;margin:8px 0;flex-wrap:wrap;'>")
+        out.append(f"<div style='width:190px;font-size:13px;font-weight:600;flex-shrink:0;'>"
+                   f"{html.escape(card['title'][:36])}</div>")
+        out.append(f"<div style='flex-shrink:0;'>"
+                   f"<div style='display:inline-block;height:20px;width:{bar_w}px;"
+                   f"background:{bar_color};border-radius:3px;vertical-align:middle;'></div>"
+                   f"<span style='font-size:13px;color:{bar_color};font-weight:700;"
+                   f"margin-left:6px;'>{r_total:+.1f}</span></div>")
+        out.append(f"<div style='font-size:12px;color:#666;'>{adopted_txt} "
+                   f"<span style='color:#aaa;'>({component_str})</span></div>")
+        out.append("</div>")
+
+    # Missed adopted concepts — things the researcher adopted but RL didn't surface
+    all_adopted_in_pool = {c['concept_id']: c['title']
+                           for res in policies.values()
+                           for c in res.get('cards', [])
+                           if c['adopted_by_user']}
+    rl_missed_adopted = {cid: title for cid, title in all_adopted_in_pool.items()
+                         if cid not in rl_set}
+    if rl_missed_adopted:
+        out.append("<div style='margin-top:12px;padding:10px 12px;background:#fff8e1;"
+                   "border-left:4px solid #ffb300;border-radius:0 6px 6px 0;'>")
+        out.append("<div style='font-size:13px;font-weight:600;color:#e65100;margin-bottom:6px;'>"
+                   "🔴 These were in the pool, adopted by the researcher, but RL missed them:</div>")
+        for cid, title in rl_missed_adopted.items():
+            out.append(f"<div style='font-size:12px;color:#666;'>• {html.escape(title[:60])}</div>")
+        out.append("<div style='font-size:11px;color:#999;margin-top:6px;'>"
+                   "These are the true unknown-unknowns the model failed to surface — "
+                   "room for the next training iteration to improve.</div>")
+        out.append("</div>")
+    out.append("</div>")  # end panel 2 card
+
+    # ─────────────────────────────────────────────────────────────────
+    # PANEL 3: Full policy hit matrix
+    # ─────────────────────────────────────────────────────────────────
+    out.append("<h3 style='margin-bottom:8px;font-size:15px;'>"
+               "3️⃣ &nbsp;Full adoption matrix — who found what?</h3>")
+    out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
+               "Every concept this researcher <em>actually adopted</em> (rows). "
+               "Whether each strategy surfaced it (columns). "
+               "✅ = found the blindspot · blank = missed it.</p>")
+
+    if all_adopted_in_pool:
+        short_names = {
+            'Random': 'Random',
+            'Trending': 'Trending',
+            'Dense Retrieval': 'Dense',
+            'Blindspot (pre-training)': 'Before GRPO',
+            'Blindspot RL': 'After GRPO ⭐',
+        }
+        policy_names = list(policies.keys())
+        policy_surfaced_sets = {name: set(res.get('surfaced', [])) for name, res in policies.items()}
+
+        out.append("<div style='overflow-x:auto;background:white;padding:14px;border-radius:10px;"
+                   "border:1px solid #eee;'>")
+        out.append("<table style='border-collapse:collapse;font-size:12px;min-width:600px;'>")
+        out.append("<tr style='background:#f0f0f0;'>")
+        out.append("<th style='padding:7px 12px;text-align:left;min-width:200px;'>Adopted concept</th>")
+        for name in policy_names:
+            color = PALETTE.get(name, '#666')
+            short = short_names.get(name, name)
+            out.append(f"<th style='padding:7px 10px;text-align:center;color:{color};'>{short}</th>")
+        out.append("</tr>")
+
+        for cid, title in sorted(all_adopted_in_pool.items(), key=lambda x: x[1]):
+            out.append("<tr style='border-bottom:1px solid #f0f0f0;'>")
+            out.append(f"<td style='padding:6px 12px;font-weight:500;'>{html.escape(title[:50])}</td>")
+            for name in policy_names:
+                found = cid in policy_surfaced_sets.get(name, set())
+                cell_bg = '#e8f5e9' if found else 'white'
+                cell = '✅' if found else '<span style="color:#ddd;">—</span>'
+                out.append(f"<td style='padding:6px 10px;text-align:center;background:{cell_bg};'>{cell}</td>")
+            out.append("</tr>")
+
+        # Summary row: hit rate per policy
+        out.append("<tr style='background:#f8f8f8;border-top:2px solid #ddd;font-weight:700;'>")
+        out.append("<td style='padding:7px 12px;'>Hit rate</td>")
+        total_adopted = len(all_adopted_in_pool)
+        for name in policy_names:
+            found_count = sum(1 for cid in all_adopted_in_pool if cid in policy_surfaced_sets.get(name, set()))
+            pct = found_count / total_adopted * 100 if total_adopted else 0
+            color = PALETTE.get(name, '#666')
+            out.append(f"<td style='padding:7px 10px;text-align:center;color:{color};'>"
+                       f"{found_count}/{total_adopted} ({pct:.0f}%)</td>")
+        out.append("</tr>")
+        out.append("</table></div>")
+
+    out.append("</div>")  # end outer card
+    return '\n'.join(out)
+
+
 # ──────────────────────────── HTML render ────────────────────────────
 def render_html(report, focus="Blindspot RL"):
     p = report['profile']
@@ -121,6 +341,9 @@ def render_html(report, focus="Blindspot RL"):
                f"</div>"
                f"<div style='font-size:12px;color:#666;margin-top:6px;'>{lift_story}</div>"
                f"</div>")
+
+    # RL visual panels: diff, reward trace, adoption matrix
+    out.append(render_rl_visual(report))
 
     # Reward bar chart with human labels
     max_r = max(abs(v['reward']['total']) for v in policies.values()) or 1
