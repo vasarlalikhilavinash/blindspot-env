@@ -243,7 +243,10 @@ def run_demo(persona_choice, paragraph, real_user_id, use_real_user):
     if use_real_user and real_user_id:
         report = demo.compare_all(user_id=real_user_id)
     elif persona_choice and persona_choice in PERSONAS and PERSONAS[persona_choice] != 'PICK_REAL_USER':
-        report = demo.compare_all(paragraph=PERSONAS[persona_choice])
+        # Pass the persona name as cache_key so trained-policy responses
+        # are served from data/demo_cache.json (no GPU needed at inference time).
+        slug = persona_choice.split(' ', 1)[-1].lower().replace(' ', '_')
+        report = demo.compare_all(paragraph=PERSONAS[persona_choice], persona_key=slug)
     elif paragraph and paragraph.strip():
         report = demo.compare_all(paragraph=paragraph)
     else:

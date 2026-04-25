@@ -541,15 +541,84 @@ display(summary_df)
 """)
 
 
-# ─────────────────────────── 5. Push ───────────────────────────
+# ─────────────────────────── 5. Deploy ───────────────────────────
 md("""
 ---
-## 5. (Optional) Push adapter to the Hugging Face Hub
+## 5. 🚀 Deploy: push adapter, precompute cache, deploy HF Space
+
+This section makes the demo **available 24/7 for the 3-week judging window** with
+**zero GPU at request time** by:
+
+1. Pushing the trained LoRA adapter to the HF Hub.
+2. Running the trained policy on all 17 users + 3 personas to build `data/demo_cache.json`.
+3. Committing the cache back to GitHub.
+4. Deploying a Gradio Space that reads from the cache (free CPU tier — runs forever).
+
+**Required Colab secrets** (Colab → 🔑 → enable for this notebook):
+- `HF_TOKEN` — write-scope token from https://huggingface.co/settings/tokens
+- `GITHUB_TOKEN` — fine-grained token with repo write to `vasarlalikhilavinash/blindspot-env`
+- `OPENAI_API_KEY` *(optional)* — for the GPT-4 baseline column on the live Space
 """)
 
 code("""
-# from huggingface_hub import login; login()
-# model.push_to_hub('vasarlalikhilavinash/blindspot-qwen35-9b-grpo')
+# Save trained adapter to disk first
+model.save_pretrained('blindspot-env/training/checkpoints/grpo')
+tokenizer.save_pretrained('blindspot-env/training/checkpoints/grpo')
+print('✓ adapter saved to blindspot-env/training/checkpoints/grpo')
+""")
+
+code("""
+# Pull secrets from Colab
+from google.colab import userdata
+import os
+os.environ['HF_TOKEN'] = userdata.get('HF_TOKEN')
+try:
+    os.environ['GITHUB_TOKEN'] = userdata.get('GITHUB_TOKEN')
+except Exception:
+    print('⚠️ no GITHUB_TOKEN secret — skip git-push step')
+try:
+    os.environ['OPENAI_API_KEY'] = userdata.get('OPENAI_API_KEY')
+except Exception:
+    pass
+print('✓ secrets loaded')
+""")
+
+code("""
+# 5.1 — push LoRA adapter to HF Hub
+%cd blindspot-env
+!python scripts/push_to_hub.py
+""")
+
+code("""
+# 5.2 — precompute trained-policy cache (17 users + 3 personas, ~3 min on A100)
+!python scripts/precompute_demo_cache.py
+""")
+
+code("""
+# 5.3 — commit cache back to GitHub so the Space can pick it up
+import os, subprocess
+tok = os.environ.get('GITHUB_TOKEN', '')
+if tok:
+    subprocess.run(['git', 'config', 'user.email', 'colab@blindspot.ai'], check=True)
+    subprocess.run(['git', 'config', 'user.name',  'Blindspot Colab'], check=True)
+    subprocess.run(['git', 'add', 'data/demo_cache.json'], check=True)
+    r = subprocess.run(['git', 'commit', '-m', 'Phase D: trained-policy cache'])
+    if r.returncode == 0:
+        url = f'https://{tok}@github.com/vasarlalikhilavinash/blindspot-env.git'
+        subprocess.run(['git', 'push', url, 'HEAD:main'], check=True)
+        print('✓ cache committed and pushed')
+    else:
+        print('(nothing to commit)')
+else:
+    print('⚠️ no GITHUB_TOKEN — cache stays local; download data/demo_cache.json manually')
+""")
+
+code("""
+# 5.4 — deploy the Gradio Space (free CPU tier; serves cached responses 24/7)
+!python scripts/deploy_to_space.py
+print()
+print('🎉 Demo URL: https://huggingface.co/spaces/vasarlalikhilavinash/blindspot-demo')
+print('   First build takes ~2 min; afterwards it stays warm.')
 """)
 
 
