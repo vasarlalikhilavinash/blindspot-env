@@ -1,0 +1,9 @@
+Stage 07: scoring ~170 (user, concept) pairs with gpt-5.4-mini + gemini-2.5-flash
+  25/170 pairs done (latest κ=0.00, scored=0)
+  50/170 pairs done (latest κ=1.00, scored=1)
+  75/170 pairs done (latest κ=0.00, scored=1)
+  100/170 pairs done (latest κ=0.00, scored=1)
+  125/170 pairs done (latest κ=1.00, scored=1)
+  150/170 pairs done (latest κ=0.00, scored=2)
+Done. Scored 2 (user, concept) pairs across 17 users.
+Mean inter-judge κ = 0.747 (threshold 0.7).

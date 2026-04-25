@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+.DS_Store
+.ipynb_checkpoints/
+build/
+dist/
+# raw scratch from precompute pipeline; final small artifacts checked in:
+scripts/_cache/

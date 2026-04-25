@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Blindspot</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 920px; margin: 2rem auto; padding: 0 1.5rem; color: #1f2328; line-height: 1.55; }
+  h1, h2, h3 { border-bottom: 1px solid #d0d7de; padding-bottom: .3em; margin-top: 2rem; }
+  h1 { font-size: 2em; }
+  blockquote { border-left: .25em solid #d0d7de; padding: 0 1em; color: #59636e; margin: 1em 0; }
+  code { background: #eff1f3; padding: .2em .4em; border-radius: 6px; font-size: 85%; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre { background: #f6f8fa; padding: 1em; border-radius: 6px; overflow-x: auto; font-size: 85%; line-height: 1.45; }
+  pre code { background: transparent; padding: 0; }
+  table { border-collapse: collapse; margin: 1em 0; width: 100%; }
+  th, td { border: 1px solid #d0d7de; padding: .5em .8em; text-align: left; vertical-align: top; }
+  th { background: #f6f8fa; }
+  hr { border: 0; border-top: 1px solid #d0d7de; margin: 2rem 0; }
+  ul, ol { padding-left: 1.6em; }
+  li { margin: .25em 0; }
+</style>
+</head>
+<body>
+
+<h1>Blindspot</h1>
+
+<p><strong>An OpenEnv environment for unknown-unknowns discovery &amp; contextual onboarding.</strong></p>
+
+<blockquote><em>"You can't search for what you don't know exists. Blindspot trains agents to surface the concepts you should be tracking — and then make you competent in them."</em></blockquote>
+
+<p>OpenEnv Hackathon · April 2026 · Theme #3.2 (Personalized Tasks) + #2 (Long-Horizon Planning)</p>
+
+<hr>
+
+<h2>The Problem</h2>
+
+<p>Every knowledge worker in a fast-moving field faces two compounding gaps that current AI tools structurally cannot solve:</p>
+
+<ol>
+  <li><strong>The vocabulary gap</strong> — You don't know what concepts exist, so you can't query for them. ChatGPT, Perplexity, and Deep Research are <em>pull-based</em>: they require you to already know enough to ask. Nothing in the current stack handles <strong>unknown unknowns</strong>.</li>
+  <li><strong>The onboarding gap</strong> — Even when a new concept reaches you, going from <em>"I've heard of it"</em> → <em>"I can use it"</em> takes hours of disorganized reading.</li>
+</ol>
+
+<p>Result: people stay perpetually 6 months behind concepts already affecting their work.</p>
+
+<hr>
+
+<h2>Why This Is a Real RL Problem</h2>
+
+<table>
+<thead><tr><th>Property</th><th>Why RL fits</th></tr></thead>
+<tbody>
+<tr><td>Multi-step planning</td><td>Agent inspects candidates, weighs novelty vs. relevance, decides what to surface under a budget</td></tr>
+<tr><td>Verifiable ground truth</td><td>Real users' actual concept adoption (terms in their post-T work) is the held-out label</td></tr>
+<tr><td>Multiple independent rewards</td><td>Adoption + novelty + onboarding-quality + efficiency — hard to game</td></tr>
+<tr><td>Sparse + delayed reward</td><td>Most candidates are noise; reward concentrates on a few correct surfaces</td></tr>
+<tr><td>Hard baseline gap</td><td>Trending feeds and dense retrieval fail by construction (they need a query)</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>Pre-Compute Pipeline</h2>
+
+<p>All expensive computation happens <strong>offline once</strong>. The env at runtime is a fast lookup table — every <code>step</code> is a sub-millisecond dict lookup, so GRPO can do thousands of rollouts per training step at zero marginal cost.</p>
+
+<pre><code>                         Blindspot Pre-Compute Pipeline
+                         ──────────────────────────────
+
+  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
+  │ Semantic Scholar │   │      arXiv       │   │  HF / GitHub     │
+  │   ~50 ML users   │   │  cs.* 2024-2025  │   │  trending @ T    │
+  └────────┬─────────┘   └────────┬─────────┘   └────────┬─────────┘
+           │                      │                      │
+           ▼                      ▼                      ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │     [1] Split each user @ T = 2025-09-01                       │
+  │         pre-T  →  user_profile, known_concepts (TF-IDF)        │
+  │         post-T →  adopted_concepts (held-out ground truth)     │
+  └────────────────────────────┬───────────────────────────────────┘
+                               │
+                               ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │     [2] Extract ~5k candidate concepts (KeyBERT on corpus)     │
+  └────────────────────────────┬───────────────────────────────────┘
+                               │
+                               ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │     [3] Build per-user candidate pool (50 concepts each):      │
+  │         15 relevant + adopted     ← positives                  │
+  │         15 relevant + not adopted ← hard negatives             │
+  │         10 trending distractors   ← popularity bait            │
+  │         10 random noise           ← easy negatives             │
+  └────────────────────────────┬───────────────────────────────────┘
+                               │
+            ┌──────────────────┼──────────────────┐
+            ▼                  ▼                  ▼
+  ┌──────────────────┐ ┌────────────────┐ ┌──────────────────┐
+  │ [4a] Adoption    │ │ [4b] Novelty   │ │ [4c] Reading     │
+  │ score per pair   │ │ flag (¬trending│ │ path (5 papers,  │
+  │ (1.0 self,       │ │ at T)          │ │ citation BFS,    │
+  │  0.3 k-NN user)  │ │                │ │ foundational→new)│
+  └────────┬─────────┘ └────────┬───────┘ └────────┬─────────┘
+           │                    │                  │
+           │                    │                  ▼
+           │                    │       ┌────────────────────────┐
+           │                    │       │ [5] Comprehension score│
+           │                    │       │ GPT-4 + Claude judges  │
+           │                    │       │ answer QA w/ path vs   │
+           │                    │       │ abstracts; lift = score│
+           │                    │       │ Both must agree (κ≥.7) │
+           │                    │       └────────────┬───────────┘
+           │                    │                    │
+           ▼                    ▼                    ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │     data/  (parquet + json, ~50 MB, ships in HF Space)         │
+  │     ─────                                                      │
+  │     ground_truth_adoption.parquet                              │
+  │     novelty_flags.json                                         │
+  │     reading_paths.json                                         │
+  │     comprehension_scores.parquet                               │
+  │     concept_pool_per_user.json                                 │
+  │     user_summaries.json                                        │
+  └────────────────────────────┬───────────────────────────────────┘
+                               │
+                               ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │              OpenEnv runtime (FastAPI, &lt;1ms/step)              │
+  │              reset · step · state  →  lookups only             │
+  └────────────────────────────────────────────────────────────────┘
+</code></pre>
+
+<p><strong>False-positive calibration:</strong> the false-positive penalty (<code>−0.1</code> per surfaced concept that is neither user-adopted nor adopted by ≥2 k-NN-similar users) is calibrated so that a uniformly random surface policy yields expected reward ≈ 0, ensuring the trained agent's reward gain reflects real discovery skill rather than baseline drift.</p>
+
+<hr>
+
+<h2>Environment Spec</h2>
+
+<h3>Action Space (3 verbs)</h3>
+
+<pre><code>@dataclass
+class BlindspotAction:
+    type: Literal["inspect", "surface", "stop"]
+    concept_id: int | None = None
+</code></pre>
+
+<h3>Observation</h3>
+
+<ul>
+  <li><code>user_summary</code> (~200 tokens)</li>
+  <li><code>candidate_concepts</code>: 50 <code>ConceptCard</code>s (id, title, one-liner), shuffled per reset</li>
+  <li><code>inspected</code>: dict of <code>ConceptDetail</code> for concepts the agent has inspected</li>
+  <li><code>surfaced</code>: list of surfaced concept ids</li>
+  <li><code>inspect_budget_remaining</code> (max 15), <code>surface_budget_remaining</code> (max 10)</li>
+</ul>
+
+<h3>Reward (4 independent components, all pre-computed lookups)</h3>
+
+<table>
+<thead><tr><th>Component</th><th>Formula</th><th>Range</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>Adoption</td><td><code>+ground_truth_adoption[c]</code> per surfaced</td><td>[0, 1]</td><td>Did user actually adopt?</td></tr>
+<tr><td>Novelty</td><td><code>+0.5 × novelty_flags[c]</code> per surfaced</td><td>[0, 0.5]</td><td>True unknown-unknown?</td></tr>
+<tr><td>Onboarding</td><td><code>+comprehension_scores[c]</code> per surfaced</td><td>[0, 1]</td><td>Quality of reading path</td></tr>
+<tr><td>Efficiency</td><td><code>−0.01 × inspect_count</code></td><td>[−0.15, 0]</td><td>Penalize blind inspection</td></tr>
+<tr><td>False-positive</td><td><code>−0.1</code> if no adoption signal</td><td>—</td><td>Discourage noise (calibrated, see above)</td></tr>
+</tbody>
+</table>
+
+<h3>Anti-hacking guards</h3>
+
+<ul>
+  <li>Hard caps on inspect (15) and surface (10) per episode</li>
+  <li>Random shuffle of candidate order each reset</li>
+  <li>Held-out test users not in training set</li>
+  <li>Two judges (Claude + GPT) must agree for non-zero comprehension score</li>
+</ul>
+
+<hr>
+
+<h2>Why Blindspot Is Trainable in 24h</h2>
+
+<table>
+<thead><tr><th>Concern</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Step latency</td><td>&lt;1ms (pure lookups)</td></tr>
+<tr><td>Step cost</td><td>$0 (no online API/LLM calls)</td></tr>
+<tr><td>Cold-start reward</td><td>~0.3 from random policy → RL bootstraps</td></tr>
+<tr><td>Multiple independent rewards</td><td>4 components → hard to game</td></tr>
+<tr><td>Real ground truth</td><td>Actual user adoption, not synthetic</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>Repo Layout</h2>
+
+<pre><code>blindspot-env/
+├── README.md
+├── Dockerfile
+├── openenv.yaml
+├── requirements.txt
+├── models.py
+├── server/
+│   ├── app.py
+│   ├── blindspot_environment.py
+│   ├── data_loader.py
+│   └── rewards.py
+├── client/
+│   └── blindspot_client.py
+├── data/                          # produced by precompute pipeline
+├── scripts/
+│   ├── precompute_01_fetch_users.py
+│   ├── precompute_02_fetch_corpus.py
+│   ├── precompute_03_extract_concepts.py
+│   ├── precompute_04_build_pools.py
+│   ├── precompute_05_score_adoption.py
+│   ├── precompute_06_build_paths.py
+│   ├── precompute_07_score_comprehension.py
+│   └── run_all_precompute.sh
+├── baselines/
+│   ├── random_baseline.py
+│   ├── trending_baseline.py
+│   └── dense_retrieval_baseline.py
+├── training/
+│   ├── generate_sft_traces.py
+│   ├── sft_train.py
+│   ├── grpo_train.py
+│   └── eval.py
+├── notebooks/
+│   ├── 01_demo.ipynb
+│   └── 02_training.ipynb
+├── inference.py
+└── plots/
+</code></pre>
+
+<hr>
+
+<h2>Judging Criteria Mapping</h2>
+
+<table>
+<thead><tr><th>Criterion</th><th>Weight</th><th>How Blindspot Scores</th></tr></thead>
+<tbody>
+<tr><td>Environment Innovation</td><td>40%</td><td>First RL env for unknown-unknowns discovery; novel multi-component reward; problem GPT-5.5/Deep Research structurally cannot solve</td></tr>
+<tr><td>Storytelling</td><td>30%</td><td>Universal pain; concrete before/after demo with real held-out user; reading-path drill-down</td></tr>
+<tr><td>Reward Improvement</td><td>20%</td><td>Random → trending → SFT → GRPO curves on Adoption-Recall and Comprehension-Lift</td></tr>
+<tr><td>Pipeline</td><td>10%</td><td>Standard OpenEnv + TRL + Unsloth + HF Space; Colab-runnable training notebook</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2>Future Work</h2>
+
+<ol>
+  <li>Causal counterfactual reward modeling (replace k-NN proxy)</li>
+  <li>Actionability as Stage 3 (track real downstream usage)</li>
+  <li>Human-calibrated reward critic (500+ expert labels, Cohen's κ)</li>
+  <li>Multi-session curriculum learning with persistent user state</li>
+  <li>Real-user closed-loop deployment with online RL</li>
+  <li>Cross-domain generalization (bio, econ, engineering)</li>
+</ol>
+
+<hr>
+
+<h2>What Blindspot Explicitly Is NOT</h2>
+
+<ul>
+  <li>❌ Not a news feed or "be first to know" tool</li>
+  <li>❌ Not a recommender over a known item set</li>
+  <li>❌ Not a Deep Research clone (those need a query; Blindspot generates it)</li>
+  <li>❌ Not a personalization layer over Perplexity</li>
+</ul>
+
+</body>
+</html>

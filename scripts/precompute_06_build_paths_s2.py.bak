@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Stage 06 — Build a 5-paper canonical reading path per concept.
+
+Strategy:
+    For each concept, take its `mention_papers` list and citation-BFS
+    via Semantic Scholar's references endpoint. Keep the 5 most-cited
+    papers in the concept's neighborhood, ordered foundational → recent
+    by year.
+
+Output:
+    scripts/_cache/reading_paths.json   {concept_id_str: [{title, arxiv_id, year}]}
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import time
+from pathlib import Path
+from typing import Any, Dict, List
+
+import requests
+
+CACHE_DIR = Path(__file__).resolve().parent / "_cache"
+CONCEPTS_IN = CACHE_DIR / "concepts.json"
+OUT = CACHE_DIR / "reading_paths.json"
+
+PATH_LEN = 5
+S2 = "https://api.semanticscholar.org/graph/v1"
+HEADERS = {}
+if os.environ.get("SEMANTIC_SCHOLAR_API_KEY"):
+    HEADERS["x-api-key"] = os.environ["SEMANTIC_SCHOLAR_API_KEY"]
+
+
+def s2_get(path, params):
+    for attempt in range(5):
+        r = requests.get(f"{S2}{path}", params=params, headers=HEADERS, timeout=30)
+        if r.status_code == 429:
+            time.sleep(2 ** attempt)
+            continue
+        r.raise_for_status()
+        return r.json()
+    return {}
+
+
+def fetch_paper_meta(arxiv_id: str) -> Dict[str, Any]:
+    return s2_get(f"/paper/arXiv:{arxiv_id}", {"fields": "title,year,citationCount,references.title,references.year,references.externalIds,references.citationCount"})
+
+
+def main():
+    concepts = json.loads(CONCEPTS_IN.read_text())
+    # Restrict to concepts that actually appear in any user's final pool
+    # (typically ~500 of 5000) — reading paths for unused concepts are wasted.
+    pool_path = CACHE_DIR / "concept_pool_per_user.json"
+    in_pool = set()
+    if pool_path.exists():
+        for ids in json.loads(pool_path.read_text()).values():
+            in_pool.update(int(x) for x in ids)
+        concepts = [c for c in concepts if c["concept_id"] in in_pool]
+        print(f"Restricted to {len(concepts)} in-pool concepts.")
+    paths = {}
+    for i, c in enumerate(concepts):
+        cid = c["concept_id"]
+        seeds = c.get("mention_papers", [])[:5]
+        candidates: List[Dict[str, Any]] = []
+        for arxiv_id in seeds:
+            try:
+                meta = fetch_paper_meta(arxiv_id)
+            except Exception:
+                continue
+            for ref in (meta.get("references") or [])[:30]:
+                ext = (ref.get("externalIds") or {})
+                ax = ext.get("ArXiv") or ext.get("arXiv") or arxiv_id
+                candidates.append({
+                    "title": ref.get("title", "(unknown)"),
+                    "arxiv_id": ax,
+                    "year": str(ref.get("year") or ""),
+                    "citations": int(ref.get("citationCount") or 0),
+                })
+            time.sleep(0.5)
+        # Dedup by title, sort by citations desc, take top, then sort by year asc
+        seen = {}
+        for ref in candidates:
+            key = ref["title"]
+            if key not in seen or ref["citations"] > seen[key]["citations"]:
+                seen[key] = ref
+        top = sorted(seen.values(), key=lambda r: r["citations"], reverse=True)[:PATH_LEN]
+        top.sort(key=lambda r: r["year"])
+        paths[str(cid)] = [
+            {"title": r["title"], "arxiv_id": r["arxiv_id"], "year": r["year"]} for r in top
+        ]
+        if (i + 1) % 50 == 0:
+            print(f"  {i+1}/{len(concepts)} done")
+    OUT.write_text(json.dumps(paths, indent=2))
+    print(f"Wrote {len(paths)} reading paths.")
+
+
+if __name__ == "__main__":
+    main()

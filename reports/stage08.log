@@ -1,0 +1,8 @@
+  wrote data/user_summaries.json
+  wrote data/concept_pool_per_user.json
+  wrote data/ground_truth_adoption.json
+  wrote data/knn_users.json
+  wrote data/comprehension_scores.json
+  wrote data/reading_paths.json
+  wrote data/concept_catalog.json + data/novelty_flags.json
+Done.

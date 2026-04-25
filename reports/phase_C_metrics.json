@@ -1,0 +1,113 @@
+{
+  "phase_AB": {
+    "n_users": 17,
+    "n_papers_in_corpus": 6000
+  },
+  "phase_C_concepts": {
+    "n_concepts_total": 1168,
+    "n_concepts_in_pool_unique": 282,
+    "pool_size_per_user": {
+      "min": 35,
+      "max": 46,
+      "mean": 38.5
+    },
+    "n_trending_concepts": 200,
+    "ground_truth_adoptions": {
+      "min_per_user": 1,
+      "max_per_user": 11,
+      "mean_per_user": 3.6,
+      "total_pairs": 62
+    },
+    "knn_users_per_user": 5
+  },
+  "phase_C_reading_paths": {
+    "n_concepts_with_paths": 282,
+    "path_length": {
+      "min": 1,
+      "max": 5,
+      "mean": 1.77
+    }
+  },
+  "phase_C_comprehension": {
+    "n_pairs_judged": 170,
+    "control_mean_accuracy": 0.962,
+    "treatment_mean_accuracy": 0.991,
+    "mean_raw_lift": 0.029,
+    "positive_lift_pairs": 28,
+    "negative_lift_pairs": 5,
+    "zero_lift_pairs": 137,
+    "mean_kappa": 0.812,
+    "kappa_above_threshold": 138,
+    "final_scored_pairs_after_agreement_filter": 23,
+    "users_with_at_least_one_score": 14,
+    "mean_scored_lift": 0.181,
+    "judges": [
+      "gpt-5.4-mini",
+      "gemini-2.5-flash"
+    ],
+    "n_questions_per_concept": 3,
+    "kappa_threshold_originally_used": 0.7,
+    "agreement_threshold_replacement": "5/6 observed correctness agreement",
+    "option_shuffling": "deterministic per (uid,cid,judge,condition) \u2014 eliminates positional bias"
+  },
+  "baselines": {
+    "Random": {
+      "mean_reward": 0.088,
+      "std": 1.404,
+      "adoption": 0.881,
+      "novelty": 0.097,
+      "onboarding": 0.02,
+      "efficiency": 0.0,
+      "false_positive": -0.909
+    },
+    "Trending": {
+      "mean_reward": 0.212,
+      "std": 0.51,
+      "adoption": 1.094,
+      "novelty": 0.0,
+      "onboarding": 0.0,
+      "efficiency": 0.0,
+      "false_positive": -0.882
+    },
+    "Dense Retrieval": {
+      "mean_reward": 0.467,
+      "std": 1.201,
+      "adoption": 1.353,
+      "novelty": 0.059,
+      "onboarding": 0.0,
+      "efficiency": -0.08,
+      "false_positive": -0.865
+    },
+    "Oracle (upper bound)": {
+      "mean_reward": 3.286,
+      "std": 3.588,
+      "adoption": 3.506,
+      "novelty": 0.353,
+      "onboarding": 0.069,
+      "efficiency": 0.0,
+      "false_positive": -0.641
+    }
+  },
+  "data_artifacts": {
+    "comprehension_scores.json": 768,
+    "concept_catalog.json": 364516,
+    "concept_pool_per_user.json": 5857,
+    "ground_truth_adoption.json": 1298,
+    "knn_users.json": 1851,
+    "novelty_flags.json": 17780,
+    "reading_paths.json": 88010,
+    "user_summaries.json": 33034
+  },
+  "cross_check": {
+    "verdict": "PASS (with one expected-but-noted item)",
+    "env_smoke_test": "17/17 users \u2014 episodes complete, reward computed",
+    "pool_to_catalog_consistency": "OK \u2014 all pool concepts present in catalog",
+    "gt_adoption_to_pool_consistency": "OK \u2014 all GT-adopted concepts are in user pool",
+    "comprehension_for_non_adopted": "11 (uid,cid) pairs have lift but no adoption \u2014 these were hard-negatives sampled by Stage 07. The env gates onboarding on adoption so they contribute 0 reward. Wasted compute, not a correctness bug.",
+    "novelty_coverage": "968/1168 concepts flagged novel",
+    "reading_path_coverage": "282/1168 catalog concepts have paths (only in-pool concepts get them \u2014 by design)",
+    "option_shuffling": "verified balanced: A:24, B:32, C:24, D:37 across 117 questions",
+    "kappa": "0.812 mean (well above 0.7) \u2014 judges reliable",
+    "replaced_kappa_with_observed_agreement": "avoids degenerate \u03ba=0 when both judges score 6/6 perfectly"
+  }
+}

@@ -1,0 +1,3056 @@
+{
+  "0": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18381",
+      "title": "Learning from Less: Measuring the Effectiveness of RLVR in Low Data and Compute Regimes",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16197",
+      "title": "Sketching the Readout of Large Language Models for Scalable Data Attribution and Valuation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15589",
+      "title": "LLM attribution analysis across different fine-tuning strategies and model scales for automated code compliance",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15109",
+      "title": "IUQ: Interrogative Uncertainty Quantification for Long-Form Large Language Model Generation",
+      "year": "2026"
+    }
+  ],
+  "1": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18381",
+      "title": "Learning from Less: Measuring the Effectiveness of RLVR in Low Data and Compute Regimes",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17930",
+      "title": "Heterogeneity in Formal Linguistic Competence of Language Models: Is Data the Real Bottleneck?",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16197",
+      "title": "Sketching the Readout of Large Language Models for Scalable Data Attribution and Valuation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16529",
+      "title": "Scaling Test-Time Compute for Agentic Coding",
+      "year": "2026"
+    }
+  ],
+  "10": [
+    {
+      "arxiv_id": "2604.15589",
+      "title": "LLM attribution analysis across different fine-tuning strategies and model scales for automated code compliance",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15075",
+      "title": "Atropos: Improving Cost-Benefit Trade-off of LLM-based Agents under Self-Consistency with Early Termination and Model Hotswap",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20244",
+      "title": "Hybrid Policy Distillation for LLMs",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18655",
+      "title": "Unlocking the Edge deployment and ondevice acceleration of multi-LoRA enabled one-for-all foundational LLM",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.06543",
+      "title": "The Illusion of Stochasticity in LLMs",
+      "year": "2026"
+    }
+  ],
+  "101": [
+    {
+      "arxiv_id": "2604.13413",
+      "title": "Dataset-Level Metrics Attenuate Non-Determinism: A Fine-Grained Non-Determinism Evaluation in Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11748",
+      "title": "LangFlow: Continuous Diffusion Rivals Discrete in Language Modeling",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.01622",
+      "title": "Expert-Choice Routing Enables Adaptive Computation in Diffusion Language Models",
+      "year": "2026"
+    }
+  ],
+  "1010": [
+    {
+      "arxiv_id": "2604.11435",
+      "title": "Think Before you Write: QA-Guided Reasoning for Character Descriptions in Books",
+      "year": "2026"
+    }
+  ],
+  "1017": [
+    {
+      "arxiv_id": "2604.11309",
+      "title": "The Salami Slicing Threat: Exploiting Cumulative Risks in LLM Systems",
+      "year": "2026"
+    }
+  ],
+  "1019": [
+    {
+      "arxiv_id": "2604.11309",
+      "title": "The Salami Slicing Threat: Exploiting Cumulative Risks in LLM Systems",
+      "year": "2026"
+    }
+  ],
+  "102": [
+    {
+      "arxiv_id": "2604.13395",
+      "title": "Quantifying and Understanding Uncertainty in Large Reasoning Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13371",
+      "title": "Empirical Evidence of Complexity-Induced Limits in Large Language Models on Finite Discrete State-Space Problems with Explicit Validity Constraints",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.02967",
+      "title": "FoE: Forest of Errors Makes the First Solution the Best in Large Reasoning Models",
+      "year": "2026"
+    }
+  ],
+  "1027": [
+    {
+      "arxiv_id": "2604.11297",
+      "title": "The Past Is Not Past: Memory-Enhanced Dynamic Reward Shaping",
+      "year": "2026"
+    }
+  ],
+  "103": [
+    {
+      "arxiv_id": "2604.13395",
+      "title": "Quantifying and Understanding Uncertainty in Large Reasoning Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05868",
+      "title": "Understanding Performance Gap Between Parallel and Sequential Sampling in Large Reasoning Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18946",
+      "title": "Reasoning Structure Matters for Safety Alignment of Reasoning Models",
+      "year": "2026"
+    }
+  ],
+  "1036": [
+    {
+      "arxiv_id": "2604.11012",
+      "title": "Min-$k$ Sampling: Decoupling Truncation from Temperature Scaling via Relative Logit Dynamics",
+      "year": "2026"
+    }
+  ],
+  "1038": [
+    {
+      "arxiv_id": "2604.10898",
+      "title": "ZoomR: Memory Efficient Reasoning through Multi-Granularity Key Value Retrieval",
+      "year": "2026"
+    }
+  ],
+  "1039": [
+    {
+      "arxiv_id": "2604.10898",
+      "title": "ZoomR: Memory Efficient Reasoning through Multi-Granularity Key Value Retrieval",
+      "year": "2026"
+    }
+  ],
+  "106": [
+    {
+      "arxiv_id": "2604.11912",
+      "title": "How Transformers Learn to Plan via Multi-Token Prediction",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17944",
+      "title": "ReCoQA: A Benchmark for Tool-Augmented and Multi-Step Reasoning in Real Estate Question and Answering",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.01170",
+      "title": "Online Reasoning Calibration: Test-Time Training Enables Generalizable Conformal LLM Reasoning",
+      "year": "2026"
+    }
+  ],
+  "1063": [
+    {
+      "arxiv_id": "2604.10688",
+      "title": "SCOPE: Signal-Calibrated On-Policy Distillation Enhancement with Dual-Path Adaptive Weighting",
+      "year": "2026"
+    }
+  ],
+  "107": [
+    {
+      "arxiv_id": "2604.11507",
+      "title": "Deep Learning for Sequential Decision Making under Uncertainty: Foundations, Frameworks, and Frontiers",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.07390",
+      "title": "A Graph Foundation Model for Wireless Resource Allocation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12483",
+      "title": "Elastic Net Regularization and Gabor Dictionary for Classification of Heart Sound Signals using Deep Learning",
+      "year": "2026"
+    }
+  ],
+  "1071": [
+    {
+      "arxiv_id": "2604.10674",
+      "title": "Skill-SD: Skill-Conditioned Self-Distillation for Multi-turn LLM Agents",
+      "year": "2026"
+    }
+  ],
+  "1076": [
+    {
+      "arxiv_id": "2604.10674",
+      "title": "Skill-SD: Skill-Conditioned Self-Distillation for Multi-turn LLM Agents",
+      "year": "2026"
+    }
+  ],
+  "108": [
+    {
+      "arxiv_id": "2604.11309",
+      "title": "The Salami Slicing Threat: Exploiting Cumulative Risks in LLM Systems",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16824",
+      "title": "SafeDream: Safety World Model for Proactive Early Jailbreak Detection",
+      "year": "2026"
+    }
+  ],
+  "1081": [
+    {
+      "arxiv_id": "2604.10667",
+      "title": "Learning and Enforcing Context-Sensitive Control for LLMs",
+      "year": "2026"
+    }
+  ],
+  "1082": [
+    {
+      "arxiv_id": "2604.10667",
+      "title": "Learning and Enforcing Context-Sensitive Control for LLMs",
+      "year": "2026"
+    }
+  ],
+  "1083": [
+    {
+      "arxiv_id": "2604.10667",
+      "title": "Learning and Enforcing Context-Sensitive Control for LLMs",
+      "year": "2026"
+    }
+  ],
+  "1084": [
+    {
+      "arxiv_id": "2604.10667",
+      "title": "Learning and Enforcing Context-Sensitive Control for LLMs",
+      "year": "2026"
+    }
+  ],
+  "1085": [
+    {
+      "arxiv_id": "2604.10667",
+      "title": "Learning and Enforcing Context-Sensitive Control for LLMs",
+      "year": "2026"
+    }
+  ],
+  "1087": [
+    {
+      "arxiv_id": "2604.10660",
+      "title": "Efficient Process Reward Modeling via Contrastive Mutual Information",
+      "year": "2026"
+    }
+  ],
+  "109": [
+    {
+      "arxiv_id": "2604.10911",
+      "title": "EvoNash-MARL: A Closed-Loop Multi-Agent Reinforcement Learning Framework for Medium-Horizon Equity Allocation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00722",
+      "title": "LangMARL: Natural Language Multi-Agent Reinforcement Learning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00344",
+      "title": "Agent Q-Mix: Selecting the Right Action for LLM Multi-Agent Systems through Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "1092": [
+    {
+      "arxiv_id": "2604.10660",
+      "title": "Efficient Process Reward Modeling via Contrastive Mutual Information",
+      "year": "2026"
+    }
+  ],
+  "1093": [
+    {
+      "arxiv_id": "2604.10604",
+      "title": "NSFL: A Post-Training Neuro-Symbolic Fuzzy Logic Framework for Boolean Operators in Neural Embeddings",
+      "year": "2026"
+    }
+  ],
+  "1095": [
+    {
+      "arxiv_id": "2604.10604",
+      "title": "NSFL: A Post-Training Neuro-Symbolic Fuzzy Logic Framework for Boolean Operators in Neural Embeddings",
+      "year": "2026"
+    }
+  ],
+  "11": [
+    {
+      "arxiv_id": "2604.21523",
+      "title": "Seeing Isn't Believing: Uncovering Blind Spots in Evaluator Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16517",
+      "title": "SmoGVLM: A Small, Graph-enhanced Vision-Language Model",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12033",
+      "title": "Benchmarking Deflection and Hallucination in Large Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11490",
+      "title": "Anthropogenic Regional Adaptation in Multimodal Vision-Language Model",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05546",
+      "title": "Efficient Inference for Large Vision-Language Models: Bottlenecks, Techniques, and Prospects",
+      "year": "2026"
+    }
+  ],
+  "110": [
+    {
+      "arxiv_id": "2604.07147",
+      "title": "Dynamic Context Evolution for Scalable Synthetic Data Generation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15593",
+      "title": "DALM: A Domain-Algebraic Language Model via Three-Phase Structured Generation",
+      "year": "2026"
+    }
+  ],
+  "111": [
+    {
+      "arxiv_id": "2604.21523",
+      "title": "Seeing Isn't Believing: Uncovering Blind Spots in Evaluator Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12033",
+      "title": "Benchmarking Deflection and Hallucination in Large Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2603.29676",
+      "title": "A Comprehensive Information-Decomposition Analysis of Large Vision-Language Models",
+      "year": "2026"
+    }
+  ],
+  "1119": [
+    {
+      "arxiv_id": "2604.14216",
+      "title": "Neuro-Oracle: A Trajectory-Aware Agentic RAG Framework for Interpretable Epilepsy Surgical Prognosis",
+      "year": "2026"
+    }
+  ],
+  "1121": [
+    {
+      "arxiv_id": "2604.14216",
+      "title": "Neuro-Oracle: A Trajectory-Aware Agentic RAG Framework for Interpretable Epilepsy Surgical Prognosis",
+      "year": "2026"
+    }
+  ],
+  "1132": [
+    {
+      "arxiv_id": "2604.07666",
+      "title": "An Imperfect Verifier is Good Enough: Learning with Noisy Rewards",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.03128",
+      "title": "Self-Distilled RLVR",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18176",
+      "title": "QuantumQA: Enhancing Scientific Reasoning via Physics-Consistent Dataset and Verification-Aware Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "1135": [
+    {
+      "arxiv_id": "2604.21611",
+      "title": "Process Supervision via Verbal Critique Improves Reasoning in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12627",
+      "title": "KnowRL: Boosting LLM Reasoning via Reinforcement Learning with Minimal-Sufficient Knowledge Guidance",
+      "year": "2026"
+    }
+  ],
+  "1137": [
+    {
+      "arxiv_id": "2604.20806",
+      "title": "OMIBench: Benchmarking Olympiad-Level Multi-Image Reasoning in Large Vision-Language Model",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15648",
+      "title": "HyperGVL: Benchmarking and Improving Large Vision-Language Models in Hypergraph Understanding and Reasoning",
+      "year": "2026"
+    }
+  ],
+  "1139": [
+    {
+      "arxiv_id": "2604.20666",
+      "title": "ORPHEAS: A Cross-Lingual Greek-English Embedding Model for Retrieval-Augmented Generation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05821",
+      "title": "CLEAR: Cross-Lingual Enhancement in Alignment via Reverse-training",
+      "year": "2026"
+    }
+  ],
+  "1140": [
+    {
+      "arxiv_id": "2604.20012",
+      "title": "EmbodiedMidtrain: Bridging the Gap between Vision-Language Models and Vision-Language-Action Models via Mid-training",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09824",
+      "title": "ProGAL-VLA: Grounded Alignment through Prospective Reasoning in Vision-Language-Action Models",
+      "year": "2026"
+    }
+  ],
+  "1144": [
+    {
+      "arxiv_id": "2604.19262",
+      "title": "CulturALL: Benchmarking Multilingual and Multicultural Competence of LLMs on Grounded Tasks",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00778",
+      "title": "From Early Encoding to Late Suppression: Interpreting LLMs on Character Counting Tasks",
+      "year": "2026"
+    }
+  ],
+  "1145": [
+    {
+      "arxiv_id": "2604.18944",
+      "title": "A Mechanism and Optimization Study on the Impact of Information Density on User-Generated Content Named Entity Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15776",
+      "title": "PIIBench: A Unified Multi-Source Benchmark Corpus for Personally Identifiable Information Detection",
+      "year": "2026"
+    }
+  ],
+  "1146": [
+    {
+      "arxiv_id": "2604.18112",
+      "title": "Retrieval-Augmented Multimodal Model for Fake News Detection",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17319",
+      "title": "E2E-GMNER: End-to-End Generative Grounded Multimodal Named Entity Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16734",
+      "title": "Reducing Peak Memory Usage for Modern Multimodal Large Language Model Pipelines",
+      "year": "2026"
+    }
+  ],
+  "1148": [
+    {
+      "arxiv_id": "2604.16235",
+      "title": "Optimizing Korean-Centric LLMs via Token Pruning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10590",
+      "title": "Bridging Linguistic Gaps: Cross-Lingual Mapping in Pre-Training and Dataset for Enhanced Multilingual LLM Performance",
+      "year": "2026"
+    }
+  ],
+  "1149": [
+    {
+      "arxiv_id": "2604.15776",
+      "title": "PIIBench: A Unified Multi-Source Benchmark Corpus for Personally Identifiable Information Detection",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12744",
+      "title": "Universal NER v2: Towards a Massively Multilingual Named Entity Recognition Benchmark",
+      "year": "2026"
+    }
+  ],
+  "115": [
+    {
+      "arxiv_id": "2604.21229",
+      "title": "EngramaBench: Evaluating Long-Term Conversational Memory with Structured Graph Retrieval",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14362",
+      "title": "APEX-MEM: Agentic Semi-Structured Memory with Temporal Reasoning for Long-Term Conversational AI",
+      "year": "2026"
+    }
+  ],
+  "1153": [
+    {
+      "arxiv_id": "2604.15621",
+      "title": "Rethinking the Necessity of Adaptive Retrieval-Augmented Generation through the Lens of Adaptive Listwise Ranking",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10745",
+      "title": "How You Ask Matters! Adaptive RAG Robustness to Query Variations",
+      "year": "2026"
+    }
+  ],
+  "1157": [
+    {
+      "arxiv_id": "2604.14363",
+      "title": "The Cost of Language: Centroid Erasure Exposes and Exploits Modal Competition in Multimodal Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00799",
+      "title": "Multimodal Language Models Cannot Spot Spatial Inconsistencies",
+      "year": "2026"
+    }
+  ],
+  "1159": [
+    {
+      "arxiv_id": "2604.12033",
+      "title": "Benchmarking Deflection and Hallucination in Large Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2603.29676",
+      "title": "A Comprehensive Information-Decomposition Analysis of Large Vision-Language Models",
+      "year": "2026"
+    }
+  ],
+  "1160": [
+    {
+      "arxiv_id": "2604.11742",
+      "title": "Discourse Diversity in Multi-Turn Empathic Dialogue",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05397",
+      "title": "Confidence Should Be Calibrated More Than One Turn Deep",
+      "year": "2026"
+    }
+  ],
+  "1161": [
+    {
+      "arxiv_id": "2604.11407",
+      "title": "Retrieval as Generation: A Unified Framework with Self-Triggered Information Planning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10734",
+      "title": "Self-Correcting RAG: Enhancing Faithfulness via MMKP Context Selection and NLI-Guided MCTS",
+      "year": "2026"
+    }
+  ],
+  "1162": [
+    {
+      "arxiv_id": "2604.10985",
+      "title": "Back to the Barn with LLAMAs: Evolving Pretrained LLM Backbones in Finetuning Vision Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18803",
+      "title": "LLM-as-Judge Framework for Evaluating Tone-Induced Hallucination in Vision-Language Models",
+      "year": "2026"
+    }
+  ],
+  "1163": [
+    {
+      "arxiv_id": "2604.09531",
+      "title": "VisionFoundry: Teaching VLMs Visual Perception with Synthetic Images",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.19324",
+      "title": "PLaMo 2.1-VL Technical Report",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16930",
+      "title": "CoGR-MoE: Concept-Guided Expert Routing with Consistent Selection and Flexible Reasoning for Visual Question Answering",
+      "year": "2026"
+    }
+  ],
+  "1166": [
+    {
+      "arxiv_id": "2604.00799",
+      "title": "Multimodal Language Models Cannot Spot Spatial Inconsistencies",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21277",
+      "title": "Can MLLMs \"Read\" What is Missing?",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12512",
+      "title": "NTIRE 2026 The 3rd Restore Any Image Model (RAIM) Challenge: Professional Image Quality Assessment (Track 1)",
+      "year": "2026"
+    }
+  ],
+  "117": [
+    {
+      "arxiv_id": "2604.20806",
+      "title": "OMIBench: Benchmarking Olympiad-Level Multi-Image Reasoning in Large Vision-Language Model",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14799",
+      "title": "Knowing When Not to Answer: Evaluating Abstention in Multimodal Reasoning Systems",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10228",
+      "title": "SVSR: A Self-Verification and Self-Rectification Paradigm for Multimodal Reasoning",
+      "year": "2026"
+    }
+  ],
+  "118": [
+    {
+      "arxiv_id": "2604.17709",
+      "title": "DeInfer: Efficient Parallel Inferencing for Decomposed Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08369",
+      "title": "Don't Overthink It: Inter-Rollout Action Agreement as a Free Adaptive-Compute Signal for LLM Agents",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15508",
+      "title": "LLMbench: A Comparative Close Reading Workbench for Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14969",
+      "title": "Discovering Novel LLM Experts via Task-Capability Coevolution",
+      "year": "2026"
+    }
+  ],
+  "119": [
+    {
+      "arxiv_id": "2604.15593",
+      "title": "DALM: A Domain-Algebraic Language Model via Three-Phase Structured Generation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14862",
+      "title": "Schema Key Wording as an Instruction Channel in Structured Generation under Constrained Decoding",
+      "year": "2026"
+    }
+  ],
+  "12": [
+    {
+      "arxiv_id": "2604.09016",
+      "title": "Identification and Anonymization of Named Entities in Unstructured Information Sources for Use in Social Engineering Detection",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21421",
+      "title": "Differentially Private De-identification of Dutch Clinical Notes: A Comparative Evaluation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20447",
+      "title": "Decoding Text Spans for Efficient and Accurate Named-Entity Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18944",
+      "title": "A Mechanism and Optimization Study on the Impact of Information Density on User-Generated Content Named Entity Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15776",
+      "title": "PIIBench: A Unified Multi-Source Benchmark Corpus for Personally Identifiable Information Detection",
+      "year": "2026"
+    }
+  ],
+  "121": [
+    {
+      "arxiv_id": "2604.14528",
+      "title": "Dissecting Failure Dynamics in Large Language Model Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00890",
+      "title": "Beyond Symbolic Solving: Multi Chain-of-Thought Voting for Geometric Reasoning in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17621",
+      "title": "KnowledgeBerg: Evaluating Systematic Knowledge Coverage and Compositional Reasoning in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "122": [
+    {
+      "arxiv_id": "2604.21277",
+      "title": "Can MLLMs \"Read\" What is Missing?",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12512",
+      "title": "NTIRE 2026 The 3rd Restore Any Image Model (RAIM) Challenge: Professional Image Quality Assessment (Track 1)",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11154",
+      "title": "Environmental Footprint of GenAI Research: Insights from the Moshi Foundation Model",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10721",
+      "title": "Turning Generators into Retrievers: Unlocking MLLMs for Natural Language-Guided Geo-Localization",
+      "year": "2026"
+    }
+  ],
+  "126": [
+    {
+      "arxiv_id": "2604.21911",
+      "title": "When Prompts Override Vision: Prompt-Induced Hallucinations in LVLMs",
+      "year": "2026"
+    }
+  ],
+  "127": [
+    {
+      "arxiv_id": "2604.21911",
+      "title": "When Prompts Override Vision: Prompt-Induced Hallucinations in LVLMs",
+      "year": "2026"
+    }
+  ],
+  "13": [
+    {
+      "arxiv_id": "2604.09016",
+      "title": "Identification and Anonymization of Named Entities in Unstructured Information Sources for Use in Social Engineering Detection",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21421",
+      "title": "Differentially Private De-identification of Dutch Clinical Notes: A Comparative Evaluation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20447",
+      "title": "Decoding Text Spans for Efficient and Accurate Named-Entity Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18944",
+      "title": "A Mechanism and Optimization Study on the Impact of Information Density on User-Generated Content Named Entity Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15776",
+      "title": "PIIBench: A Unified Multi-Source Benchmark Corpus for Personally Identifiable Information Detection",
+      "year": "2026"
+    }
+  ],
+  "130": [
+    {
+      "arxiv_id": "2604.21911",
+      "title": "When Prompts Override Vision: Prompt-Induced Hallucinations in LVLMs",
+      "year": "2026"
+    }
+  ],
+  "14": [
+    {
+      "arxiv_id": "2604.20031",
+      "title": "Decision-Focused Federated Learning Under Heterogeneous Objectives and Constraints",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.19336",
+      "title": "FedSEA: Achieving Benefit of Parallelization in Federated Online Learning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17956",
+      "title": "Federated Rule Ensemble Method in Medical Data",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17747",
+      "title": "Efficient Federated RLHF via Zeroth-Order Policy Optimization",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14751",
+      "title": "Exploiting Correlations in Federated Learning: Opportunities and Practical Limitations",
+      "year": "2026"
+    }
+  ],
+  "143": [
+    {
+      "arxiv_id": "2604.21748",
+      "title": "StructMem: Structured Memory for Long-Horizon Behavior in LLMs",
+      "year": "2026"
+    }
+  ],
+  "145": [
+    {
+      "arxiv_id": "2604.21748",
+      "title": "StructMem: Structured Memory for Long-Horizon Behavior in LLMs",
+      "year": "2026"
+    }
+  ],
+  "15": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18264",
+      "title": "Universally Empowering Zeroth-Order Optimization via Adaptive Layer-wise Sampling",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11841",
+      "title": "Polynomial Expansion Rank Adaptation: Enhancing Low-Rank Fine-Tuning with High-Order Interactions",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09940",
+      "title": "New Hybrid Fine-Tuning Paradigm for LLMs: Algorithm Design and Convergence Analysis Framework",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13368",
+      "title": "TLoRA+: A Low-Rank Parameter-Efficient Fine-Tuning Method for Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "157": [
+    {
+      "arxiv_id": "2604.21395",
+      "title": "Supervised Learning Has a Necessary Geometric Blind Spot: Theory, Consequences, and Minimal Repair",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08404",
+      "title": "Adversarial Label Invariant Graph Data Augmentations for Out-of-Distribution Generalization",
+      "year": "2026"
+    }
+  ],
+  "16": [
+    {
+      "arxiv_id": "2604.17695",
+      "title": "MoE-nD: Per-Layer Mixture-of-Experts Routing for Multi-Axis KV Cache Compression",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11501",
+      "title": "Quantization Dominates Rank Reduction for KV-Cache Compression",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15356",
+      "title": "Sequential KV Cache Compression via Probabilistic Language Tries: Beyond the Per-Vector Shannon Limit",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13556",
+      "title": "YOCO++: Enhancing YOCO with KV Residual Connections for Efficient LLM Inference",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2603.27819",
+      "title": "KVSculpt: KV Cache Compression as Distillation",
+      "year": "2026"
+    }
+  ],
+  "165": [
+    {
+      "arxiv_id": "2604.21344",
+      "title": "Beyond Single Plots: A Benchmark for Question Answering on Multi-Charts",
+      "year": "2026"
+    }
+  ],
+  "171": [
+    {
+      "arxiv_id": "2604.21344",
+      "title": "Beyond Single Plots: A Benchmark for Question Answering on Multi-Charts",
+      "year": "2026"
+    }
+  ],
+  "184": [
+    {
+      "arxiv_id": "2604.21327",
+      "title": "Understanding and Mitigating Spurious Signal Amplification in Test-Time Reinforcement Learning for Math Reasoning",
+      "year": "2026"
+    }
+  ],
+  "190": [
+    {
+      "arxiv_id": "2604.21286",
+      "title": "Cross-Entropy Is Load-Bearing: A Pre-Registered Scope Test of the K-Way Energy Probe on Bidirectional Predictive Coding",
+      "year": "2026"
+    }
+  ],
+  "192": [
+    {
+      "arxiv_id": "2604.21286",
+      "title": "Cross-Entropy Is Load-Bearing: A Pre-Registered Scope Test of the K-Way Energy Probe on Bidirectional Predictive Coding",
+      "year": "2026"
+    }
+  ],
+  "197": [
+    {
+      "arxiv_id": "2604.21199",
+      "title": "ARFBench: Benchmarking Time Series Question Answering Ability for Software Incident Response",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21133",
+      "title": "GRISP: Guided Recurrent IRI Selection over SPARQL Skeletons",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10535",
+      "title": "Evaluating Small Open LLMs for Medical Question Answering: A Practical Framework",
+      "year": "2026"
+    }
+  ],
+  "198": [
+    {
+      "arxiv_id": "2604.21159",
+      "title": "Adaptive Instruction Composition for Automated LLM Red-Teaming",
+      "year": "2026"
+    }
+  ],
+  "2": [
+    {
+      "arxiv_id": "2604.20598",
+      "title": "Self-Aware Vector Embeddings for Retrieval-Augmented Generation: A Neuroscience-Inspired Framework for Temporal, Confidence-Weighted, and Relational Knowledge",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08920",
+      "title": "Beyond Relevance: Utility-Centric Retrieval in the LLM Era",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.07274",
+      "title": "A Systematic Study of Retrieval Pipeline Design for Retrieval-Augmented Medical Question Answering",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20487",
+      "title": "Knowledge Capsules: Structured Nonparametric Memory Units for LLMs",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17866",
+      "title": "Latent Abstraction for Retrieval-Augmented Generation",
+      "year": "2026"
+    }
+  ],
+  "200": [
+    {
+      "arxiv_id": "2604.21159",
+      "title": "Adaptive Instruction Composition for Automated LLM Red-Teaming",
+      "year": "2026"
+    }
+  ],
+  "204": [
+    {
+      "arxiv_id": "2604.21159",
+      "title": "Adaptive Instruction Composition for Automated LLM Red-Teaming",
+      "year": "2026"
+    }
+  ],
+  "214": [
+    {
+      "arxiv_id": "2604.21094",
+      "title": "Spectral Embeddings Leak Graph Topology: Theory, Benchmark, and Adaptive Reconstruction",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20078",
+      "title": "Improved large-scale graph learning through ridge spectral sparsification",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08980",
+      "title": "Neighbourhood Transformer: Switchable Attention for Monophily-Aware Graph Learning",
+      "year": "2026"
+    }
+  ],
+  "22": [
+    {
+      "arxiv_id": "2604.12335",
+      "title": "All in One: A Unified Synthetic Data Pipeline for Multimodal Video Understanding",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09114",
+      "title": "FIRE-CIR: Fine-grained Reasoning for Composed Fashion Image Retrieval",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21523",
+      "title": "Seeing Isn't Believing: Uncovering Blind Spots in Evaluator Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13731",
+      "title": "Doc-V*:Coarse-to-Fine Interactive Visual Reasoning for Multi-Page Document VQA",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09531",
+      "title": "VisionFoundry: Teaching VLMs Visual Perception with Synthetic Images",
+      "year": "2026"
+    }
+  ],
+  "221": [
+    {
+      "arxiv_id": "2604.20817",
+      "title": "Convergent Evolution: How Different Language Models Learn Similar Number Representations",
+      "year": "2026"
+    }
+  ],
+  "229": [
+    {
+      "arxiv_id": "2604.20789",
+      "title": "Working Memory Constraints Scaffold Learning in Transformers under Data Scarcity",
+      "year": "2026"
+    }
+  ],
+  "230": [
+    {
+      "arxiv_id": "2604.20789",
+      "title": "Working Memory Constraints Scaffold Learning in Transformers under Data Scarcity",
+      "year": "2026"
+    }
+  ],
+  "231": [
+    {
+      "arxiv_id": "2604.20755",
+      "title": "V-tableR1: Process-Supervised Multimodal Table Reasoning with Critic-Guided Policy Optimization",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2603.28610",
+      "title": "ResAdapt: Adaptive Resolution for Efficient Multimodal Reasoning",
+      "year": "2026"
+    }
+  ],
+  "234": [
+    {
+      "arxiv_id": "2604.20720",
+      "title": "COMPASS: COntinual Multilingual PEFT with Adaptive Semantic Sampling",
+      "year": "2026"
+    }
+  ],
+  "242": [
+    {
+      "arxiv_id": "2604.20937",
+      "title": "Sink-Token-Aware Pruning for Fine-Grained Video Understanding in Efficient Video LLMs",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05650",
+      "title": "See the Forest for the Trees: Loosely Speculative Decoding via Visual-Semantic Guidance for Efficient Inference of Video LLMs",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.01881",
+      "title": "HieraVid: Hierarchical Token Pruning for Fast Video Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "256": [
+    {
+      "arxiv_id": "2604.20468",
+      "title": "MOMO: A framework for seamless physical, verbal, and graphical robot skill learning and adaptation",
+      "year": "2026"
+    }
+  ],
+  "263": [
+    {
+      "arxiv_id": "2604.20443",
+      "title": "DialToM: A Theory of Mind Benchmark for Forecasting State-Driven Dialogue Trajectories",
+      "year": "2026"
+    }
+  ],
+  "268": [
+    {
+      "arxiv_id": "2604.21718",
+      "title": "Building a Precise Video Language with Human-AI Oversight",
+      "year": "2026"
+    }
+  ],
+  "27": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18124",
+      "title": "TLoRA: Task-aware Low Rank Adaptation of Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17051",
+      "title": "Efficient Task Adaptation in Large Language Models via Selective Parameter Optimization",
+      "year": "2026"
+    }
+  ],
+  "273": [
+    {
+      "arxiv_id": "2604.21718",
+      "title": "Building a Precise Video Language with Human-AI Oversight",
+      "year": "2026"
+    }
+  ],
+  "28": [
+    {
+      "arxiv_id": "2604.19281",
+      "title": "Beyond Semantic Similarity: A Component-Wise Evaluation Framework for Medical Question Answering Systems with Health Equity Implications",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10535",
+      "title": "Evaluating Small Open LLMs for Medical Question Answering: A Practical Framework",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10316",
+      "title": "Comparative Analysis of Large Language Models in Healthcare",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05051",
+      "title": "This Treatment Works, Right? Evaluating LLM Sensitivity to Patient Question Framing in Medical QA",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00261",
+      "title": "Can Large Language Models Self-Correct in Medical Question Answering? An Exploratory Study",
+      "year": "2026"
+    }
+  ],
+  "283": [
+    {
+      "arxiv_id": "2604.20148",
+      "title": "Meta-Tool: Efficient Few-Shot Tool Adaptation for Small Language Models",
+      "year": "2026"
+    }
+  ],
+  "284": [
+    {
+      "arxiv_id": "2604.20148",
+      "title": "Meta-Tool: Efficient Few-Shot Tool Adaptation for Small Language Models",
+      "year": "2026"
+    }
+  ],
+  "29": [
+    {
+      "arxiv_id": "2604.18995",
+      "title": "$R^2$-dLLM: Accelerating Diffusion Large Language Models via Spatio-Temporal Redundancy Reduction",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17068",
+      "title": "Stability-Weighted Decoding for Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10556",
+      "title": "Lost in Diffusion: Uncovering Hallucination Patterns and Failure Modes in Diffusion Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00375",
+      "title": "Locally Confident, Globally Stuck: The Quality-Exploration Dilemma in Diffusion Language Models",
+      "year": "2026"
+    }
+  ],
+  "298": [
+    {
+      "arxiv_id": "2604.20917",
+      "title": "The Path Not Taken: Duality in Reasoning about Program Execution",
+      "year": "2026"
+    }
+  ],
+  "3": [
+    {
+      "arxiv_id": "2604.16264",
+      "title": "Information Router for Mitigating Modality Dominance in Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11496",
+      "title": "Revisiting Compositionality in Dual-Encoder Vision-Language Models: The Role of Inference",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08941",
+      "title": "Predictive Entropy Links Calibration and Paraphrase Sensitivity in Medical Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21523",
+      "title": "Seeing Isn't Believing: Uncovering Blind Spots in Evaluator Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20012",
+      "title": "EmbodiedMidtrain: Bridging the Gap between Vision-Language Models and Vision-Language-Action Models via Mid-training",
+      "year": "2026"
+    }
+  ],
+  "30": [
+    {
+      "arxiv_id": "2604.17312",
+      "title": "A Survey of Reinforcement Learning for Large Language Models under Data Scarcity: Challenges and Solutions",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16995",
+      "title": "SPS: Steering Probability Squeezing for Better Exploration in Reinforcement Learning for Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09459",
+      "title": "From Reasoning to Agentic: Credit Assignment in Reinforcement Learning for Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00722",
+      "title": "LangMARL: Natural Language Multi-Agent Reinforcement Learning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00344",
+      "title": "Agent Q-Mix: Selecting the Right Action for LLM Multi-Agent Systems through Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "306": [
+    {
+      "arxiv_id": "2604.20915",
+      "title": "Absorber LLM: Harnessing Causal Synchronization for Test-Time Training",
+      "year": "2026"
+    }
+  ],
+  "310": [
+    {
+      "arxiv_id": "2604.20022",
+      "title": "Statistics, Not Scale: Modular Medical Dialogue with Bayesian Belief Engine",
+      "year": "2026"
+    }
+  ],
+  "311": [
+    {
+      "arxiv_id": "2604.20022",
+      "title": "Statistics, Not Scale: Modular Medical Dialogue with Bayesian Belief Engine",
+      "year": "2026"
+    }
+  ],
+  "312": [
+    {
+      "arxiv_id": "2604.20022",
+      "title": "Statistics, Not Scale: Modular Medical Dialogue with Bayesian Belief Engine",
+      "year": "2026"
+    }
+  ],
+  "314": [
+    {
+      "arxiv_id": "2604.20022",
+      "title": "Statistics, Not Scale: Modular Medical Dialogue with Bayesian Belief Engine",
+      "year": "2026"
+    }
+  ],
+  "32": [
+    {
+      "arxiv_id": "2604.16535",
+      "title": "SCATR: Simple Calibrated Test-Time Ranking",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12632",
+      "title": "Calibration-Aware Policy Optimization for Reasoning LLMs",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11912",
+      "title": "How Transformers Learn to Plan via Multi-Token Prediction",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10291",
+      "title": "TimeSeriesExamAgent: Creating Time Series Reasoning Benchmarks at Scale",
+      "year": "2026"
+    }
+  ],
+  "324": [
+    {
+      "arxiv_id": "2604.19859",
+      "title": "DR-Venus: Towards Frontier Edge-Scale Deep Research Agents with Only 10K Open Data",
+      "year": "2026"
+    }
+  ],
+  "33": [
+    {
+      "arxiv_id": "2604.15109",
+      "title": "IUQ: Interrogative Uncertainty Quantification for Long-Form Large Language Model Generation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.07963",
+      "title": "Rethinking Data Mixing from the Perspective of Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20556",
+      "title": "LayerTracer: A Joint Task-Particle and Vulnerable-Layer Analysis framework for Arbitrary Large Language Model Architectures",
+      "year": "2026"
+    }
+  ],
+  "334": [
+    {
+      "arxiv_id": "2604.19667",
+      "title": "Chat2Workflow: A Benchmark for Generating Executable Visual Workflows with Natural Language",
+      "year": "2026"
+    }
+  ],
+  "335": [
+    {
+      "arxiv_id": "2604.19667",
+      "title": "Chat2Workflow: A Benchmark for Generating Executable Visual Workflows with Natural Language",
+      "year": "2026"
+    }
+  ],
+  "342": [
+    {
+      "arxiv_id": "2604.19593",
+      "title": "RoLegalGEC: Legal Domain Grammatical Error Detection and Correction Dataset for Romanian",
+      "year": "2026"
+    }
+  ],
+  "345": [
+    {
+      "arxiv_id": "2604.19565",
+      "title": "Detecting Hallucinations in SpeechLLMs at Inference Time Using Attention Maps",
+      "year": "2026"
+    }
+  ],
+  "347": [
+    {
+      "arxiv_id": "2604.19565",
+      "title": "Detecting Hallucinations in SpeechLLMs at Inference Time Using Attention Maps",
+      "year": "2026"
+    }
+  ],
+  "35": [
+    {
+      "arxiv_id": "2604.19079",
+      "title": "Reducing the Offline-Streaming Gap for Unified ASR Transducer with Consistency Regularization",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18204",
+      "title": "Hard to Be Heard: Phoneme-Level ASR Analysis of Phonologically Complex, Low-Resource Endangered Languages",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18105",
+      "title": "NIM4-ASR: Towards Efficient, Robust, and Customizable Real-Time LLM-Based ASR",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.19797",
+      "title": "Enhancing ASR Performance in the Medical Domain for Dravidian Languages",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08003",
+      "title": "Rethinking Entropy Allocation in LLM-based ASR: Understanding the Dynamics between Speech Encoders and LLMs",
+      "year": "2026"
+    }
+  ],
+  "352": [
+    {
+      "arxiv_id": "2604.19565",
+      "title": "Detecting Hallucinations in SpeechLLMs at Inference Time Using Attention Maps",
+      "year": "2026"
+    }
+  ],
+  "358": [
+    {
+      "arxiv_id": "2604.19559",
+      "title": "Enhancing Construction Worker Safety in Extreme Heat: A Machine Learning Approach Utilizing Wearable Technology for Predictive Health Analytics",
+      "year": "2026"
+    }
+  ],
+  "369": [
+    {
+      "arxiv_id": "2604.19399",
+      "title": "Optimal Routing for Federated Learning over Dynamic Satellite Networks: Tractable or Not?",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10652",
+      "title": "Enhancing Cross-Problem Vehicle Routing via Federated Learning",
+      "year": "2026"
+    }
+  ],
+  "370": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "376": [
+    {
+      "arxiv_id": "2604.19281",
+      "title": "Beyond Semantic Similarity: A Component-Wise Evaluation Framework for Medical Question Answering Systems with Health Equity Implications",
+      "year": "2026"
+    }
+  ],
+  "378": [
+    {
+      "arxiv_id": "2604.19281",
+      "title": "Beyond Semantic Similarity: A Component-Wise Evaluation Framework for Medical Question Answering Systems with Health Equity Implications",
+      "year": "2026"
+    }
+  ],
+  "384": [
+    {
+      "arxiv_id": "2604.19098",
+      "title": "SAHM: A Benchmark for Arabic Financial and Shari'ah-Compliant Reasoning",
+      "year": "2026"
+    }
+  ],
+  "389": [
+    {
+      "arxiv_id": "2604.19021",
+      "title": "FG$^2$-GDN: Enhancing Long-Context Gated Delta Networks with Doubly Fine-Grained Control",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.01178",
+      "title": "Screening Is Enough",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20368",
+      "title": "LaplacianFormer:Rethinking Linear Attention with Laplacian Kernel",
+      "year": "2026"
+    }
+  ],
+  "390": [
+    {
+      "arxiv_id": "2604.18995",
+      "title": "$R^2$-dLLM: Accelerating Diffusion Large Language Models via Spatio-Temporal Redundancy Reduction",
+      "year": "2026"
+    }
+  ],
+  "4": [
+    {
+      "arxiv_id": "2604.11095",
+      "title": "Bottleneck Tokens for Unified Multimodal Retrieval",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11004",
+      "title": "Panoptic Pairwise Distortion Graph",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08846",
+      "title": "Dictionary-Aligned Concept Control for Safeguarding Multimodal LLMs",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18164",
+      "title": "MM-JudgeBias: A Benchmark for Evaluating Compositional Biases in MLLM-as-a-Judge",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10973",
+      "title": "CFMS: A Coarse-to-Fine Multimodal Synthesis Framework for Enhanced Tabular Reasoning",
+      "year": "2026"
+    }
+  ],
+  "40": [
+    {
+      "arxiv_id": "2604.19444",
+      "title": "Unsupervised Confidence Calibration for Reasoning LLMs from a Single Generation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14140",
+      "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11791",
+      "title": "A Mechanistic Analysis of Looped Reasoning Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.07035",
+      "title": "Gemma 4, Phi-4, and Qwen3: Accuracy-Efficiency Tradeoffs in Dense and MoE Reasoning Language Models",
+      "year": "2026"
+    }
+  ],
+  "407": [
+    {
+      "arxiv_id": "2604.18914",
+      "title": "MORPHOGEN: A Multilingual Benchmark for Evaluating Gender-Aware Morphological Generation",
+      "year": "2026"
+    }
+  ],
+  "413": [
+    {
+      "arxiv_id": "2604.18901",
+      "title": "Harmful Intent as a Geometrically Recoverable Feature of LLM Residual Streams",
+      "year": "2026"
+    }
+  ],
+  "415": [
+    {
+      "arxiv_id": "2604.18901",
+      "title": "Harmful Intent as a Geometrically Recoverable Feature of LLM Residual Streams",
+      "year": "2026"
+    }
+  ],
+  "423": [
+    {
+      "arxiv_id": "2604.18835",
+      "title": "Semantic Needles in Document Haystacks: Sensitivity Testing of LLM-as-a-Judge Similarity Scoring",
+      "year": "2026"
+    }
+  ],
+  "432": [
+    {
+      "arxiv_id": "2604.18756",
+      "title": "Towards Understanding the Robustness of Sparse Autoencoders",
+      "year": "2026"
+    }
+  ],
+  "433": [
+    {
+      "arxiv_id": "2604.18756",
+      "title": "Towards Understanding the Robustness of Sparse Autoencoders",
+      "year": "2026"
+    }
+  ],
+  "434": [
+    {
+      "arxiv_id": "2604.18756",
+      "title": "Towards Understanding the Robustness of Sparse Autoencoders",
+      "year": "2026"
+    }
+  ],
+  "435": [
+    {
+      "arxiv_id": "2604.18756",
+      "title": "Towards Understanding the Robustness of Sparse Autoencoders",
+      "year": "2026"
+    }
+  ],
+  "439": [
+    {
+      "arxiv_id": "2604.18580",
+      "title": "Sessa: Selective State Space Attention",
+      "year": "2026"
+    }
+  ],
+  "45": [
+    {
+      "arxiv_id": "2604.16264",
+      "title": "Information Router for Mitigating Modality Dominance in Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18347",
+      "title": "Multilingual Training and Evaluation Resources for Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10985",
+      "title": "Back to the Barn with LLAMAs: Evolving Pretrained LLM Backbones in Finetuning Vision Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18803",
+      "title": "LLM-as-Judge Framework for Evaluating Tone-Induced Hallucination in Vision-Language Models",
+      "year": "2026"
+    }
+  ],
+  "453": [
+    {
+      "arxiv_id": "2604.18570",
+      "title": "A multimodal and temporal foundation model for virtual patient representations at healthcare system scale",
+      "year": "2026"
+    }
+  ],
+  "459": [
+    {
+      "arxiv_id": "2604.18567",
+      "title": "Latent Phase-Shift Rollback: Inference-Time Error Correction via Residual Stream Monitoring and KV-Cache Steering",
+      "year": "2026"
+    }
+  ],
+  "46": [
+    {
+      "arxiv_id": "2604.15180",
+      "title": "AdaSplash-2: Faster Differentiable Sparse Attention",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14925",
+      "title": "Improving Sparse Autoencoder with Dynamic Attention",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08971",
+      "title": "Modality-Aware Zero-Shot Pruning and Sparse Attention for Efficient Multimodal Edge Inference",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12452",
+      "title": "Latent-Condensed Transformer for Efficient Long Context Modeling",
+      "year": "2026"
+    }
+  ],
+  "461": [
+    {
+      "arxiv_id": "2604.18567",
+      "title": "Latent Phase-Shift Rollback: Inference-Time Error Correction via Residual Stream Monitoring and KV-Cache Steering",
+      "year": "2026"
+    }
+  ],
+  "462": [
+    {
+      "arxiv_id": "2604.18566",
+      "title": "Benchmarking System Dynamics AI Assistants: Cloud Versus Local LLMs on CLD Extraction and Discussion",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.21827",
+      "title": "Alignment has a Fantasia Problem",
+      "year": "2026"
+    }
+  ],
+  "465": [
+    {
+      "arxiv_id": "2604.18128",
+      "title": "Depth Registers Unlock W4A4 on SwiGLU: A Reader/Generator Decomposition",
+      "year": "2026"
+    }
+  ],
+  "472": [
+    {
+      "arxiv_id": "2604.17930",
+      "title": "Heterogeneity in Formal Linguistic Competence of Language Models: Is Data the Real Bottleneck?",
+      "year": "2026"
+    }
+  ],
+  "474": [
+    {
+      "arxiv_id": "2604.17930",
+      "title": "Heterogeneity in Formal Linguistic Competence of Language Models: Is Data the Real Bottleneck?",
+      "year": "2026"
+    }
+  ],
+  "475": [
+    {
+      "arxiv_id": "2604.17930",
+      "title": "Heterogeneity in Formal Linguistic Competence of Language Models: Is Data the Real Bottleneck?",
+      "year": "2026"
+    }
+  ],
+  "478": [
+    {
+      "arxiv_id": "2604.17928",
+      "title": "HEALing Entropy Collapse: Enhancing Exploration in Few-Shot RLVR via Hybrid-Domain Entropy Dynamics Alignment",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.01787",
+      "title": "DEFT: Distribution-guided Efficient Fine-Tuning for Human Alignment",
+      "year": "2026"
+    }
+  ],
+  "48": [
+    {
+      "arxiv_id": "2604.09921",
+      "title": "A Tale of Two Temperatures: Simple, Efficient, and Diverse Sampling from Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10567",
+      "title": "Early Decisions Matter: Proximity Bias and Initial Trajectory Shaping in Non-Autoregressive Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05551",
+      "title": "FastDiSS: Few-step Match Many-step Diffusion Language Model on Sequence-to-Sequence Generation--Full Version",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.03537",
+      "title": "Rethinking Token Prediction: Tree-Structured Diffusion Language Model",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.02718",
+      "title": "Generative Frontiers: Why Evaluation Matters for Diffusion Language Models",
+      "year": "2026"
+    }
+  ],
+  "493": [
+    {
+      "arxiv_id": "2604.17837",
+      "title": "Polysemantic Experts, Monosemantic Paths: Routing as Control in MoEs",
+      "year": "2026"
+    }
+  ],
+  "496": [
+    {
+      "arxiv_id": "2604.17785",
+      "title": "Forget What Matters, Keep the Rest: Selective Unlearning of Informative Tokens",
+      "year": "2026"
+    }
+  ],
+  "497": [
+    {
+      "arxiv_id": "2604.17785",
+      "title": "Forget What Matters, Keep the Rest: Selective Unlearning of Informative Tokens",
+      "year": "2026"
+    }
+  ],
+  "498": [
+    {
+      "arxiv_id": "2604.17785",
+      "title": "Forget What Matters, Keep the Rest: Selective Unlearning of Informative Tokens",
+      "year": "2026"
+    }
+  ],
+  "499": [
+    {
+      "arxiv_id": "2604.17785",
+      "title": "Forget What Matters, Keep the Rest: Selective Unlearning of Informative Tokens",
+      "year": "2026"
+    }
+  ],
+  "5": [
+    {
+      "arxiv_id": "2604.20659",
+      "title": "GRPO-VPS: Enhancing Group Relative Policy Optimization with Verifiable Process Supervision for Effective Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18381",
+      "title": "Learning from Less: Measuring the Effectiveness of RLVR in Low Data and Compute Regimes",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15149",
+      "title": "LLMs Gaming Verifiers: RLVR can Lead to Reward Hacking",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14142",
+      "title": "From $P(y|x)$ to $P(y)$: Investigating Reinforcement Learning in Pre-train Space",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11446",
+      "title": "Low-rank Optimization Trajectories Modeling for LLM RLVR Acceleration",
+      "year": "2026"
+    }
+  ],
+  "501": [
+    {
+      "arxiv_id": "2604.17785",
+      "title": "Forget What Matters, Keep the Rest: Selective Unlearning of Informative Tokens",
+      "year": "2026"
+    }
+  ],
+  "510": [
+    {
+      "arxiv_id": "2604.17716",
+      "title": "Concurrent Criterion Validation of a Validity Screen for LLM Confidence Signals via Selective Prediction",
+      "year": "2026"
+    }
+  ],
+  "514": [
+    {
+      "arxiv_id": "2604.17663",
+      "title": "ATLAS: Constitution-Conditioned Latent Geometry and Redistribution Across Language Models and Neural Perturbation Data",
+      "year": "2026"
+    }
+  ],
+  "516": [
+    {
+      "arxiv_id": "2604.17663",
+      "title": "ATLAS: Constitution-Conditioned Latent Geometry and Redistribution Across Language Models and Neural Perturbation Data",
+      "year": "2026"
+    }
+  ],
+  "518": [
+    {
+      "arxiv_id": "2604.17663",
+      "title": "ATLAS: Constitution-Conditioned Latent Geometry and Redistribution Across Language Models and Neural Perturbation Data",
+      "year": "2026"
+    }
+  ],
+  "527": [
+    {
+      "arxiv_id": "2604.17656",
+      "title": "Video-Robin: Autoregressive Diffusion Planning for Intent-Grounded Video-to-Music Generation",
+      "year": "2026"
+    }
+  ],
+  "529": [
+    {
+      "arxiv_id": "2604.17656",
+      "title": "Video-Robin: Autoregressive Diffusion Planning for Intent-Grounded Video-to-Music Generation",
+      "year": "2026"
+    }
+  ],
+  "530": [
+    {
+      "arxiv_id": "2604.17614",
+      "title": "Characterizing Model-Native Skills",
+      "year": "2026"
+    }
+  ],
+  "531": [
+    {
+      "arxiv_id": "2604.17614",
+      "title": "Characterizing Model-Native Skills",
+      "year": "2026"
+    }
+  ],
+  "535": [
+    {
+      "arxiv_id": "2604.17614",
+      "title": "Characterizing Model-Native Skills",
+      "year": "2026"
+    }
+  ],
+  "54": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18124",
+      "title": "TLoRA: Task-aware Low Rank Adaptation of Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "545": [
+    {
+      "arxiv_id": "2604.17475",
+      "title": "Waking Up Blind: Cold-Start Optimization of Supervision-Free Agentic Trajectories for Grounded Visual Perception",
+      "year": "2026"
+    }
+  ],
+  "546": [
+    {
+      "arxiv_id": "2604.17475",
+      "title": "Waking Up Blind: Cold-Start Optimization of Supervision-Free Agentic Trajectories for Grounded Visual Perception",
+      "year": "2026"
+    }
+  ],
+  "548": [
+    {
+      "arxiv_id": "2604.17433",
+      "title": "Self-Consistency from Only Two Samples: CoT-PoT Ensembling for Efficient LLM Reasoning",
+      "year": "2026"
+    }
+  ],
+  "549": [
+    {
+      "arxiv_id": "2604.17433",
+      "title": "Self-Consistency from Only Two Samples: CoT-PoT Ensembling for Efficient LLM Reasoning",
+      "year": "2026"
+    }
+  ],
+  "561": [
+    {
+      "arxiv_id": "2604.17301",
+      "title": "RoTRAG: Rule of Thumb Reasoning for Conversation Harm Detection with Retrieval-Augmented Generation",
+      "year": "2026"
+    }
+  ],
+  "564": [
+    {
+      "arxiv_id": "2604.17207",
+      "title": "Demystifying the unreasonable effectiveness of online alignment methods",
+      "year": "2026"
+    }
+  ],
+  "566": [
+    {
+      "arxiv_id": "2604.17207",
+      "title": "Demystifying the unreasonable effectiveness of online alignment methods",
+      "year": "2026"
+    }
+  ],
+  "57": [
+    {
+      "arxiv_id": "2604.16171",
+      "title": "JumpLoRA: Sparse Adapters for Continual Learning in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13552",
+      "title": "Training-Free Test-Time Contrastive Learning for Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "573": [
+    {
+      "arxiv_id": "2604.17068",
+      "title": "Stability-Weighted Decoding for Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10556",
+      "title": "Lost in Diffusion: Uncovering Hallucination Patterns and Failure Modes in Diffusion Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "574": [
+    {
+      "arxiv_id": "2604.17068",
+      "title": "Stability-Weighted Decoding for Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10556",
+      "title": "Lost in Diffusion: Uncovering Hallucination Patterns and Failure Modes in Diffusion Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "58": [
+    {
+      "arxiv_id": "2604.15488",
+      "title": "FineSteer: A Unified Framework for Fine-Grained Inference-Time Steering in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14463",
+      "title": "Psychological Steering of Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.07102",
+      "title": "The Impact of Steering Large Language Models with Persona Vectors in Educational Applications",
+      "year": "2026"
+    }
+  ],
+  "580": [
+    {
+      "arxiv_id": "2604.17010",
+      "title": "Improving LLM Code Reasoning via Semantic Equivalence Self-Play with Formal Verification",
+      "year": "2026"
+    }
+  ],
+  "582": [
+    {
+      "arxiv_id": "2604.17010",
+      "title": "Improving LLM Code Reasoning via Semantic Equivalence Self-Play with Formal Verification",
+      "year": "2026"
+    }
+  ],
+  "586": [
+    {
+      "arxiv_id": "2604.16989",
+      "title": "Bolzano: Case Studies in LLM-Assisted Mathematical Research",
+      "year": "2026"
+    }
+  ],
+  "587": [
+    {
+      "arxiv_id": "2604.16989",
+      "title": "Bolzano: Case Studies in LLM-Assisted Mathematical Research",
+      "year": "2026"
+    }
+  ],
+  "588": [
+    {
+      "arxiv_id": "2604.16989",
+      "title": "Bolzano: Case Studies in LLM-Assisted Mathematical Research",
+      "year": "2026"
+    }
+  ],
+  "59": [
+    {
+      "arxiv_id": "2604.15180",
+      "title": "AdaSplash-2: Faster Differentiable Sparse Attention",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13847",
+      "title": "SparseBalance: Load-Balanced Long Context Training with Dynamic Sparse Attention",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12219",
+      "title": "Ride the Wave: Precision-Allocated Sparse Attention for Smooth Video Generation",
+      "year": "2026"
+    }
+  ],
+  "590": [
+    {
+      "arxiv_id": "2604.16989",
+      "title": "Bolzano: Case Studies in LLM-Assisted Mathematical Research",
+      "year": "2026"
+    }
+  ],
+  "595": [
+    {
+      "arxiv_id": "2604.16625",
+      "title": "AdaExplore: Failure-Driven Adaptation and Diversity-Preserving Search for Efficient Kernel Generation",
+      "year": "2026"
+    }
+  ],
+  "6": [
+    {
+      "arxiv_id": "2604.18419",
+      "title": "Knowing When to Quit: A Principled Framework for Dynamic Abstention in LLM Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17957",
+      "title": "Process Reward Models Meet Planning: Generating Precise and Scalable Datasets for Step-Level Rewards",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14528",
+      "title": "Dissecting Failure Dynamics in Large Language Model Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12487",
+      "title": "KG-Reasoner: A Reinforced Model for End-to-End Multi-Hop Knowledge Graph Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11778",
+      "title": "General365: Benchmarking General Reasoning in Large Language Models Across Diverse and Challenging Tasks",
+      "year": "2026"
+    }
+  ],
+  "602": [
+    {
+      "arxiv_id": "2604.16622",
+      "title": "Aligning Backchannel and Dialogue Context Representations via Contrastive LLM Fine-Tuning",
+      "year": "2026"
+    }
+  ],
+  "606": [
+    {
+      "arxiv_id": "2604.16622",
+      "title": "Aligning Backchannel and Dialogue Context Representations via Contrastive LLM Fine-Tuning",
+      "year": "2026"
+    }
+  ],
+  "607": [
+    {
+      "arxiv_id": "2604.16591",
+      "title": "Randomized Antipodal Search Done Right for Data Pareto Improvement of LLM Unlearning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14808",
+      "title": "Modeling LLM Unlearning as an Asymmetric Two-Task Learning Problem",
+      "year": "2026"
+    }
+  ],
+  "608": [
+    {
+      "arxiv_id": "2604.16591",
+      "title": "Randomized Antipodal Search Done Right for Data Pareto Improvement of LLM Unlearning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17396",
+      "title": "Representation-Guided Parameter-Efficient LLM Unlearning",
+      "year": "2026"
+    }
+  ],
+  "61": [
+    {
+      "arxiv_id": "2604.14001",
+      "title": "Diffusion Language Models for Speech Recognition",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18738",
+      "title": "Remask, Don't Replace: Token-to-Mask Refinement in Masked Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.03677",
+      "title": "Unlocking Prompt Infilling Capability for Diffusion Language Models",
+      "year": "2026"
+    }
+  ],
+  "612": [
+    {
+      "arxiv_id": "2604.16278",
+      "title": "Learning to Reason with Insight for Informal Theorem Proving",
+      "year": "2026"
+    }
+  ],
+  "613": [
+    {
+      "arxiv_id": "2604.16278",
+      "title": "Learning to Reason with Insight for Informal Theorem Proving",
+      "year": "2026"
+    }
+  ],
+  "615": [
+    {
+      "arxiv_id": "2604.16278",
+      "title": "Learning to Reason with Insight for Informal Theorem Proving",
+      "year": "2026"
+    }
+  ],
+  "617": [
+    {
+      "arxiv_id": "2604.16171",
+      "title": "JumpLoRA: Sparse Adapters for Continual Learning in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "62": [
+    {
+      "arxiv_id": "2604.13413",
+      "title": "Dataset-Level Metrics Attenuate Non-Determinism: A Fine-Grained Non-Determinism Evaluation in Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10567",
+      "title": "Early Decisions Matter: Proximity Bias and Initial Trajectory Shaping in Non-Autoregressive Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10556",
+      "title": "Lost in Diffusion: Uncovering Hallucination Patterns and Failure Modes in Diffusion Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11035",
+      "title": "Introspective Diffusion Language Models",
+      "year": "2026"
+    }
+  ],
+  "621": [
+    {
+      "arxiv_id": "2604.16171",
+      "title": "JumpLoRA: Sparse Adapters for Continual Learning in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "626": [
+    {
+      "arxiv_id": "2604.16158",
+      "title": "AtManRL: Towards Faithful Reasoning via Differentiable Attention Saliency",
+      "year": "2026"
+    }
+  ],
+  "628": [
+    {
+      "arxiv_id": "2604.16158",
+      "title": "AtManRL: Towards Faithful Reasoning via Differentiable Attention Saliency",
+      "year": "2026"
+    }
+  ],
+  "64": [
+    {
+      "arxiv_id": "2604.12710",
+      "title": "LASA: Language-Agnostic Semantic Alignment at the Semantic Bottleneck for LLM Safety",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17730",
+      "title": "MHSafeEval: Role-Aware Interaction-Level Evaluation of Mental Health Safety in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "649": [
+    {
+      "arxiv_id": "2604.15866",
+      "title": "DiZiNER: Disagreement-guided Instruction Refinement via Pilot Annotation Simulation for Zero-shot Named Entity Recognition",
+      "year": "2026"
+    }
+  ],
+  "657": [
+    {
+      "arxiv_id": "2604.15794",
+      "title": "Self-Distillation as a Performance Recovery Mechanism for LLMs: Counteracting Compression and Catastrophic Forgetting",
+      "year": "2026"
+    }
+  ],
+  "66": [
+    {
+      "arxiv_id": "2604.10660",
+      "title": "Efficient Process Reward Modeling via Contrastive Mutual Information",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.17957",
+      "title": "Process Reward Models Meet Planning: Generating Precise and Scalable Datasets for Step-Level Rewards",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13197",
+      "title": "Unleashing Implicit Rewards: Prefix-Value Learning for Distribution-Level Optimization",
+      "year": "2026"
+    }
+  ],
+  "664": [
+    {
+      "arxiv_id": "2604.15589",
+      "title": "LLM attribution analysis across different fine-tuning strategies and model scales for automated code compliance",
+      "year": "2026"
+    }
+  ],
+  "67": [
+    {
+      "arxiv_id": "2604.17091",
+      "title": "GenericAgent: A Token-Efficient Self-Evolving LLM Agent via Contextual Information Density Maximization (V1.0)",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.16706",
+      "title": "Evaluating Tool-Using Language Agents: Judge Reliability, Propagation Cascades, and Runtime Mitigation in AgentProp-Bench",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08369",
+      "title": "Don't Overthink It: Inter-Rollout Action Agreement as a Free Adaptive-Compute Signal for LLM Agents",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12285",
+      "title": "GAM: Hierarchical Graph-based Agentic Memory for LLM Agents",
+      "year": "2026"
+    }
+  ],
+  "670": [
+    {
+      "arxiv_id": "2604.15588",
+      "title": "\"Excuse me, may I say something...\" CoLabScience, A Proactive AI Assistant for Biomedical Discovery and LLM-Expert Collaborations",
+      "year": "2026"
+    }
+  ],
+  "672": [
+    {
+      "arxiv_id": "2604.15588",
+      "title": "\"Excuse me, may I say something...\" CoLabScience, A Proactive AI Assistant for Biomedical Discovery and LLM-Expert Collaborations",
+      "year": "2026"
+    }
+  ],
+  "673": [
+    {
+      "arxiv_id": "2604.15588",
+      "title": "\"Excuse me, may I say something...\" CoLabScience, A Proactive AI Assistant for Biomedical Discovery and LLM-Expert Collaborations",
+      "year": "2026"
+    }
+  ],
+  "676": [
+    {
+      "arxiv_id": "2604.15574",
+      "title": "Why Fine-Tuning Encourages Hallucinations and How to Fix It",
+      "year": "2026"
+    }
+  ],
+  "687": [
+    {
+      "arxiv_id": "2604.15488",
+      "title": "FineSteer: A Unified Framework for Fine-Grained Inference-Time Steering in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "689": [
+    {
+      "arxiv_id": "2604.15488",
+      "title": "FineSteer: A Unified Framework for Fine-Grained Inference-Time Steering in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "694": [
+    {
+      "arxiv_id": "2604.15302",
+      "title": "Diagnosing LLM Judge Reliability: Conformal Prediction Sets and Transitivity Violations",
+      "year": "2026"
+    }
+  ],
+  "696": [
+    {
+      "arxiv_id": "2604.15302",
+      "title": "Diagnosing LLM Judge Reliability: Conformal Prediction Sets and Transitivity Violations",
+      "year": "2026"
+    }
+  ],
+  "698": [
+    {
+      "arxiv_id": "2604.15416",
+      "title": "StoSignSGD: Unbiased Structural Stochasticity Fixes SignSGD for Training Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09276",
+      "title": "Distributed Online Convex Optimization with Compressed Communication: Optimal Regret and Applications",
+      "year": "2026"
+    }
+  ],
+  "7": [
+    {
+      "arxiv_id": "2604.16264",
+      "title": "Information Router for Mitigating Modality Dominance in Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.20012",
+      "title": "EmbodiedMidtrain: Bridging the Gap between Vision-Language Models and Vision-Language-Action Models via Mid-training",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18347",
+      "title": "Multilingual Training and Evaluation Resources for Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12033",
+      "title": "Benchmarking Deflection and Hallucination in Large Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09531",
+      "title": "VisionFoundry: Teaching VLMs Visual Perception with Synthetic Images",
+      "year": "2026"
+    }
+  ],
+  "702": [
+    {
+      "arxiv_id": "2604.16529",
+      "title": "Scaling Test-Time Compute for Agentic Coding",
+      "year": "2026"
+    }
+  ],
+  "703": [
+    {
+      "arxiv_id": "2604.16529",
+      "title": "Scaling Test-Time Compute for Agentic Coding",
+      "year": "2026"
+    }
+  ],
+  "705": [
+    {
+      "arxiv_id": "2604.16529",
+      "title": "Scaling Test-Time Compute for Agentic Coding",
+      "year": "2026"
+    }
+  ],
+  "709": [
+    {
+      "arxiv_id": "2604.15224",
+      "title": "Context Over Content: Exposing Evaluation Faking in Automated Judges",
+      "year": "2026"
+    }
+  ],
+  "71": [
+    {
+      "arxiv_id": "2604.20817",
+      "title": "Convergent Evolution: How Different Language Models Learn Similar Number Representations",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.08510",
+      "title": "What do Language Models Learn and When? The Implicit Curriculum Hypothesis",
+      "year": "2026"
+    }
+  ],
+  "713": [
+    {
+      "arxiv_id": "2604.15224",
+      "title": "Context Over Content: Exposing Evaluation Faking in Automated Judges",
+      "year": "2026"
+    }
+  ],
+  "715": [
+    {
+      "arxiv_id": "2604.15109",
+      "title": "IUQ: Interrogative Uncertainty Quantification for Long-Form Large Language Model Generation",
+      "year": "2026"
+    }
+  ],
+  "716": [
+    {
+      "arxiv_id": "2604.15109",
+      "title": "IUQ: Interrogative Uncertainty Quantification for Long-Form Large Language Model Generation",
+      "year": "2026"
+    }
+  ],
+  "72": [
+    {
+      "arxiv_id": "2604.20817",
+      "title": "Convergent Evolution: How Different Language Models Learn Similar Number Representations",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14459",
+      "title": "Filling in the Mechanisms: How do LMs Learn Filler-Gap Dependencies under Developmental Constraints?",
+      "year": "2026"
+    }
+  ],
+  "726": [
+    {
+      "arxiv_id": "2604.15022",
+      "title": "Route to Rome Attack: Directing LLM Routers to Expensive Models via Adversarial Suffix Optimization",
+      "year": "2026"
+    }
+  ],
+  "730": [
+    {
+      "arxiv_id": "2604.15010",
+      "title": "What Is the Minimum Architecture for Prolepsis? Early Irrevocable Commitment Across Tasks in Small Transformers",
+      "year": "2026"
+    }
+  ],
+  "737": [
+    {
+      "arxiv_id": "2604.15400",
+      "title": "Hallucination as Trajectory Commitment: Causal Evidence for Asymmetric Attractor Dynamics in Transformer Generation",
+      "year": "2026"
+    }
+  ],
+  "746": [
+    {
+      "arxiv_id": "2604.14888",
+      "title": "Reasoning Dynamics and the Limits of Monitoring Modality Reliance in Vision-Language Models",
+      "year": "2026"
+    }
+  ],
+  "758": [
+    {
+      "arxiv_id": "2604.14616",
+      "title": "Retrieve, Then Classify: Corpus-Grounded Automation of Clinical Value Set Authoring",
+      "year": "2026"
+    }
+  ],
+  "763": [
+    {
+      "arxiv_id": "2604.14498",
+      "title": "Improving Machine Learning Performance with Synthetic Augmentation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.07159",
+      "title": "SBBTS: A Unified Schr\u00f6dinger-Bass Framework for Synthetic Financial Time Series",
+      "year": "2026"
+    }
+  ],
+  "764": [
+    {
+      "arxiv_id": "2604.14430",
+      "title": "Three-Phase Transformer",
+      "year": "2026"
+    }
+  ],
+  "768": [
+    {
+      "arxiv_id": "2604.14430",
+      "title": "Three-Phase Transformer",
+      "year": "2026"
+    }
+  ],
+  "769": [
+    {
+      "arxiv_id": "2604.14430",
+      "title": "Three-Phase Transformer",
+      "year": "2026"
+    }
+  ],
+  "775": [
+    {
+      "arxiv_id": "2604.14142",
+      "title": "From $P(y|x)$ to $P(y)$: Investigating Reinforcement Learning in Pre-train Space",
+      "year": "2026"
+    }
+  ],
+  "778": [
+    {
+      "arxiv_id": "2604.14140",
+      "title": "LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.06636",
+      "title": "SHAPE: Stage-aware Hierarchical Advantage via Potential Estimation for LLM Reasoning",
+      "year": "2026"
+    }
+  ],
+  "795": [
+    {
+      "arxiv_id": "2604.16519",
+      "title": "Positive-Only Drifting Policy Optimization",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13966",
+      "title": "Provably Efficient Offline-to-Online Value Adaptation with General Function Approximation",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11994",
+      "title": "Offline-Online Reinforcement Learning for Linear Mixture MDPs",
+      "year": "2026"
+    }
+  ],
+  "8": [
+    {
+      "arxiv_id": "2604.20659",
+      "title": "GRPO-VPS: Enhancing Group Relative Policy Optimization with Verifiable Process Supervision for Effective Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15149",
+      "title": "LLMs Gaming Verifiers: RLVR can Lead to Reward Hacking",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14142",
+      "title": "From $P(y|x)$ to $P(y)$: Investigating Reinforcement Learning in Pre-train Space",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13902",
+      "title": "DiPO: Disentangled Perplexity Policy Optimization for Fine-grained Exploration-Exploitation Trade-Off",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.11056",
+      "title": "Rethinking Token-Level Credit Assignment in RLVR: A Polarity-Entropy Analysis",
+      "year": "2026"
+    }
+  ],
+  "80": [
+    {
+      "arxiv_id": "2604.19321",
+      "title": "RDP LoRA: Geometry-Driven Identification for Parameter-Efficient Adaptation in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13368",
+      "title": "TLoRA+: A Low-Rank Parameter-Efficient Fine-Tuning Method for Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "806": [
+    {
+      "arxiv_id": "2604.13991",
+      "title": "Adaptive Conformal Prediction for Improving Factuality of Generations by Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "808": [
+    {
+      "arxiv_id": "2604.13991",
+      "title": "Adaptive Conformal Prediction for Improving Factuality of Generations by Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "812": [
+    {
+      "arxiv_id": "2604.13977",
+      "title": "How Can We Synthesize High-Quality Pretraining Data? A Systematic Study of Prompt Design, Generator Model, and Source Data",
+      "year": "2026"
+    }
+  ],
+  "814": [
+    {
+      "arxiv_id": "2604.13977",
+      "title": "How Can We Synthesize High-Quality Pretraining Data? A Systematic Study of Prompt Design, Generator Model, and Source Data",
+      "year": "2026"
+    }
+  ],
+  "815": [
+    {
+      "arxiv_id": "2604.13977",
+      "title": "How Can We Synthesize High-Quality Pretraining Data? A Systematic Study of Prompt Design, Generator Model, and Source Data",
+      "year": "2026"
+    }
+  ],
+  "818": [
+    {
+      "arxiv_id": "2604.15371",
+      "title": "Applied Explainability for Large Language Models: A Comparative Study",
+      "year": "2026"
+    }
+  ],
+  "825": [
+    {
+      "arxiv_id": "2604.13733",
+      "title": "Jump-Start Reinforcement Learning with Vision-Language-Action Regularization",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2603.28730",
+      "title": "SOLE-R1: Video-Language Reasoning as the Sole Reward for On-Robot Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "827": [
+    {
+      "arxiv_id": "2604.13602",
+      "title": "Reward Hacking in the Era of Large Models: Mechanisms, Emergent Misalignment, Challenges",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.02986",
+      "title": "Mitigating Reward Hacking in RLHF via Advantage Sign Robustness",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.01476",
+      "title": "When Reward Hacking Rebounds: Understanding and Mitigating It with Representation-Level Signals",
+      "year": "2026"
+    }
+  ],
+  "828": [
+    {
+      "arxiv_id": "2604.13504",
+      "title": "Chain of Uncertain Rewards with Large Language Models for Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "829": [
+    {
+      "arxiv_id": "2604.13504",
+      "title": "Chain of Uncertain Rewards with Large Language Models for Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "831": [
+    {
+      "arxiv_id": "2604.13504",
+      "title": "Chain of Uncertain Rewards with Large Language Models for Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "833": [
+    {
+      "arxiv_id": "2604.13504",
+      "title": "Chain of Uncertain Rewards with Large Language Models for Reinforcement Learning",
+      "year": "2026"
+    }
+  ],
+  "837": [
+    {
+      "arxiv_id": "2604.13395",
+      "title": "Quantifying and Understanding Uncertainty in Large Reasoning Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.05868",
+      "title": "Understanding Performance Gap Between Parallel and Sequential Sampling in Large Reasoning Models",
+      "year": "2026"
+    }
+  ],
+  "838": [
+    {
+      "arxiv_id": "2604.14232",
+      "title": "Explainable Graph Neural Networks for Interbank Contagion Surveillance: A Regulatory-Aligned Framework for the U.S. Banking Sector",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.04020",
+      "title": "Unmasking Hallucinations: A Causal Graph-Attention Perspective on Factual Reliability in Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "84": [
+    {
+      "arxiv_id": "2604.17930",
+      "title": "Heterogeneity in Formal Linguistic Competence of Language Models: Is Data the Real Bottleneck?",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.18103",
+      "title": "Stability Implies Redundancy: Delta Attention Selective Halting for Efficient Long-Context Prefilling",
+      "year": "2026"
+    }
+  ],
+  "844": [
+    {
+      "arxiv_id": "2604.14228",
+      "title": "Dive into Claude Code: The Design Space of Today's and Future AI Agent Systems",
+      "year": "2026"
+    }
+  ],
+  "852": [
+    {
+      "arxiv_id": "2604.13016",
+      "title": "Rethinking On-Policy Distillation of Large Language Models: Phenomenology, Mechanism, and Recipe",
+      "year": "2026"
+    }
+  ],
+  "857": [
+    {
+      "arxiv_id": "2604.12634",
+      "title": "RPRA: Predicting an LLM-Judge for Efficient but Performant Inference",
+      "year": "2026"
+    }
+  ],
+  "863": [
+    {
+      "arxiv_id": "2604.12634",
+      "title": "RPRA: Predicting an LLM-Judge for Efficient but Performant Inference",
+      "year": "2026"
+    }
+  ],
+  "864": [
+    {
+      "arxiv_id": "2604.12469",
+      "title": "Analyzing the Effect of Noise in LLM Fine-tuning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12651",
+      "title": "Learning Chain Of Thoughts Prompts for Predicting Entities, Relations, and even Literals on Knowledge Graphs",
+      "year": "2026"
+    }
+  ],
+  "865": [
+    {
+      "arxiv_id": "2604.18612",
+      "title": "Agent-GWO: Collaborative Agents for Dynamic Prompt Optimization in Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.14214",
+      "title": "CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization",
+      "year": "2026"
+    }
+  ],
+  "867": [
+    {
+      "arxiv_id": "2604.12374",
+      "title": "Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning",
+      "year": "2026"
+    }
+  ],
+  "868": [
+    {
+      "arxiv_id": "2604.12374",
+      "title": "Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning",
+      "year": "2026"
+    }
+  ],
+  "87": [
+    {
+      "arxiv_id": "2604.17068",
+      "title": "Stability-Weighted Decoding for Diffusion Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.10556",
+      "title": "Lost in Diffusion: Uncovering Hallucination Patterns and Failure Modes in Diffusion Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00375",
+      "title": "Locally Confident, Globally Stuck: The Quality-Exploration Dilemma in Diffusion Language Models",
+      "year": "2026"
+    }
+  ],
+  "875": [
+    {
+      "arxiv_id": "2604.12247",
+      "title": "SpecBound: Adaptive Bounded Self-Speculation with Layer-wise Confidence Calibration",
+      "year": "2026"
+    }
+  ],
+  "877": [
+    {
+      "arxiv_id": "2604.12247",
+      "title": "SpecBound: Adaptive Bounded Self-Speculation with Layer-wise Confidence Calibration",
+      "year": "2026"
+    }
+  ],
+  "879": [
+    {
+      "arxiv_id": "2604.12247",
+      "title": "SpecBound: Adaptive Bounded Self-Speculation with Layer-wise Confidence Calibration",
+      "year": "2026"
+    }
+  ],
+  "88": [
+    {
+      "arxiv_id": "2604.16995",
+      "title": "SPS: Steering Probability Squeezing for Better Exploration in Reinforcement Learning for Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13804",
+      "title": "Character Beyond Speech: Leveraging Role-Playing Evaluation in Audio Large Language Models via Reinforcement Learning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09459",
+      "title": "From Reasoning to Agentic: Credit Assignment in Reinforcement Learning for Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "9": [
+    {
+      "arxiv_id": "2604.19857",
+      "title": "Rethinking Reinforcement Fine-Tuning in LVLM: Convergence, Reward Decomposition, and Generalization",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.19412",
+      "title": "VCE: A zero-cost hallucination mitigation method of LVLMs via visual contrastive editing",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15648",
+      "title": "HyperGVL: Benchmarking and Improving Large Vision-Language Models in Hypergraph Understanding and Reasoning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.12033",
+      "title": "Benchmarking Deflection and Hallucination in Large Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.04411",
+      "title": "Responses Fall Short of Understanding: Revealing the Gap between Internal Representations and Responses in Visual Document Understanding",
+      "year": "2026"
+    }
+  ],
+  "907": [
+    {
+      "arxiv_id": "2604.12069",
+      "title": "Robust Explanations for User Trust in Enterprise NLP Systems",
+      "year": "2026"
+    }
+  ],
+  "923": [
+    {
+      "arxiv_id": "2604.16493",
+      "title": "NL2SQLBench: A Modular Benchmarking Framework for LLM-Enabled NL2SQL Solutions",
+      "year": "2026"
+    }
+  ],
+  "946": [
+    {
+      "arxiv_id": "2604.11699",
+      "title": "Legal2LogicICL: Improving Generalization in Transforming Legal Cases to Logical Formulas via Diverse Few-Shot Learning",
+      "year": "2026"
+    }
+  ],
+  "947": [
+    {
+      "arxiv_id": "2604.11699",
+      "title": "Legal2LogicICL: Improving Generalization in Transforming Legal Cases to Logical Formulas via Diverse Few-Shot Learning",
+      "year": "2026"
+    }
+  ],
+  "948": [
+    {
+      "arxiv_id": "2604.11699",
+      "title": "Legal2LogicICL: Improving Generalization in Transforming Legal Cases to Logical Formulas via Diverse Few-Shot Learning",
+      "year": "2026"
+    }
+  ],
+  "949": [
+    {
+      "arxiv_id": "2604.11699",
+      "title": "Legal2LogicICL: Improving Generalization in Transforming Legal Cases to Logical Formulas via Diverse Few-Shot Learning",
+      "year": "2026"
+    }
+  ],
+  "95": [
+    {
+      "arxiv_id": "2604.15180",
+      "title": "AdaSplash-2: Faster Differentiable Sparse Attention",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.13847",
+      "title": "SparseBalance: Load-Balanced Long Context Training with Dynamic Sparse Attention",
+      "year": "2026"
+    }
+  ],
+  "950": [
+    {
+      "arxiv_id": "2604.11699",
+      "title": "Legal2LogicICL: Improving Generalization in Transforming Legal Cases to Logical Formulas via Diverse Few-Shot Learning",
+      "year": "2026"
+    }
+  ],
+  "96": [
+    {
+      "arxiv_id": "2604.14888",
+      "title": "Reasoning Dynamics and the Limits of Monitoring Modality Reliance in Vision-Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.00455",
+      "title": "First Logit Boosting: Visual Grounding Method to Mitigate Object Hallucination in Large Vision-Language Models",
+      "year": "2026"
+    }
+  ],
+  "961": [
+    {
+      "arxiv_id": "2604.11666",
+      "title": "Playing Along: Learning a Double-Agent Defender for Belief Steering via Theory of Mind",
+      "year": "2026"
+    }
+  ],
+  "967": [
+    {
+      "arxiv_id": "2604.12710",
+      "title": "LASA: Language-Agnostic Semantic Alignment at the Semantic Bottleneck for LLM Safety",
+      "year": "2026"
+    }
+  ],
+  "97": [
+    {
+      "arxiv_id": "2604.13991",
+      "title": "Adaptive Conformal Prediction for Improving Factuality of Generations by Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15789",
+      "title": "A Systematic Study of Training-Free Methods for Trustworthy Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "973": [
+    {
+      "arxiv_id": "2604.11582",
+      "title": "A Triadic Suffix Tokenization Scheme for Numerical Reasoning",
+      "year": "2026"
+    }
+  ],
+  "975": [
+    {
+      "arxiv_id": "2604.11582",
+      "title": "A Triadic Suffix Tokenization Scheme for Numerical Reasoning",
+      "year": "2026"
+    }
+  ],
+  "98": [
+    {
+      "arxiv_id": "2604.13991",
+      "title": "Adaptive Conformal Prediction for Improving Factuality of Generations by Large Language Models",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.15789",
+      "title": "A Systematic Study of Training-Free Methods for Trustworthy Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "987": [
+    {
+      "arxiv_id": "2604.11510",
+      "title": "Policy Split: Incentivizing Dual-Mode Exploration in LLM Reinforcement with Dual-Mode Entropy Regularization",
+      "year": "2026"
+    }
+  ],
+  "99": [
+    {
+      "arxiv_id": "2604.13504",
+      "title": "Chain of Uncertain Rewards with Large Language Models for Reinforcement Learning",
+      "year": "2026"
+    },
+    {
+      "arxiv_id": "2604.09459",
+      "title": "From Reasoning to Agentic: Credit Assignment in Reinforcement Learning for Large Language Models",
+      "year": "2026"
+    }
+  ],
+  "996": [
+    {
+      "arxiv_id": "2604.11501",
+      "title": "Quantization Dominates Rank Reduction for KV-Cache Compression",
+      "year": "2026"
+    }
+  ],
+  "999": [
+    {
+      "arxiv_id": "2604.11501",
+      "title": "Quantization Dominates Rank Reduction for KV-Cache Compression",
+      "year": "2026"
+    }
+  ]
+}

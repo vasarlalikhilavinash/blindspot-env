@@ -1,0 +1,40 @@
+=== Stage 01: fetch users ===
+  ✓ Zhi Rui Tam  pre=15 post=4
+  ✓ Seungone Kim  pre=36 post=4
+  ✓ Luke S. Zettlemoyer  pre=30 post=8
+  ✓ Prithviraj Ammanabrolu  pre=9 post=5
+  ✓ Jiayi Liu  pre=10 post=3
+  ✓ Tianhao Shen  pre=23 post=3
+  ✓ Renren Jin  pre=27 post=4
+  ✓ Yftah Ziser  pre=32 post=5
+  ✓ E. Ponti  pre=84 post=7
+  skip Iryna Gurevych: Repeated 429 from Semantic Scholar on /author/2260340390/papers
+  ✓ Amartya Sanyal  pre=40 post=4
+  ✓ Aiwei Liu  pre=55 post=8
+  skip S. Wang: Repeated 429 from Semantic Scholar on /author/2284725251/papers
+  skip Jiulong Shan: Repeated 429 from Semantic Scholar on /author/2091600962/papers
+  ✓ Lijie Wen  pre=14 post=5
+  skip Gunsoo Han: Repeated 429 from Semantic Scholar on /author/2146513388/papers
+  ✓ Yuchuan Wu  pre=38 post=7
+  ✓ Yongbin Li  pre=52 post=6
+  ✓ Zenglin Xu  pre=18 post=3
+  ✓ Qian Dong  pre=15 post=3
+  ✓ Haitao Li  pre=42 post=8
+Wrote 17 users to /Users/likhil/MetaHackathon/blindspot-env/scripts/_cache/users.json
+=== Stage 02: fetch corpus ===
+  cs.LG: 2000 papers
+  cs.CL: 2000 papers
+  cs.AI: 2000 papers
+Total: 6000 papers → /Users/likhil/MetaHackathon/blindspot-env/scripts/_cache/corpus.jsonl
+=== Stage 03: extract concepts ===
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 15067.43it/s]
+Wrote 1168 concepts to /Users/likhil/MetaHackathon/blindspot-env/scripts/_cache/concepts.json
+=== Stage 04: build pools ===
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 13387.46it/s]
+Batches:   0%|          | 0/10 [00:00<?, ?it/s]Batches:  10%|█         | 1/10 [00:00<00:01,  5.63it/s]Batches:  70%|███████   | 7/10 [00:00<00:00, 29.68it/s]Batches: 100%|██████████| 10/10 [00:00<00:00, 27.36it/s]
+Wrote pools for 17 users; 200 trending @ T.
+=== Stage 05: score adoption ===
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 16304.85it/s]
+Wrote adoption for 17 users.
+=== Stage 06: build reading paths ===
+scripts/run_all_precompute.sh: line 32: 57706 Terminated: 15          $PY scripts/precompute_06_build_paths.py
