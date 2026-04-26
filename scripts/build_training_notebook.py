@@ -292,7 +292,9 @@ def _patched_meta_version(name, _orig=_orig_meta_version):
     if name == 'torchcodec':
         return '0.0.0'
     return _orig(name)
-_imeta.version = _patched_meta_version
+_patched_meta_version._is_torchcodec_patch = True
+if not getattr(_imeta.version, '_is_torchcodec_patch', False):
+    _imeta.version = _patched_meta_version
 
 for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
     _m = sys.modules.get(_n)
