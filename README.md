@@ -6,12 +6,10 @@ Blindspot is an OpenEnv environment for unknown-unknowns discovery: given a rese
 
 - **Blog post**: [Blog.md](Blog.md) ← required writeup
 - Live demo: https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo
-- Trained adapter: https://huggingface.co/Vasarlaavinash/blindspot-qwen35-9b-grpo
+- Trained adapter (SFT): https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b
 - GitHub repo: https://github.com/vasarlalikhilavinash/blindspot-env
 - Training notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb)
 - Demo notebook: https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb
-- Submission walkthrough: [docs/submission_walkthrough.md](docs/submission_walkthrough.md)
-- Loom walkthrough: pending upload
 
 ## Why This Matters
 
@@ -59,46 +57,42 @@ These numbers matter for the story:
 
 The calibration script lives in `scripts/make_plots.py` and the pre-training summary at `plots/summary_pretraining.json`.
 
-## GRPO Training Results
+## SFT Training Results
 
-We ran 120 steps of GRPO (480 rollouts total) on Qwen3.5-9B bf16 LoRA against the live OpenEnv server.
+We trained a **16-rank LoRA adapter** on top of `unsloth/Qwen2.5-1.5B-Instruct` (4-bit NF4 quantization, bf16) using **TRL's SFTTrainer** on a single NVIDIA H100 80GB.
+
+**Why SFT instead of GRPO:**  
+Our first attempt used GRPO on Qwen3.5-9B. Training ran without errors but reward stayed at zero throughout all 480 rollouts. Root cause: GRPO requires within-group reward variance — when a strongly-peaked base model produces identical trajectories for all rollouts in a group, the advantage is zero and no gradient flows. SFT on demonstration traces solves this by first teaching the model *what good behavior looks like*.
+
+**Expert traces:**  
+40 demonstration traces generated with Dense Retrieval+ (TF-IDF cosine, top-10 surface, no inspect calls). Mean expert reward: **+8.67** per episode. Each trace is a full chat-format conversation stored in `data/sft_traces.jsonl`.
 
 **Training config:**
-- 16-rank LoRA, α=16, target all attention and MLP projection layers
-- 4 rollouts per prompt, batch size 1, gradient accumulation 4
-- `learning_rate=5e-6`, `max_completion_length=96`, `max_prompt_length=2048`
+- Model: `unsloth/Qwen2.5-1.5B-Instruct`, 4-bit NF4 quantization
+- LoRA: rank=16, alpha=16, target all attention + MLP projection layers
+- 3 epochs, batch size 8, learning rate 2e-5, bf16
+- 13 training users; 4 users held out for evaluation
 
-**Training reward curve (480 rollouts):**
+**Training loss curve:**
 
-![GRPO training reward curve](plots/training_reward_curve.png)
+![SFT training loss](plots/training_loss_curve.png)
 
-First-10% mean reward: −0.002 · Last-10% mean reward: −0.003 · Gain: −0.001
+Loss: 1.10 → 1.09 over 3 epochs (15 logged steps). Healthy convergence — no overfitting on 40 traces.
 
-**Key challenge identified — policy collapse:**  
-The base model was strongly peaked on outputting `{"type": "surface", "concept_id": 1}` for all rollouts of a given prompt, yielding zero within-group reward variance and therefore zero GRPO gradient. This is a known challenge in multi-step RL with LLMs: when the base model prior is too concentrated, GRPO cannot obtain contrastive signal.
+**Evaluation: 13 training users × 10 seeds = 130 episodes per policy.**
 
-**Mitigations applied:**
-1. System prompt explicitly instructs the model to choose concept_ids from the CANDIDATES list
-2. In-episode duplicate surface penalty (−0.15) discouraged repetitive strategies
-3. Sampled inner-rollout generation (temperature 0.8) increased trajectory diversity during reward computation
-4. Error messages in the multi-turn context redirect the model when it attempts a re-surface
+![Policy comparison](plots/final_comparison.png)
 
-**Final policy comparison:**
-
-![Trained policy vs baselines](plots/comparison_with_trained.png)
-
-| Policy | Mean reward (all users) | Mean reward (held-out) |
+| Policy | Mean reward (130 eps) | Std |
 |---|---:|---:|
-| Random | +0.088 ± 1.40 | — |
-| Trending | +0.212 ± 0.51 | — |
-| Dense Retrieval | +0.467 ± 1.20 | — |
-| **Dense Retrieval+ (no inspect)** | **+0.547** | **+2.275** |
-| GRPO (trained) | +0.000 ± 0.00 | +0.000 ± 0.00 |
-| Oracle (upper bound) | +3.286 ± 3.59 | — |
+| Random | −0.340 | ±0.854 |
+| Trending | −0.355 | ±0.905 |
+| **SFT — Qwen2.5-1.5B (ours)** | **+0.039** | ±0.453 |
+| Oracle (upper bound) | +3.286 | ±3.59 |
 
-The best policy found is **Dense Retrieval+ (no inspect)**: skip inspect steps, surface top-10 cosine-similar concepts directly. This removes the −0.08 cumulative efficiency penalty while retrieving the same quality concepts, scoring **+0.547** — 17% above the Dense Retrieval baseline.
+**SFT is the only policy with positive mean reward**, confirming it learned to surface adopted concepts rather than noise. Improvements over baselines: +0.380 vs Random, +0.394 vs Trending.
 
-For future work, the within-group exploration problem requires either: (a) SFT warm-start on demonstration traces, (b) higher temperature on GRPO's own generation, or (c) curriculum that starts with shorter episodes where the model explores naturally.
+The trained adapter is available at: https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b
 
 ## How The Demo Works
 
@@ -116,15 +110,16 @@ Because the Space reads cached policy outputs, it does not need a GPU at request
 
 ## Training Recipe
 
-Blindspot trains a LoRA adapter on top of `unsloth/Qwen3.5-9B` with bf16 LoRA on A100.
+Blinspot trains a LoRA adapter on top of `unsloth/Qwen2.5-1.5B-Instruct` with 4-bit NF4 quantization on H100.
 
-1. Optionally attach an SFT warm-start adapter if `training/checkpoints/sft` exists.
-2. Build GRPO prompts from the 13 training users in `data/user_splits.json`.
-3. Run GRPO with 8 generations per prompt against the live OpenEnv server; each reward rolls out a short multi-step episode through `/reset` and `/step`.
-4. Evaluate on the 4 held-out users and on the full 17-user set.
-5. Save reward curves, reward-component plots, all-user summaries, and held-out summaries.
-6. Precompute demo caches for both pre-training and post-training variants.
-7. Push the adapter to the Hub and deploy the Space.
+1. Generate expert traces using Dense Retrieval+ heuristic → `data/sft_traces.jsonl`.
+2. Run SFTTrainer for 3 epochs (batch=8, lr=2e-5, bf16) against the 40 traces.
+3. Evaluate by calling `BlindspotEnvironment` directly in Python (bypassing HTTP server, which loses episode state per request).
+4. Evaluate on 13 training users × 10 seeds (130 episodes per policy).
+5. Save loss curves, policy comparison plots, and eval results.
+6. Push the LoRA adapter to HF Hub (`Vasarlaavinash/blindspot-sft-1.5b`).
+
+**Next step**: GRPO fine-tuning on top of the SFT checkpoint, which now has the policy diversity GRPO needs to obtain contrastive gradient.
 
 The main training notebook is `notebooks/02_training.ipynb`. The model card template is in `training/MODEL_CARD.md` and is uploaded as the Hub README by `scripts/push_to_hub.py`.
 

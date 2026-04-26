@@ -118,7 +118,7 @@ Evaluation: 13 training users × 10 seeds = **130 episodes per policy**.
 
 ### SFT training curve
 
-![SFT training loss](plots/sft_loss.png)
+![SFT training loss](plots/training_loss_curve.png)
 
 Loss decreases from 1.10 → 1.09 over 3 epochs (15 logged steps). Healthy convergence — no overfitting on 40 traces.
 
