@@ -8,6 +8,7 @@ Architecture:
   - Baselines (Random/Trending/Dense) and the kNN proxy run on CPU instantly.
 """
 from __future__ import annotations
+from collections import Counter
 import html
 import os
 import sys
@@ -74,6 +75,419 @@ USER_OPTIONS = [(f"{uid}: {demo_engine.users[uid][:80]}…", uid)
 PALETTE = {'Random': '#888', 'Trending': '#cc7733', 'Dense Retrieval': '#3377cc',
            'Blindspot (pre-training)': '#aa4488', 'Blindspot RL': '#22aa66'}
 
+TOPIC_BUCKET_KEYWORDS = [
+    ("Agents & Tool Use", ["agent", "tool", "workflow", "planner", "planning", "browser", "multi-agent"]),
+    ("Retrieval & Search", ["retrieval", "rag", "search", "query", "passage", "rerank", "index"]),
+    ("Reasoning & Alignment", ["reasoning", "alignment", "reward", "preference", "judge", "reflection", "policy"]),
+    ("Diffusion & Multimodal", ["diffusion", "video", "image", "vision", "multimodal", "audio", "speech"]),
+    ("Training & Fine-tuning", ["pretrain", "fine-tun", "lora", "adapter", "distill", "instruction", "tuning"]),
+    ("Inference & Systems", ["inference", "serving", "cache", "kv", "latency", "throughput", "quantization", "speculative"]),
+    ("Evaluation & Benchmarks", ["eval", "benchmark", "metric", "judge", "leaderboard"]),
+    ("Safety & Robustness", ["safety", "privacy", "robust", "adversarial", "hallucination", "unlearning", "fairness"]),
+    ("Domain Applications", ["legal", "biomedical", "medical", "recommendation", "dialogue", "summarization", "translation"]),
+]
+
+
+def infer_topic_bucket(title: str, one_liner: str = "") -> str:
+    text = f"{title} {one_liner}".lower()
+    scores = Counter()
+    for bucket, keywords in TOPIC_BUCKET_KEYWORDS:
+        for keyword in keywords:
+            if keyword in text:
+                scores[bucket] += 1
+    if scores:
+        return scores.most_common(1)[0][0]
+    if "large language" in text or "llm" in text:
+        return "General LLMs"
+    return "Other"
+
+
+# ──────────────────────────── Human research loop ────────────────────────────
+def render_human_research_loop(report):
+    """Replay one episode as a game-like research session.
+
+    The intent is to show the audience the starting board, the browse/open/
+    ignore/bookmark decisions, and which topic areas were covered vs neglected.
+    """
+    try:
+        from server.blindspot_environment import BlindspotEnvironment
+        from models import BlindspotAction
+    except Exception as exc:
+        return (
+            "<div style='margin:28px 0;padding:18px;background:#fff8e1;border-radius:12px;"
+            "border:1px solid #f0d58c;'>"
+            "<b>Human research loop unavailable.</b><br>"
+            f"<span style='font-size:12px;color:#666;'>{html.escape(str(exc))}</span></div>"
+        )
+
+    uid = report['profile'].get('matched_user_id')
+    rl_policy = report['policies'].get('Blindspot RL', {})
+    if not uid or not rl_policy.get('surfaced'):
+        return ""
+
+    card_lookup = {}
+    for res in report['policies'].values():
+        for card in res.get('cards', []):
+            card_lookup[str(card['concept_id'])] = card
+
+    env = BlindspotEnvironment()
+    obs = env.reset(user_id=uid, seed=0)
+    candidate_lookup = {card.concept_id: card for card in obs.candidate_concepts}
+    rl_ids = [int(cid) for cid in rl_policy.get('surfaced', [])
+              if str(cid).isdigit() and int(cid) in candidate_lookup]
+    if not rl_ids:
+        return ""
+
+    catalog = getattr(env, "_data").concept_catalog
+    adoption_table = getattr(env, "_data").adoption.get(uid, {})
+
+    def _catalog_record(cid: int):
+        return catalog.get(cid, catalog.get(str(cid), {}))
+
+    def _adopted_score(cid: int) -> float:
+        return float(adoption_table.get(cid, adoption_table.get(str(cid), 0.0)))
+
+    candidate_records = []
+    for cid, card in candidate_lookup.items():
+        rec = _catalog_record(cid)
+        title = rec.get("title", card.title)
+        one_liner = rec.get("one_liner", card.one_liner)
+        candidate_records.append({
+            "concept_id": cid,
+            "title": title,
+            "one_liner": one_liner,
+            "is_trending": bool(rec.get("is_trending")),
+            "growth_signal": float(rec.get("growth_signal", 0.0)),
+            "adopted_by_user": _adopted_score(cid) >= 1e-6,
+            "topic": infer_topic_bucket(title, one_liner),
+        })
+    candidate_by_id = {record["concept_id"]: record for record in candidate_records}
+
+    skip_ids = []
+    for policy_name in ["Blindspot (pre-training)", "Trending", "Dense Retrieval", "Random"]:
+        for card in report['policies'].get(policy_name, {}).get('cards', []):
+            cid_s = str(card.get('concept_id', ''))
+            if not cid_s.isdigit():
+                continue
+            cid = int(cid_s)
+            if (cid in candidate_lookup and cid not in rl_ids and
+                    not card.get('adopted_by_user') and cid not in skip_ids):
+                skip_ids.append(cid)
+                if len(skip_ids) >= 2:
+                    break
+        if len(skip_ids) >= 2:
+            break
+
+    if len(skip_ids) < 2:
+        for record in candidate_records:
+            cid = record["concept_id"]
+            if cid in rl_ids or cid in skip_ids or record["adopted_by_user"]:
+                continue
+            skip_ids.append(cid)
+            if len(skip_ids) >= 2:
+                break
+
+    plan = []
+    if skip_ids:
+        plan.append(("inspect", skip_ids[0],
+                     "Open one tempting result first, like opening a browser tab that looks relevant."))
+        plan.append(("skip", skip_ids[0],
+                     "Close the tab and move on — interesting, but not worth adding to the reading list."))
+    plan.append(("inspect", rl_ids[0],
+                 "Open the concept, skim the summary, and judge whether it could change the current work."))
+    plan.append(("surface", rl_ids[0],
+                 "Bookmark it for later because it looks like a real blindspot, not just a trending keyword."))
+    if len(skip_ids) > 1:
+        plan.append(("inspect", skip_ids[1],
+                     "Check another plausible lead before spending the next bookmark slot."))
+        plan.append(("skip", skip_ids[1],
+                     "Ignore it — this is how the agent avoids wasting time on weak leads."))
+    for cid in rl_ids[1:]:
+        plan.append(("inspect", cid, "Inspect details before deciding whether it deserves attention."))
+        plan.append(("surface", cid,
+                     "Bookmark it — equivalent to adding it to your research bucket list."))
+    plan.append(("stop", None, "Stop when the reading list is strong enough and grade the whole session."))
+
+    start_titles = [html.escape(card.title) for card in obs.candidate_concepts[:5]]
+    total_trending = sum(record["is_trending"] for record in candidate_records)
+    total_under_radar = len(candidate_records) - total_trending
+    total_adopted = sum(record["adopted_by_user"] for record in candidate_records)
+    topic_counts = Counter(record["topic"] for record in candidate_records)
+
+    timeline = [{
+        "kind": "start",
+        "title": "Starting point: open the browser and scan the candidate pool",
+        "human_note": "This mirrors the real first step in research: understand your current work, then skim a manageable board of possible directions instead of the whole internet.",
+        "env_note": f"Matched to researcher {uid} with {len(obs.candidate_concepts)} candidate concepts across {len(topic_counts)} topic buckets.",
+        "reward": 0.0,
+        "candidates_preview": start_titles,
+        "inspect_budget_remaining": obs.inspect_budget_remaining,
+        "surface_budget_remaining": obs.surface_budget_remaining,
+        "surfaced_count": len(obs.surfaced),
+        "breakdown": None,
+        "card": None,
+        "detail": None,
+    }]
+
+    for action_type, cid, human_note in plan:
+        if action_type == "skip":
+            card = card_lookup.get(str(cid), {})
+            record = candidate_by_id.get(cid, {})
+            title = candidate_lookup[cid].title if cid in candidate_lookup else card.get('title', f"concept {cid}")
+            timeline.append({
+                "kind": "skip",
+                "title": title,
+                "human_note": human_note,
+                "env_note": "No `surface` action taken. The topic was opened, judged, and then left out of the reading list.",
+                "reward": 0.0,
+                "inspect_budget_remaining": obs.inspect_budget_remaining,
+                "surface_budget_remaining": obs.surface_budget_remaining,
+                "surfaced_count": len(obs.surfaced),
+                "breakdown": None,
+                "card": card,
+                "record": record,
+                "detail": None,
+            })
+            continue
+
+        action = BlindspotAction(type=action_type, concept_id=cid if action_type != "stop" else None)
+        obs = env.step(action)
+        log_entry = env.state.reasoning_log[-1] if env.state.reasoning_log else {}
+        card = card_lookup.get(str(cid), {}) if cid is not None else None
+        record = candidate_by_id.get(cid, {}) if cid is not None else None
+        detail = obs.inspected.get(str(cid)) if action_type == "inspect" and cid is not None else None
+        breakdown = None
+        if obs.reward_breakdown is not None:
+            breakdown = {
+                "adoption": obs.reward_breakdown.adoption,
+                "novelty": obs.reward_breakdown.novelty,
+                "onboarding": obs.reward_breakdown.onboarding,
+                "efficiency": obs.reward_breakdown.efficiency,
+                "false_positive": obs.reward_breakdown.false_positive,
+                "total": obs.reward_breakdown.total,
+            }
+        title = "Stop and grade the shortlist" if action_type == "stop" else (
+            candidate_lookup[cid].title if cid in candidate_lookup else card.get('title', f"concept {cid}")
+        )
+        timeline.append({
+            "kind": action_type,
+            "step": log_entry.get('step', len(env.state.reasoning_log)),
+            "title": title,
+            "human_note": human_note,
+            "env_note": log_entry.get('note', ''),
+            "reward": float(log_entry.get('reward', obs.reward)),
+            "inspect_budget_remaining": obs.inspect_budget_remaining,
+            "surface_budget_remaining": obs.surface_budget_remaining,
+            "surfaced_count": len(obs.surfaced),
+            "breakdown": breakdown,
+            "card": card,
+            "record": record,
+            "detail": detail,
+        })
+
+    def _chip(text, bg, fg):
+        return (f"<span style='display:inline-block;margin-right:6px;margin-top:4px;"
+                f"padding:3px 8px;border-radius:999px;background:{bg};color:{fg};"
+                f"font-size:11px;font-weight:600;'>{text}</span>")
+
+    def _mini_topic_card(record, accent, tone, extra_label=""):
+        if not record:
+            return ""
+        chips = [
+            _chip(record["topic"], tone, accent),
+            _chip("Trending" if record["is_trending"] else "Under the radar",
+                  "#fff3e0" if record["is_trending"] else "#e8f5e9",
+                  "#ef6c00" if record["is_trending"] else "#2e7d32"),
+        ]
+        if extra_label:
+            chips.append(_chip(extra_label, "#f5f5f5", "#555"))
+        return (
+            f"<div style='margin:8px 0;padding:10px 12px;background:white;border-left:4px solid {accent};"
+            f"border-radius:0 7px 7px 0;box-shadow:0 1px 2px rgba(0,0,0,0.04);'>"
+            f"<div style='font-size:13px;font-weight:700;'>{html.escape(record['title'][:54])}</div>"
+            f"<div style='font-size:12px;color:#666;margin-top:4px;'>{html.escape(record['one_liner'][:120])}</div>"
+            f"<div style='margin-top:6px;'>{''.join(chips)}</div>"
+            f"</div>"
+        )
+
+    label_map = {
+        "start": ("1. Start state", "#e3f2fd", "#1565c0"),
+        "inspect": ("2. Open browser tab", "#ede7f6", "#6a1b9a"),
+        "skip": ("3. Close / ignore", "#fbe9e7", "#d84315"),
+        "surface": ("4. Bookmark / save", "#e8f5e9", "#2e7d32"),
+        "stop": ("5. End session", "#fff8e1", "#ef6c00"),
+    }
+
+    kept_records = [candidate_by_id[cid] for cid in rl_ids if cid in candidate_by_id]
+    skipped_records = [candidate_by_id[cid] for cid in skip_ids if cid in candidate_by_id]
+    neglected_records = [
+        record for record in candidate_records
+        if record["adopted_by_user"] and record["concept_id"] not in rl_ids
+    ]
+    ignored_noise_records = [
+        record for record in candidate_records
+        if (not record["adopted_by_user"] and record["concept_id"] not in rl_ids and
+            record["concept_id"] not in skip_ids)
+    ]
+
+    topic_rows = []
+    for topic, total in topic_counts.most_common(6):
+        kept = sum(1 for record in kept_records if record["topic"] == topic)
+        neglected = sum(1 for record in neglected_records if record["topic"] == topic)
+        ignored = sum(1 for record in ignored_noise_records if record["topic"] == topic)
+        topic_rows.append((topic, total, kept, neglected, ignored))
+
+    out = []
+    out.append("<div style='margin:28px 0;padding:22px;background:#fffdf7;border-radius:14px;"
+               "border:1px solid #e8dcc2;'>")
+    out.append("<h2 style='margin-top:0;margin-bottom:6px;font-size:18px;'>"
+               "🎮 Live research session — what the agent is actually doing</h2>")
+    out.append("<p style='color:#666;font-size:13px;margin-top:0;margin-bottom:18px;'>"
+               "Think of this like a Mario RL rollout, but for research. The trained policy is frozen at demo time, so it is not updating weights live. "
+               "What you can watch live is the actual research episode: what the starting board looks like, which tabs get opened, what gets ignored, "
+               "what gets bookmarked, and which topic areas were neglected or covered.</p>")
+
+    out.append("<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;margin-bottom:18px;'>")
+    stat_cards = [
+        ("Candidate tabs", f"{len(candidate_records)}", "Topics in the starting board"),
+        ("Trending distractions", f"{total_trending}", "Easy-to-find popular topics"),
+        ("Under-the-radar topics", f"{total_under_radar}", "Potential blindspots outside the obvious feed"),
+        ("Actually mattered later", f"{total_adopted}", "Topics the matched researcher later adopted"),
+    ]
+    for title, value, subtitle in stat_cards:
+        out.append(f"<div style='background:white;border:1px solid #eee;border-radius:10px;padding:14px;'>"
+                   f"<div style='font-size:12px;color:#888;margin-bottom:6px;'>{title}</div>"
+                   f"<div style='font-size:28px;font-weight:800;line-height:1;'>{value}</div>"
+                   f"<div style='font-size:12px;color:#666;margin-top:8px;'>{subtitle}</div>"
+                   f"</div>")
+    out.append("</div>")
+
+    out.append("<div style='display:grid;grid-template-columns:1.1fr 0.9fr;gap:14px;margin-bottom:18px;'>")
+    out.append("<div style='background:white;border:1px solid #eee;border-radius:10px;padding:14px;'>")
+    out.append(f"<div style='font-size:14px;font-weight:700;margin-bottom:8px;'>Starting board for matched researcher <code>{html.escape(uid)}</code></div>")
+    out.append(f"<div style='font-size:12px;color:#666;margin-bottom:10px;'>First few tabs in the pool: {', '.join(start_titles)}</div>")
+    out.append("<div style='font-size:12px;color:#555;'>")
+    for topic, total in topic_counts.most_common(8):
+        out.append(_chip(f"{topic}: {total}", "#f5f5f5", "#444"))
+    out.append("</div></div>")
+
+    out.append("<div style='background:white;border:1px solid #eee;border-radius:10px;padding:14px;'>")
+    out.append("<div style='font-size:14px;font-weight:700;margin-bottom:8px;'>Topic coverage map</div>")
+    out.append("<table style='width:100%;border-collapse:collapse;font-size:12px;'>")
+    out.append("<tr style='background:#f7f7f7;'><th style='text-align:left;padding:6px;'>Topic</th>"
+               "<th style='padding:6px;'>Pool</th><th style='padding:6px;'>Saved</th>"
+               "<th style='padding:6px;'>Neglected</th><th style='padding:6px;'>Ignored noise</th></tr>")
+    for topic, total, kept, neglected, ignored in topic_rows:
+        neg_color = '#c62828' if neglected > 0 else '#666'
+        kept_color = '#2e7d32' if kept > 0 else '#666'
+        out.append(f"<tr style='border-top:1px solid #f0f0f0;'>"
+                   f"<td style='padding:6px;text-align:left;'>{html.escape(topic)}</td>"
+                   f"<td style='padding:6px;text-align:center;'>{total}</td>"
+                   f"<td style='padding:6px;text-align:center;color:{kept_color};font-weight:700;'>{kept}</td>"
+                   f"<td style='padding:6px;text-align:center;color:{neg_color};font-weight:700;'>{neglected}</td>"
+                   f"<td style='padding:6px;text-align:center;color:#777;'>{ignored}</td></tr>")
+    out.append("</table></div>")
+    out.append("</div>")
+
+    out.append("<h3 style='margin-bottom:10px;font-size:15px;'>🧩 Decision trail — tab by tab</h3>")
+    out.append("<p style='font-size:13px;color:#666;margin-top:-4px;margin-bottom:14px;'>"
+               "This is the closest analog to the Mario-style live rollout. You see the starting board, the tabs the agent opens, "
+               "which ones it closes, and which ones it bookmarks for the reading list.</p>")
+    out.append("<div style='position:relative;padding-left:16px;border-left:3px solid #d7ccc8;'>")
+    for event in timeline:
+        label, bg, fg = label_map[event['kind']]
+        card = event.get('card') or {}
+        record = event.get('record') or {}
+        adopted = bool(card.get('adopted_by_user'))
+        trend = card.get('is_trending') if card else record.get('is_trending')
+        detail = event.get('detail')
+        out.append("<div style='position:relative;margin:0 0 14px 0;padding:14px 14px 14px 18px;"
+                   "background:white;border-radius:10px;border:1px solid #eee;'>")
+        out.append("<div style='position:absolute;left:-11px;top:18px;width:16px;height:16px;"
+                   "border-radius:50%;background:#8d6e63;border:3px solid white;box-shadow:0 0 0 1px #d7ccc8;'></div>")
+        out.append(_chip(label, bg, fg))
+        out.append(f"<div style='font-size:15px;font-weight:700;margin-top:8px;'>{html.escape(event['title'])}</div>")
+        out.append(f"<div style='font-size:13px;color:#444;margin-top:6px;'><b>Human view:</b> {html.escape(event['human_note'])}</div>")
+        out.append(f"<div style='font-size:12px;color:#777;margin-top:4px;'><b>Environment feedback:</b> {html.escape(event['env_note'])}</div>")
+
+        if event['kind'] != 'start' and event['kind'] != 'stop':
+            meta_bits = []
+            if record.get('topic'):
+                meta_bits.append(_chip(record['topic'], "#f5f5f5", "#444"))
+            if trend is True:
+                meta_bits.append(_chip("Trending topic", "#fff3e0", "#ef6c00"))
+            elif trend is False:
+                meta_bits.append(_chip("Under the radar", "#e8f5e9", "#2e7d32"))
+            if card or record:
+                if adopted:
+                    meta_bits.append(_chip("Researcher later adopted this", "#e8f5e9", "#2e7d32"))
+                else:
+                    meta_bits.append(_chip("Researcher did not adopt this", "#ffebee", "#c62828"))
+            out.append("<div style='margin-top:6px;'>" + "".join(meta_bits) + "</div>")
+
+        if detail is not None:
+            abstract = getattr(detail, 'abstract_summary', '')
+            top_papers = getattr(detail, 'top_papers', [])
+            growth_signal = getattr(detail, 'growth_signal', 0.0)
+            out.append(f"<div style='margin-top:8px;padding:10px 12px;background:#fafafa;border-radius:8px;font-size:12px;color:#555;'>"
+                       f"<b>What the agent saw after opening it:</b> {html.escape(abstract[:220])}"
+                       f"<div style='margin-top:6px;'>Growth signal: {growth_signal:.2f} · 5-paper path: {len(top_papers)} papers</div>"
+                       f"</div>")
+
+        reward_color = '#22aa66' if event['reward'] > 0 else ('#c62828' if event['reward'] < 0 else '#666')
+        reward_label = (f"step reward {event['reward']:+.2f}" if event['kind'] != 'start'
+                        else "no reward yet")
+        out.append(f"<div style='font-size:12px;margin-top:8px;color:{reward_color};font-weight:700;'>"
+                   f"{reward_label}</div>")
+        out.append(f"<div style='font-size:11px;color:#888;margin-top:4px;'>"
+                   f"Inspect budget left: {event['inspect_budget_remaining']} · "
+                   f"Shortlist slots left: {event['surface_budget_remaining']} · "
+                   f"Current shortlist size: {event['surfaced_count']}"
+                   f"</div>")
+
+        if event.get('breakdown'):
+            b = event['breakdown']
+            out.append("<div style='margin-top:10px;padding:10px 12px;background:#f1f8e9;border-radius:8px;'>")
+            out.append("<div style='font-size:13px;font-weight:700;margin-bottom:6px;'>Final grade against real behavior</div>")
+            out.append("<div style='font-size:12px;color:#555;line-height:1.7;'>"
+                       f"Adoption: <b>{b['adoption']:+.2f}</b> · "
+                       f"Novelty: <b>{b['novelty']:+.2f}</b> · "
+                       f"Understanding: <b>{b['onboarding']:+.2f}</b> · "
+                       f"Efficiency: <b>{b['efficiency']:+.2f}</b> · "
+                       f"False positives: <b>{b['false_positive']:+.2f}</b> · "
+                       f"Total: <b style='color:#1b5e20;'>{b['total']:+.2f}</b>"
+                       "</div>")
+            out.append("<div style='font-size:12px;color:#666;margin-top:6px;'>"
+                       "This is where the RL signal comes from: after the shortlist is finished, "
+                       "we compare it to what the real researcher later adopted and understood.</div>")
+            out.append("</div>")
+
+        out.append("</div>")
+    out.append("</div>")
+
+    out.append("<h3 style='margin-top:22px;margin-bottom:10px;font-size:15px;'>🗂️ What got covered vs neglected</h3>")
+    out.append("<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;'>")
+
+    columns = [
+        ("✅ Bookmarked by the agent", kept_records[:4], "#2e7d32", "#e8f5e9", "saved"),
+        ("🟠 Opened then ignored", skipped_records[:4], "#ef6c00", "#fff3e0", "closed"),
+        ("🔴 Neglected but later mattered", neglected_records[:4], "#c62828", "#ffebee", "missed blindspot"),
+        ("⚪ Left alone as noise", ignored_noise_records[:4], "#546e7a", "#eceff1", "never prioritized"),
+    ]
+    for title, records, accent, tone, label in columns:
+        out.append(f"<div style='background:white;border:1px solid #eee;border-radius:10px;padding:12px;'>"
+                   f"<div style='font-size:13px;font-weight:700;margin-bottom:8px;color:{accent};'>{title}</div>")
+        if records:
+            for record in records:
+                out.append(_mini_topic_card(record, accent, tone, label))
+        else:
+            out.append("<div style='font-size:12px;color:#999;padding:8px 0;'>None in this sample.</div>")
+        out.append("</div>")
+    out.append("</div>")
+
+    out.append("</div>")
+    return '\n'.join(out)
+
 
 # ──────────────────────────── RL visual sections ────────────────────────────
 def render_rl_visual(report):
@@ -92,11 +506,11 @@ def render_rl_visual(report):
     out.append("<div style='margin:28px 0;padding:22px;background:#f8f9fa;"
                "border-radius:14px;border:1px solid #dde;'>")
     out.append("<h2 style='margin-top:0;margin-bottom:4px;font-size:18px;'>"
-               "🔬 Inside the RL training — what did GRPO actually learn?</h2>")
+               "🔬 After many episodes like that, what did GRPO learn?</h2>")
     out.append("<p style='color:#666;font-size:13px;margin-bottom:24px;'>"
-               "Same researcher. Same 40-concept pool. Same question asked. "
-               "Below: the base model's answer vs the RL-trained model's answer — "
-               "and whether each choice matched real adoption ground truth.</p>")
+               "The section above showed one human-style browsing episode. "
+               "This section is the audit afterwards: same researcher, same candidate pool, "
+               "but now comparing the base model's final picks against the RL-trained policy's final picks.</p>")
 
     # ── Build card lookup ──
     card_lookup = {}
@@ -320,6 +734,9 @@ def render_html(report, focus="Blindspot RL"):
                f"Researcher summary: {html.escape(p['matched_summary'][:240])}…</small></div>")
 
     policies = report['policies']
+
+    # Human-style episode replay using the real environment actions.
+    out.append(render_human_research_loop(report))
 
     # Headline before/after lift
     before_r = policies.get('Blindspot (pre-training)', {}).get('reward', {}).get('total', 0)
