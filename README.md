@@ -5,7 +5,7 @@ Blindspot is an OpenEnv environment for unknown-unknowns discovery: given a rese
 ## 🏆 Submission Notes
 
 - Live demo: https://huggingface.co/spaces/vasarlalikhilavinash/blindspot-demo
-- Trained adapter: https://huggingface.co/vasarlalikhilavinash/blindspot-qwen25-7b-grpo
+- Trained adapter: https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo
 - GitHub repo: https://github.com/vasarlalikhilavinash/blindspot-env
 - Training notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb)
 - Demo notebook: https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb
@@ -75,7 +75,7 @@ Because the Space reads cached policy outputs, it does not need a GPU at request
 
 ## Training Recipe
 
-Blindspot trains a LoRA adapter on top of `unsloth/Qwen2.5-7B-Instruct-bnb-4bit`.
+Blindspot trains a LoRA adapter on top of `unsloth/Qwen3.5-9B` loaded in 4-bit mode by Unsloth.
 
 1. Optionally attach an SFT warm-start adapter if `training/checkpoints/sft` exists.
 2. Build GRPO prompts from the 13 training users in `data/user_splits.json`.

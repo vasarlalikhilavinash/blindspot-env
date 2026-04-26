@@ -1140,8 +1140,8 @@ Matched to closest researcher in our database (TF-IDF cosine similarity)
     Random        → picks 3 at random
     Trending      → picks 3 most popular
     Dense         → picks 3 most similar to your past work
-    Pre-training  → Qwen2.5-7B-Instruct base model picks (no RL)
-    GRPO trained  → Qwen2.5-7B-Instruct + LoRA after 3,200 RL episodes ← this is Blindspot
+    Pre-training  → Qwen3.5-9B base model picks (no RL)
+    GRPO trained  → Qwen3.5-9B + LoRA after 3,200 RL episodes ← this is Blindspot
                 ↓
 Each strategy scored:
   ✅ Did the researcher actually adopt this concept? (+reward)
@@ -1169,7 +1169,7 @@ Results shown side-by-side with before/after toggle
 
 #### 🏗️ Architecture
 
-- **Training:** Qwen2.5-7B-Instruct + LoRA via Unsloth, trained with TRL's GRPOTrainer (400 steps × 8 rollouts, A100)
+- **Training:** Qwen3.5-9B + LoRA via Unsloth, trained with TRL's GRPOTrainer (400 steps × 8 rollouts, A100)
 - **This demo:** Zero GPU — all trained-policy responses pre-cached in `data/demo_cache.json`
 - **Data:** 17 real ML researchers, 1,168 concepts, 282 reading paths, 62 adoption pairs
 - **Held-out test:** 4 researchers never seen during training
@@ -1178,7 +1178,7 @@ Results shown side-by-side with before/after toggle
 
 **Code:** [github.com/vasarlalikhilavinash/blindspot-env](https://github.com/vasarlalikhilavinash/blindspot-env)
 
-**Trained adapter:** [huggingface.co/vasarlalikhilavinash/blindspot-qwen25-7b-grpo](https://huggingface.co/vasarlalikhilavinash/blindspot-qwen25-7b-grpo)
+**Trained adapter:** [huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo](https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo)
 """)
 
 

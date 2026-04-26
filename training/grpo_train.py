@@ -10,7 +10,7 @@ Usage:
     uvicorn server.app:app --host 0.0.0.0 --port 8000
 
     # 2. Run training:
-    python training/grpo_train.py --base-model unsloth/Qwen2.5-7B-Instruct-bnb-4bit
+    python training/grpo_train.py --base-model unsloth/Qwen3.5-9B
 
 The same script powers `notebooks/02_training.ipynb` (Colab-runnable).
 """
@@ -99,7 +99,7 @@ def rollout(generator, prompt_msgs, max_steps=30) -> float:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--base-model", default="unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
+    ap.add_argument("--base-model", default="unsloth/Qwen3.5-9B")
     ap.add_argument("--sft-adapter", default="training/checkpoints/sft")
     ap.add_argument("--output", default="training/checkpoints/grpo")
     ap.add_argument("--max-steps", type=int, default=400)
@@ -109,7 +109,7 @@ def main():
     ap.add_argument("--max-prompt-length", type=int, default=4096)
     ap.add_argument("--max-completion-length", type=int, default=64)
     ap.add_argument("--rollout-step-limit", type=int, default=8)
-    ap.add_argument("--fallback-base-model", default="unsloth/Qwen3-8B-bnb-4bit")
+    ap.add_argument("--fallback-base-model", default="unsloth/Qwen3.5-4B")
     args = ap.parse_args()
 
     # Heavy imports here so --help works without GPU

@@ -234,7 +234,7 @@ code(
     """
 %%bash
 cd blindspot-env
-python training/sft_train.py --backend transformers --base-model unsloth/Qwen2.5-7B-Instruct-bnb-4bit --epochs 1 --batch-size 1
+python training/sft_train.py --backend transformers --base-model unsloth/Qwen3.5-9B --epochs 1 --batch-size 1
 """
 )
 
@@ -246,8 +246,8 @@ import os
 import torch
 from unsloth import FastLanguageModel
 
-BASE_MODEL = os.environ.get('BASE_MODEL', 'unsloth/Qwen2.5-7B-Instruct-bnb-4bit')
-FALLBACK_BASE_MODEL = 'unsloth/Qwen3-8B-bnb-4bit'
+BASE_MODEL = os.environ.get('BASE_MODEL', 'unsloth/Qwen3.5-9B')
+FALLBACK_BASE_MODEL = os.environ.get('FALLBACK_BASE_MODEL', 'unsloth/Qwen3.5-4B')
 MAX_SEQ_LENGTH = 4096 + 128
 
 

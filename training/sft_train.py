@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""SFT fine-tune Qwen2.5-7B-Instruct on Blindspot oracle traces.
+"""SFT fine-tune Qwen3.5-9B on Blindspot oracle traces.
 
 Two backends supported, picked by --backend:
 
@@ -12,14 +12,14 @@ The training data is `training/sft_traces.jsonl` produced by
 
 Example (Apple Silicon):
     python -m mlx_lm.lora \
-        --model unsloth/Qwen2.5-7B-Instruct-bnb-4bit \
+        --model unsloth/Qwen3.5-9B \
         --train --data training/sft_traces.jsonl \
         --batch-size 1 --iters 600 \
         --adapter-path training/checkpoints/sft
 
 Example (CUDA):
     python training/sft_train.py --backend transformers \
-        --base-model unsloth/Qwen2.5-7B-Instruct-bnb-4bit
+        --base-model unsloth/Qwen3.5-9B
 """
 
 from __future__ import annotations
@@ -96,7 +96,7 @@ def run_transformers(args):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--backend", choices=["mlx", "transformers"], default="mlx")
-    ap.add_argument("--base-model", default="unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
+    ap.add_argument("--base-model", default="unsloth/Qwen3.5-9B")
     ap.add_argument("--batch-size", type=int, default=1)
     ap.add_argument("--iters", type=int, default=600)
     ap.add_argument("--epochs", type=int, default=3)

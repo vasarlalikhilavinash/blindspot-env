@@ -1,6 +1,6 @@
 ---
 license: apache-2.0
-base_model: unsloth/Qwen2.5-7B-Instruct-bnb-4bit
+base_model: unsloth/Qwen3.5-9B
 tags:
   - lora
   - grpo
@@ -16,7 +16,7 @@ library_name: peft
 pipeline_tag: text-generation
 ---
 
-# Blindspot · Qwen2.5-7B-Instruct · GRPO LoRA Adapter
+# Blindspot · Qwen3.5-9B · GRPO LoRA Adapter
 
 Fine-tuned LoRA adapter for the [Blindspot OpenEnv environment](https://github.com/vasarlalikhilavinash/blindspot-env) — an RL benchmark for **unknown-unknowns discovery**: given a researcher's profile, surface the AI/ML concepts they should be tracking but currently aren't.
 
@@ -24,7 +24,7 @@ Fine-tuned LoRA adapter for the [Blindspot OpenEnv environment](https://github.c
 
 | Setting | Value |
 |---|---|
-| Base model | `unsloth/Qwen2.5-7B-Instruct-bnb-4bit` |
+| Base model | `unsloth/Qwen3.5-9B` loaded in 4-bit mode |
 | Method | **GRPO** (TRL) via Unsloth |
 | Reward | Adoption + Novelty + Onboarding − False-positive (4-component, gated) |
 | Train users | 13 (held-out test: 4) |
@@ -50,9 +50,9 @@ Measured on the Blindspot env, mean reward across 5 seeds × 17 users:
 ```python
 from unsloth import FastLanguageModel
 model, tok = FastLanguageModel.from_pretrained(
-    "unsloth/Qwen2.5-7B-Instruct-bnb-4bit", load_in_4bit=True
+    "unsloth/Qwen3.5-9B", load_in_4bit=True
 )
-model.load_adapter("vasarlalikhilavinash/blindspot-qwen25-7b-grpo")
+model.load_adapter("vasarlalikhilavinash/blindspot-qwen35-9b-grpo")
 FastLanguageModel.for_inference(model)
 ```
 

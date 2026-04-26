@@ -46,7 +46,7 @@ Runtime → Run all. The notebook will:
 - Section 3: GRPO training, 400 steps × 8 generations (~90 min on A100).
 - Section 4: post-training evaluation + comparison plots (~5 min).
 - **Section 5 (the new bit):**
-  - 5.1 push LoRA adapter → `https://huggingface.co/vasarlalikhilavinash/blindspot-qwen25-7b-grpo` (~2 min)
+  - 5.1 push LoRA adapter → `https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo` (~2 min)
   - 5.2 precompute cache for 17 users + 3 personas (~3 min)
   - 5.3 commit `data/demo_cache.json` back to GitHub (~30 sec)
   - 5.4 deploy Gradio Space → `https://huggingface.co/spaces/vasarlalikhilavinash/blindspot-demo` (~2 min)
