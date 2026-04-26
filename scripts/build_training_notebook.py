@@ -531,7 +531,17 @@ def reward_fn(prompts, completions, user_id=None, seed=None, **kwargs):
 
 code(
     """
-from trl import GRPOConfig, GRPOTrainer
+from trl import GRPOConfig, GRPOTrainer as _BaseGRPOTrainer
+
+# TRL 0.24.0 incorrectly flags Qwen3.5 as a vision model (via tokenizer isinstance check).
+# Subclass to permanently suppress the vision path regardless of what TRL detects.
+class _TextOnlyGRPOTrainer(_BaseGRPOTrainer):
+    @property
+    def is_vision_model(self):
+        return False
+    @is_vision_model.setter
+    def is_vision_model(self, value):
+        pass  # silently ignore — always text-only
 
 cfg = GRPOConfig(
     output_dir='blindspot-env/training/checkpoints/grpo',
@@ -548,19 +558,13 @@ cfg = GRPOConfig(
     report_to='none',
 )
 
-trainer = GRPOTrainer(
+trainer = _TextOnlyGRPOTrainer(
     model=model,
     processing_class=tokenizer,
     reward_funcs=[reward_fn],
     args=cfg,
     train_dataset=ds,
 )
-
-# TRL 0.24.0 incorrectly detects Qwen3.5 as a vision model and calls load_image on text prompts.
-# Force text-only path.
-if getattr(trainer, 'is_vision_model', False):
-    trainer.is_vision_model = False
-    print('Patched: forced trainer.is_vision_model = False')
 
 trainer.train()
 trainer.save_model('blindspot-env/training/checkpoints/grpo')
