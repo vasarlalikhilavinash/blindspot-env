@@ -83,7 +83,7 @@ We trained a 16-rank LoRA adapter on top of `unsloth/Qwen2.5-1.5B-Instruct` (4-b
 
 ## Results
 
-Evaluation ran over 13 training users × 10 seeds = 130 episodes per policy.
+Evaluation ran over 13 training users × 10 seeds = 130 episodes per policy. Note: these episodes use seeds 100–109, a different shuffle than the calibration runs above (seeds 0–19). The false-positive penalty is more punishing with these shuffles — adopted concepts land outside the top positions in the candidate pool more often — so baselines are negative here. SFT still crosses zero, which is the meaningful result.
 
 | Policy | Mean reward | Std |
 |---|---:|---:|
@@ -111,6 +111,12 @@ SFT warm-start solves this. The model now produces varied action sequences acros
 
 ---
 
+## Limitations
+
+The dataset is small. 17 researchers is enough to establish that the environment works and that the reward signal is learnable, but it's not enough to claim the policy generalizes broadly. Adoption uses a kNN backoff when direct signal is absent for a concept-user pair. Comprehension lift is measured with an LLM judge, not human evaluation. The demo is cache-backed, not a live RL loop.
+
+---
+
 ## What Makes This a Good RL Environment
 
 A few properties that make Blindspot worth training on:
@@ -124,9 +130,9 @@ A few properties that make Blindspot worth training on:
 
 ---
 
-## Limitations
+## Try It
 
-The dataset is small. 17 researchers is enough to establish that the environment works and that the reward signal is learnable, but it's not enough to claim the policy generalizes broadly. Adoption uses a kNN backoff when direct signal is absent for a concept-user pair. Comprehension lift is measured with an LLM judge, not human evaluation. The demo is cache-backed, not a live RL loop.
+The live demo is at **https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo**. Pick a real researcher from the dropdown, hit Run, and see side-by-side what the base model vs. the SFT-trained model recommends — with adoption verdicts for each concept.
 
 ---
 
