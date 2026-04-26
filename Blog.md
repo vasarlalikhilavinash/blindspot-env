@@ -132,7 +132,7 @@ This is not unique to my run. The DAPO paper (Yu et al., arXiv:2503.14476, 2025)
 
 What fixed the issue here was not a fancy RL trick. It was warming the policy up first. After SFT, the model starts producing varied action sequences, different concept IDs, different stopping points, and different inspect behavior. That diversity is what GRPO needs before it can start ranking rollouts meaningfully.
 
-The GRPO training table and the repeated-action samples are also available in the public [GRPO notebook](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/04_grpo_failure.ipynb). I wanted that evidence in the repo itself instead of behind a private Colab link.
+The GRPO training table and the repeated-action samples are also available in the public [GRPO notebook](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training_GRPO.ipynb). I wanted that evidence in the repo itself instead of behind a private Colab link.
 
 ---
 
@@ -177,5 +177,5 @@ The easiest way to use it is to pick one of the real researchers from the dropdo
 | HF Space (demo) | https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo |
 | Trained adapter (SFT) | https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b |
 | SFT training notebook | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb) |
-| GRPO notebook | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/04_grpo_failure.ipynb) |
+| GRPO notebook | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training_GRPO.ipynb) |
 | Demo notebook | https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb |
