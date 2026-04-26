@@ -918,18 +918,99 @@ def render_catalog(filter_text: str = "", show_only: str = "all"):
         cids = [c for c in cids if not cat[c].get('is_trending')]
 
     cids = cids[:200]
-    out = [f"<div style='max-width:1000px;'><h3>📚 Concept catalog · {len(cids)} of "
-           f"{len(cat)} shown</h3>"]
-    out.append("<table style='width:100%;border-collapse:collapse;font-size:13px;'>")
-    out.append("<tr style='background:#eee;'><th>id</th><th>title</th><th>one-liner</th>"
-               "<th>tag</th><th>growth</th></tr>")
+    out = [
+        "<style>"
+        ".catalog-results, .catalog-results * {"
+        "  opacity: 1 !important;"
+        "  filter: none !important;"
+        "  mix-blend-mode: normal !important;"
+        "}"
+        ".catalog-results {"
+        "  max-width: 1000px;"
+        "  background: #0f172a;"
+        "  color: #e5e7eb;"
+        "  border: 1px solid #1f2937;"
+        "  border-radius: 14px;"
+        "  padding: 18px;"
+        "}"
+        ".catalog-results h3 {"
+        "  margin: 0 0 14px 0;"
+        "  color: #f9fafb !important;"
+        "  font-size: 18px;"
+        "}"
+        ".catalog-results .catalog-summary {"
+        "  margin: 0 0 14px 0;"
+        "  color: #cbd5e1 !important;"
+        "  font-size: 13px;"
+        "}"
+        ".results-table {"
+        "  width: 100%;"
+        "  border-collapse: separate;"
+        "  border-spacing: 0;"
+        "  font-size: 13px;"
+        "  color: #e5e7eb;"
+        "}"
+        ".results-table th {"
+        "  background: #1f2937;"
+        "  color: #f9fafb !important;"
+        "  text-align: left;"
+        "  padding: 10px 12px;"
+        "  border-bottom: 1px solid #334155;"
+        "}"
+        ".results-table td {"
+        "  background: #111827;"
+        "  color: #f3f4f6 !important;"
+        "  padding: 10px 12px;"
+        "  border-bottom: 1px solid #1f2937;"
+        "  vertical-align: top;"
+        "}"
+        ".results-table tbody tr:nth-child(even) td {"
+        "  background: #0b1220;"
+        "}"
+        ".results-table tbody tr:hover td {"
+        "  background: #172033;"
+        "  color: #f9fafb !important;"
+        "}"
+        ".results-table .catalog-id {"
+        "  color: #cbd5e1 !important;"
+        "  white-space: nowrap;"
+        "}"
+        ".results-table .catalog-title {"
+        "  color: #f9fafb !important;"
+        "  font-weight: 700;"
+        "}"
+        ".results-table .catalog-one-liner {"
+        "  color: #e5e7eb !important;"
+        "}"
+        ".results-table .catalog-tag {"
+        "  font-size: 16px;"
+        "  color: #f9fafb !important;"
+        "}"
+        ".results-table .catalog-growth {"
+        "  color: #bfdbfe !important;"
+        "  font-variant-numeric: tabular-nums;"
+        "}"
+        "</style>",
+        f"<div class='catalog-results'><h3>📚 Concept catalog · {len(cids)} of {len(cat)} shown</h3>"
+    ]
+    if not cids:
+        out.append("<p class='catalog-summary'>No matching concepts found. Try a broader keyword or change the filter.</p></div>")
+        return ''.join(out)
+
+    out.append("<p class='catalog-summary'>Search results are rendered with fixed dark-mode-safe colors so the text stays readable after updates.</p>")
+    out.append("<table class='results-table'><thead><tr><th>id</th><th>title</th><th>one-liner</th>"
+               "<th>tag</th><th>growth</th></tr></thead><tbody>")
     for c in cids:
         r = cat[c]
         tag = '🔥' if r.get('is_trending') else '💎'
-        out.append(f"<tr><td>{c}</td><td><b>{html.escape(r.get('title','?')[:60])}</b></td>"
-                   f"<td>{html.escape(r.get('one_liner','')[:80])}</td>"
-                   f"<td>{tag}</td><td>{r.get('growth_signal',0):.2f}</td></tr>")
-    out.append("</table></div>")
+        out.append(
+            f"<tr><td class='catalog-id'>{c}</td>"
+            f"<td class='catalog-title'>{html.escape(r.get('title','?')[:60])}</td>"
+            f"<td class='catalog-one-liner'>{html.escape(r.get('one_liner','')[:80])}</td>"
+            f"<td class='catalog-tag'>{tag}</td>"
+            f"<td class='catalog-growth'>{r.get('growth_signal',0):.2f}</td></tr>"
+        )
+    out.append("</tbody></table></div>")
     return '\n'.join(out)
 
 

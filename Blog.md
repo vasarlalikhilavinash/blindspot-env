@@ -1,4 +1,4 @@
-# Blindspot: An RL Environment for Unknown-Unknown Discovery — and a Diagnostic Testbed for Exploration Collapse
+# Blindspot: Finding the Research Ideas You Didn't Know to Look For
 
 **Team:** Vasarla Avinash  
 **Track:** Theme #3.1 — World Modeling (Professional Tasks)  
@@ -8,19 +8,19 @@
 
 ## The Idea
 
-There's a category of knowledge gap that no search engine can fix. You can't search for a concept you've never heard of. You can't ask a RAG system to find papers outside your vocabulary. Trending feeds show what's popular, not what's relevant to your specific research direction.
+I built Blindspot around a simple frustration: most research tools only help after you already know what to ask for. Search works if you have the right query. RAG works if the missing concept is already somewhere in your prompt. Trending feeds show what everyone is talking about, not what is specifically missing from your own work.
 
-These are unknown unknowns — things you'd care deeply about if you knew they existed, but which stay invisible precisely because you don't know to look.
+The more interesting problem is the one before that. Sometimes the most valuable idea is a concept you would immediately care about if someone showed it to you, but you never search for it because you do not know it exists. That is the gap Blindspot is trying to model.
 
-Blindspot turns this into a reinforcement learning problem. Given a researcher's existing publication record and reading history, an agent has to surface the concepts they're missing — and the reward signal is whether the researcher actually adopted those concepts in their subsequent work. Along the way, we discovered that the environment has a second use: it reliably triggers and measures the exploration collapse that current RL methods are known to suffer from, making it a useful diagnostic alongside being a training environment.
+So I turned it into an RL problem. Given a researcher's papers and reading history, the agent has to surface concepts they have not picked up yet but later end up adopting. That gives the environment a reward grounded in real behavior instead of manual labels. It also revealed something else: this environment is very good at exposing early exploration collapse in current RL methods.
 
 ---
 
 ## The Environment
 
-The dataset behind Blindspot is fully real. Seventeen ML researchers, 1,168 candidate concepts drawn from the academic literature, 282 reading paths, and 62 ground-truth adoption events measured from post-timestamp research artifacts. Nothing is synthetic.
+Everything in Blindspot is real. The dataset contains 17 ML researchers, 1,168 candidate concepts from the literature, 282 reading paths, and 62 adoption events measured from what those researchers actually used later in their work. Nothing here is synthetic or game-like.
 
-At each step, the agent receives a researcher's profile, a pool of 50 candidate concepts from their personal concept graph, and budget counters for `inspect` (up to 15) and `surface` (up to 10) actions. The agent can open a concept to see its reading path, commit to recommending it, or stop early. It has to decide which 10 of the 50 to recommend — without knowing in advance which ones the researcher will actually adopt.
+At each step, the agent sees a researcher profile, a pool of 50 candidate concepts from that person's concept graph, and two budgets: `inspect` (up to 15) and `surface` (up to 10). It can inspect a concept to look more closely, surface it as a recommendation, or stop early.
 
 ```python
 {"type": "inspect", "concept_id": 42}   # look closer, costs budget
@@ -28,13 +28,13 @@ At each step, the agent receives a researcher's profile, a pool of 50 candidate 
 {"type": "stop"}                          # end the episode
 ```
 
-The hard part is that reward is delayed until episode end, the inspect action reveals reading paths but not adoption likelihood, and the same concept can be high-value for one researcher and irrelevant for another. There's no shortcut.
+What makes this hard is that the reward only comes at the end of the episode. Inspecting helps, but it does not reveal whether the concept will actually matter later. And the same concept can be extremely useful for one researcher and completely irrelevant for another. There is no cheap heuristic that solves the whole task.
 
 ---
 
 ## Reward Design
 
-The reward is deliberately multi-component to capture what "good" actually means in this domain:
+The reward took a few iterations to get right. I wanted it to reflect what a good recommendation actually looks like in this setting, while still punishing the obvious degenerate strategy of surfacing everything.
 
 | Component | Signal |
 |---|---|
@@ -44,13 +44,13 @@ The reward is deliberately multi-component to capture what "good" actually means
 | Efficiency | −0.01 per inspect call |
 | False positive | −0.1 per surfaced concept with zero adoption |
 
-The false-positive penalty does a lot of work here. It's calibrated so that a uniform random policy earns approximately zero reward — confirmed empirically across multiple seeds. That means any positive reward is real signal, not noise.
+The false-positive term matters a lot. It is calibrated so that a uniform random policy lands around zero reward over multiple seeds. That was important to me, because it means positive reward actually means something. It is not a metric the agent can inflate just by acting more.
 
 ---
 
 ## Calibration Before Training
 
-Before touching any model, we measured four policies on the real dataset (5 seeds × 17 users):
+Before training anything, I wanted to know whether the environment itself made sense. So I ran a few simple policies on the real dataset first (5 seeds × 17 users):
 
 | Policy | Mean reward | Std |
 |---|---:|---:|
@@ -59,7 +59,7 @@ Before touching any model, we measured four policies on the real dataset (5 seed
 | Dense Retrieval | +0.467 | ±1.20 |
 | Oracle (upper bound) | +3.286 | ±3.59 |
 
-Random is near zero, which confirms the reward isn't inflated. Dense Retrieval does well because the candidate pool is already semantically filtered — it gets genuine adoption and novelty reward. But the gap between Dense Retrieval (+0.467) and Oracle (+3.286) is about 2.8 reward points. That's the gap a learned policy should close.
+This gave me two useful checks. First, random sits near zero, which says the reward is not artificially inflated. Second, there is a real gap between a strong heuristic and the Oracle. Dense Retrieval already gets some traction because the candidate pool is semantically filtered, but it is still about 2.8 reward points below the upper bound. That is enough headroom to make learning interesting.
 
 ![Baseline comparison](plots/baseline_comparison.png)
 
@@ -69,21 +69,25 @@ Random is near zero, which confirms the reward isn't inflated. Dense Retrieval d
 
 ## Training
 
-We trained a 16-rank LoRA adapter on top of `unsloth/Qwen2.5-1.5B-Instruct` (4-bit NF4, bf16) using TRL's SFTTrainer on a single H100. The goal was not to build the final policy — it was to prove the environment is learnable.
+I kept the first training run deliberately small. The point was not to squeeze out the best possible model. The point was to answer a simpler question first: is this environment learnable at all?
 
-**Expert traces:** We generated 40 demonstration traces using Dense Retrieval+, our best heuristic (TF-IDF cosine similarity, surface top-10, no inspect calls). Each trace is a full chat-format conversation: system prompt → observation → action sequence. 40 traces is intentionally small. If a 1.5B model trained on 40 examples can cross the zero-reward threshold, that's a meaningful signal about the environment's structure.
+I trained a rank-16 LoRA adapter on top of `unsloth/Qwen2.5-1.5B-Instruct` (4-bit NF4, bf16) with TRL's `SFTTrainer` on a single H100. The expert data was just 40 traces generated by Dense Retrieval+, which is our strongest heuristic baseline: TF-IDF cosine similarity, surface top-10, no inspect calls.
 
-**Config:** rank=16, alpha=16, 3 epochs, batch size 8, lr=2e-5, bf16. Loss went from 1.108 → 1.080 across 15 logged steps. The curve is flat, which makes sense — the model learned the action format and surfacing strategy within the first epoch. With only 40 traces, there's not much room for further loss reduction. No signs of overfitting.
+That is a tiny dataset on purpose. If a 1.5B model trained on only 40 demonstrations can get above the zero-reward line, that is already evidence that the task structure is learnable.
+
+The actual config was rank=16, alpha=16, 3 epochs, batch size 8, lr=2e-5, bf16. Loss moved from 1.108 to 1.080 across 15 logged steps. Nothing dramatic happened there, and that is fine. The model mostly learned the action format and the basic surfacing pattern very early, then flattened out.
 
 ![SFT training loss](plots/sft_loss.png)
 
-**Infrastructure note:** One thing that cost us time — the OpenEnv HTTP server creates a fresh `BlindspotEnvironment` instance per request. Every `/reset` and `/step` call destroys episode state, so rewards always come back zero. The fix is to call `BlindspotEnvironment` directly in Python and keep one instance alive per episode. This is worth documenting for anyone else building multi-step evaluations on OpenEnv.
+One engineering bug cost me more time than the model training itself: the OpenEnv HTTP server creates a fresh `BlindspotEnvironment` on every request, so `/reset` and `/step` were wiping episode state and returning zero reward. The fix was simply to evaluate by calling `BlindspotEnvironment` directly in Python and keeping one instance alive for the full episode. It is a small detail, but it matters if someone else tries to build a multi-step environment on top of OpenEnv.
 
 ---
 
 ## Results
 
-Evaluation ran over 13 training users × 10 seeds = 130 episodes per policy. Note: these episodes use seeds 100–109, a different shuffle than the calibration runs above (seeds 0–19). The false-positive penalty is more punishing with these shuffles — adopted concepts land outside the top positions in the candidate pool more often — so baselines are negative here. SFT still crosses zero, which is the meaningful result.
+Here the story is mixed, and I think it is better to be direct about that.
+
+Evaluation ran over 13 training users × 10 seeds, which gives 130 episodes per policy. These runs use seeds 100–109, not the 0–19 seeds from the calibration section above. On these shuffles the false-positive penalty bites harder, because adopted concepts are more likely to land lower in the candidate pool. That is why the simple baselines go negative here.
 
 | Policy | Mean reward | Std |
 |---|---:|---:|
@@ -93,27 +97,25 @@ Evaluation ran over 13 training users × 10 seeds = 130 episodes per policy. Not
 
 ![Policy comparison](plots/final_comparison.png)
 
-SFT is the only policy with positive mean reward. The improvement over random is +0.380 and over trending is +0.394. A two-sample t-test (unequal variance) gives p = 0.03. The 95% confidence interval for SFT is [−0.04, +0.12], which lies entirely above the random mean of −0.34. The result is statistically significant.
+SFT is the only policy with a positive mean reward in this evaluation. It improves over random by +0.380 and over trending by +0.394. A two-sample t-test with unequal variance gives p = 0.03. The 95% confidence interval for SFT is [−0.04, +0.12], which sits above the random mean of −0.34.
 
-To be precise about what this proves: this is a proof of learnability, not a production policy. An effect of +0.039 per episode is small in absolute terms — well below the Oracle ceiling of +3.286. The model learned the action format and the general strategy of selecting based on profile relevance, but has not learned fine-grained user–concept matching. The value of the number is not that it's large; it's that it's positive when the baselines are both negative, and the distance from those baselines (+0.38 above random) is what matters for a first-training run on 40 traces.
+I do not want to oversell that number. +0.039 is not a production result. It is a proof-of-learnability result. What matters to me here is not that the absolute reward is large. It is that a very small model, trained on only 40 traces, moved from the same negative regime as the simple baselines to the positive side of zero.
 
-**Held-out users.** On the 4 researchers withheld from training (20 episodes), SFT achieved 0.00 ± 0.00. The improvement does not transfer to unseen users at this scale. This is expected — 17 researchers total is too small a dataset for generalization. Scaling the dataset is the primary future work, and the held-out result is the clearest argument for it.
+The held-out result is the clearest reality check. On the 4 researchers never seen during training (20 episodes), SFT achieved 0.00 ± 0.00. In other words, the gain does not transfer yet. I think that is exactly what you would expect from a dataset this small, and it is the strongest argument for the next step: scale the data before making big claims about generalization.
 
-The baselines being negative here (vs. positive in calibration) is expected — evaluation uses seeds 100–109, which produce different candidate shuffles than the calibration seeds. The false-positive penalty is unforgiving when adopted concepts land outside the top positions in a shuffled pool. SFT avoids the worst of this by reading the researcher profile and selecting based on relevance rather than list position.
-
-**Note on Dense Retrieval.** The calibration table above shows Dense Retrieval at +0.467, which appears much higher than SFT's +0.039. Those numbers used different seeds (0–19 vs 100–109) and are not directly comparable. Dense Retrieval was not re-evaluated on seeds 100–109, so we cannot say whether it would score +1.2 or −0.5 on the same shuffles. Readers should treat the calibration and evaluation tables as separate measurements, not a head-to-head comparison.
+I also do not want to play games with the Dense Retrieval baseline. The +0.467 number above came from a different seed set, so it is not directly comparable to SFT's +0.039 here. Dense Retrieval was not re-run on seeds 100–109, which means I cannot honestly claim that SFT beats it in the final evaluation. The calibration table and the final evaluation table should be read as two separate measurements.
 
 ---
 
-## Why GRPO Didn't Work — And What the Logs Prove
+## Why GRPO Didn't Work
 
-Before SFT we ran GRPO directly on the base model for 150 steps (600 total rollouts). Not only did it not improve — the training dynamics show exactly why, step by step.
+Before running SFT, I tried GRPO directly on the base model. It failed, but in a way that was actually informative.
 
-**The reward trace.** Across all 150 steps, the mean reward never left the band [−0.01, 0.00]. The first 10% of rollouts averaged −0.004. The last 10% averaged 0.000. Net gain over 90 minutes of H100 training: +0.004. That is not noise rounding — it is a flat line.
+Across 150 training steps (600 total rollouts), the reward basically did not move. The first 10% of rollouts averaged −0.004. The last 10% averaged 0.000. Net gain over about 90 minutes on an H100: +0.004. That is not a learning curve. It is a flat line.
 
-**The variance collapse.** GRPO computes advantages by ranking rollouts within a group. That ranking requires reward variance. At steps 5, 45, 50, 55, 65, 75, 85, 90, 105, 110, 125, 130, 140, 145, 150 the logged `reward_std` is exactly 0.000. When every rollout in the group earns the same reward, the advantage for every rollout is zero, the gradient is zero, and the weights do not move. The model cannot learn from a signal it cannot differentiate.
+The more important signal was the variance. GRPO learns by ranking rollouts within a group. If the group has no reward spread, there is nothing to rank and the advantage collapses to zero. In this run, `reward_std` hit exactly 0.000 at steps 5, 45, 50, 55, 65, 75, 85, 90, 105, 110, 125, 130, 140, 145, and 150. Once I saw that, the rest of the failure made sense.
 
-**The action collapse.** The qualitative output makes the mechanism visible. After training, the model produces this across every episode, every user, every seed:
+The model outputs told the same story. After training, it was producing the same action again and again:
 
 ```
 {"type": "surface", "concept_id": 1}
@@ -122,42 +124,48 @@ Before SFT we ran GRPO directly on the base model for 150 steps (600 total rollo
 ... (8× then stop)
 ```
 
-That is not a policy. It is a degenerate fixed point. The base model converged to the lowest-risk action — surface the first concept listed — before GRPO could introduce any useful pressure.
+That is not really a policy. It is a collapse point. The model latched onto the safest cheap move it could find, and once all the rollouts looked the same, GRPO had no signal left to push it anywhere else.
 
-**Why the environment makes this worse.** Blindspot has three properties that compound the problem simultaneously: reward is delayed until episode end (no per-step signal to differentiate early actions), the false-positive penalty makes surface calls risky (the model learns to avoid variety), and personalization means the right answer varies by user (so copying one pattern across all rollouts is almost always wrong, but consistently wrong in a way that produces near-zero variance). The result is a policy that earns approximately −0.05 per invalid action or 0.0 for a stop, with very little spread across the group.
+Blindspot makes this especially easy to trigger because it combines three hard conditions at once: reward is delayed until the end, false positives are punished, and the right answer depends heavily on the user. That means a weak base model quickly drifts into a low-entropy strategy where every rollout looks similarly bad.
 
-**This is a known failure mode, with published fixes.** The DAPO paper (Yu et al., arXiv:2503.14476, 2025) identifies entropy collapse as the central instability in GRPO-style training and shows that standard GRPO's clipping causes the policy to converge to low-entropy outputs before it can explore. Their proposed decoupled clipping directly targets this. Hybrid GRPO (Sane, arXiv:2502.01652, 2025) makes the same diagnosis from a variance perspective: purely empirical reward estimation in GRPO amplifies variance problems when rollouts are homogeneous, and they add bootstrapped value estimation to stabilize it. Both papers are essentially describing what we observed in Blindspot, in a real multi-step environment rather than a controlled math-reasoning testbed. The NeurIPS 2025 result from Wang et al. (arXiv:2506.01939) adds a token-level explanation: RLVR only meaningfully updates high-entropy tokens, which are the decision points. A base model that has collapsed to a fixed action sequence has no high-entropy tokens left to update, so RLVR stalls entirely.
+This is not unique to my run. The DAPO paper (Yu et al., arXiv:2503.14476, 2025) explicitly points to entropy collapse as a central instability in GRPO-style training. Hybrid GRPO (Sane, arXiv:2502.01652, 2025) makes a related argument from the variance side and adds value-based stabilization for exactly this reason. Wang et al. (arXiv:2506.01939, NeurIPS 2025) go even more fine-grained and show that RLVR mostly updates high-entropy decision points. Once a model has already collapsed to a fixed action sequence, those useful high-entropy points are mostly gone.
 
-**SFT warm-start is the fix.** After SFT the model produces varied action sequences — different concept IDs, different numbers of inspect calls, different stopping points — because it has learned the task structure. That diversity is exactly what GRPO needs to rank rollouts. RL from the SFT checkpoint is the immediate next step, and the training dynamics above make clear why the order matters.
+What fixed the issue here was not a fancy RL trick. It was warming the policy up first. After SFT, the model starts producing varied action sequences, different concept IDs, different stopping points, and different inspect behavior. That diversity is what GRPO needs before it can start ranking rollouts meaningfully.
 
-The full GRPO training table and the repeated-action samples are visible in the [training notebook](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb). The logs are not edited. Judges who want to verify the collapse can scroll to section 3 and read the per-step reward and reward_std columns directly.
+The GRPO training table and the repeated-action samples are also available in the public [GRPO notebook](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/04_grpo_failure.ipynb). I wanted that evidence in the repo itself instead of behind a private Colab link.
 
 ---
 
 ## Limitations
 
-The dataset is small. 17 researchers is enough to establish that the environment works and that the reward signal is learnable, but it's not enough to claim the policy generalizes broadly. Adoption uses a kNN backoff when direct signal is absent for a concept-user pair. Comprehension lift is measured with an LLM judge, not human evaluation. The demo is cache-backed, not a live RL loop.
+The limitations are pretty straightforward.
+
+The dataset is small. Seventeen researchers is enough to show that the environment is real and that the reward is learnable, but not enough to claim broad generalization. Adoption still uses a kNN backoff when a concept-user pair has no direct signal. Comprehension lift comes from an LLM judge rather than human annotation. And the demo is cache-backed, not a live RL loop.
+
+None of that invalidates the project, but it does set the right scope for the claims. Blindspot is a strong environment and a promising first result, not a finished recommendation product.
 
 ---
 
-## What Makes This a Good RL Environment — and a Useful Diagnostic
+## What Makes This a Good RL Environment
 
-A few properties that make Blindspot worth training on:
+Even with those limitations, I think Blindspot is useful for a few reasons:
 
-- The reward is grounded in real behavior, not human annotation or proxy metrics. Adoption events come from actual post-timestamp research artifacts.
-- The false-positive penalty prevents degenerate strategies. You can't just surface everything.
-- The personalization requirement means the agent has to actually understand the researcher's profile, not just rank by popularity.
-- Step time is sub-millisecond. No GPU required at episode time. Training is fast.
-- The held-out test users (4 of 17) weren't touched during training, providing uncontaminated evaluation.
-- The Oracle gap (~2.8 reward points above Dense Retrieval) gives a clear target for a learned policy.
+- The reward is tied to real post-timestamp behavior rather than hand-written labels.
+- The false-positive penalty stops the obvious spam strategy.
+- Personalization is unavoidable. The agent cannot win by just ranking popular topics.
+- Step time is tiny, so running episodes is cheap.
+- The held-out split gives a clean way to separate memorization from real transfer.
+- The Oracle gap leaves genuine room for better policies.
 
-The GRPO failure adds a further dimension. The environment reliably induces the reward-variance collapse that RL researchers have been studying in 2025–26, because it combines sparse reward, partial observability, and a high false-positive penalty in a way that traps an untrained model at a degenerate fixed point. That makes Blindspot useful not just as a training environment but as a testbed for evaluating whether a new RL algorithm can escape early-stage collapse — a property that synthetic environments rarely have.
+And beyond training, it turned out to be a good stress test. Blindspot reliably exposes the kind of reward-variance collapse that recent RL papers have been warning about. That makes it useful not only as an environment to optimize on, but also as a testbed for checking whether a new RL method can stay exploratory long enough to learn anything at all.
 
 ---
 
 ## Try It
 
-The live demo is at **https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo**. Pick a real researcher from the dropdown, hit Run, and see side-by-side what the base model vs. the SFT-trained model recommends — with adoption verdicts for each concept.
+The live demo is here: **https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo**.
+
+The easiest way to use it is to pick one of the real researchers from the dropdown and run the comparison. The app shows what the base model surfaced, what the SFT model surfaced, and whether those concepts were later adopted.
 
 ---
 
@@ -168,5 +176,6 @@ The live demo is at **https://huggingface.co/spaces/Vasarlaavinash/blindspot-dem
 | GitHub | https://github.com/vasarlalikhilavinash/blindspot-env |
 | HF Space (demo) | https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo |
 | Trained adapter (SFT) | https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b |
-| Training notebook | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb) |
+| SFT training notebook | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb) |
+| GRPO notebook | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/04_grpo_failure.ipynb) |
 | Demo notebook | https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb |
