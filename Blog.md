@@ -162,6 +162,14 @@ All non-oracle policies spend most of their budget surfacing concepts the user d
 
 ---
 
+## Why GRPO Did Not Succeed (And What We Learned)
+
+We attempted GRPO directly on the base model (Qwen3.5‑9B). The reward remained at zero throughout training. Analysis of the model's completions showed that the base model always produced the **same first action** for every rollout in a group (e.g., `{"type": "surface", "concept_id": 1}`). With `num_generations=4`, all four trajectories were identical → within‑group reward variance = 0 → no gradient flow.
+
+This is a known challenge in LLM RL: a strongly peaked base model collapses exploration. Our SFT warm‑start solves this by providing a diverse initial policy. RL from this SFT checkpoint is the immediate next step.
+
+---
+
 ## Why Blindspot Is A Good RL Environment
 
 - **Cheap**: pure lookup, sub-millisecond step, no GPU at inference time
