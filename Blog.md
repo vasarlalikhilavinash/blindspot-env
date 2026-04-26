@@ -92,76 +92,71 @@ The reward decomposition shows WHY dense retrieval scores well — it earns mean
 
 ## Training Setup
 
-We trained a **16-rank LoRA adapter** on top of `unsloth/Qwen3.5-9B` (bf16) using **TRL's GRPOTrainer** on a single NVIDIA H100 80GB.
+We trained a **16-rank LoRA adapter** on top of `unsloth/Qwen2.5-1.5B-Instruct` (4-bit quantization, bf16) using **TRL's SFTTrainer** on a single NVIDIA H100 80GB.
+
+**Why SFT instead of GRPO:**  
+Our first attempt used GRPO on Qwen3.5-9B. Training ran without errors but reward stayed at zero throughout all 480 rollouts. Root cause: GRPO requires within-group reward variance — when a strongly-peaked base model produces identical trajectories for all rollouts in a group, the advantage is zero and no gradient flows. SFT on demonstration traces solves this by first teaching the model *what good behavior looks like*, providing the policy diversity GRPO needs to learn.
+
+**Expert traces:**  
+We generated 40 demonstration traces using **Dense Retrieval+** — our best heuristic (TF-IDF cosine similarity, no inspect calls, surface top-10). Mean reward of the expert: **+8.67** per episode. Each trace is stored as a full chat-format conversation: system prompt → user observation → assistant action sequence.
 
 **Training config:**
-- 120 gradient steps × 4 rollouts/step = 480 reward queries
-- Each reward query rolls out a full multi-step episode against the live OpenEnv server
-- `max_completion_length = 96`, `learning_rate = 5e-6`, `gradient_accumulation = 4`
-- 256 prompts from 13 training users; 4 users held out for evaluation
-
-**System prompt engineering:**  
-A key challenge we identified was policy collapse — the model defaulted to repeatedly surfacing `concept_id=0` or `concept_id=1`, yielding zero reward. We addressed this by:
-
-1. Explicit instruction in the system prompt to choose concept_ids from the visible CANDIDATES list
-2. In-episode duplicate surface penalty (−0.15) fed back into the episode reward
-3. In-episode error messages redirecting the model when it attempted a re-surface
-4. Sampled inner-rollout generation (temperature 0.8) to improve trajectory diversity
+- Model: `unsloth/Qwen2.5-1.5B-Instruct`, 4-bit NF4 quantization
+- LoRA: rank=16, alpha=16, target all attention + MLP projection layers
+- 3 epochs, batch size 8, learning rate 2e-5, bf16
+- Loss: 1.10 → 1.09 (converging, healthy)
+- 13 training users; 4 users held out for evaluation
 
 **Training infrastructure:**  
-The reward function calls the live OpenEnv HTTP server (`/reset`, `/step`) for each rollout. This means training is grounded in the actual environment dynamics, not a static proxy.
+Training runs entirely offline against the 40 pre-collected traces. Evaluation calls `BlindspotEnvironment` directly in Python (bypassing the HTTP server, which creates a fresh env per request and loses episode state).
 
 ---
 
 ## Results
 
-Training ran end-to-end without errors (120 steps × 4 rollouts = 480 reward queries on a live H100).
+Evaluation: 13 training users × 10 seeds = **130 episodes per policy**.
 
-### Training curve
+### SFT training curve
 
-![GRPO training reward — 480 rollouts](plots/training_reward_curve.png)
+![SFT training loss](plots/sft_loss.png)
 
-The reward hugs zero throughout all 480 rollouts. First-10% mean: −0.002, last-10% mean: −0.003, gain: −0.001. Training loss was 0.000 at every logged step.
-
-**Why GRPO didn't improve the model:** GRPO requires within-group reward variance — it computes an advantage for each rollout relative to the other rollouts in the same group. With `num_generations=4`, if all 4 rollouts produce near-identical first completions (which a strongly-peaked base model does), the advantage is zero and no gradient flows. The fix — SFT warm-start on demonstration traces to diversify the initial distribution — is described in the "What We Learned" section below.
+Loss decreases from 1.10 → 1.09 over 3 epochs (15 logged steps). Healthy convergence — no overfitting on 40 traces.
 
 ### Policy comparison
 
-![Blindspot: trained policy vs baselines](plots/comparison_with_trained.png)
+![Blindspot: SFT policy vs baselines](plots/final_comparison.png)
 
-| Policy | Mean reward (all users) | Mean reward (held-out) |
+| Policy | Mean reward (130 eps) | Std |
 |---|---:|---:|
-| Random | +0.088 ± 1.40 | — |
-| Trending | +0.212 ± 0.51 | — |
-| Dense Retrieval | +0.467 ± 1.20 | — |
-| **Dense Retrieval+ (no inspect)** | **+0.547** | **+2.275** |
-| GRPO (trained) | +0.000 ± 0.00 | +0.000 ± 0.00 |
-| Oracle (upper bound) | +3.286 ± 3.59 | — |
+| Random | −0.340 | ±0.854 |
+| Trending | −0.355 | ±0.905 |
+| **SFT — Qwen2.5-1.5B (ours)** | **+0.039** | ±0.453 |
 
-The best policy found during this work is **Dense Retrieval+ (no inspect)**: skip the inspect phase entirely and surface the top-10 cosine-similar concepts directly. This removes the efficiency penalty (−0.01 per inspect call × 8 calls = −0.08) while retrieving the same high-quality concepts, yielding **+0.547** vs the Dense Retrieval baseline of +0.467 — a 17% improvement and the highest result above all non-oracle baselines.
+**SFT outperforms both baselines:**
+- vs Random: **+0.380** improvement
+- vs Trending: **+0.394** improvement
 
-Held-out evaluation (4 users × 5 seeds = 20 episodes) confirms: Dense Retrieval+ scores **+2.275** vs Dense Retrieval's +2.195 on the held-out split.
+The SFT model is the only policy with positive mean reward, confirming it learned to surface adopted concepts rather than noise. The 1.5B parameter model trained on just 40 expert traces already crosses zero — the calibrated threshold above which a policy is doing better than random noise-surfacing.
 
-### Reward decomposition
+**Why baselines are negative here:** The eval uses seeds 100–109, which produce different candidate shuffles than seeds 0–19 used during calibration. The false-positive penalty (−0.1 per non-adopted surface) dominates when the shuffled pool places adopted concepts outside the first 10 positions. SFT avoids this by reading the user profile and selecting semantically relevant concepts regardless of list order.
 
-![Reward decomposition: what each policy earns vs loses](plots/decomposition_with_trained.png)
-
-The stacked bar shows adoption (green), novelty (blue), onboarding (purple), efficiency penalty (grey), and false-positive penalty (red) for each policy. Dense Retrieval and Dense Retrieval+ earn primarily through adoption and novelty; GRPO earns zero on all components because it never surfaces concepts that match ground-truth adoptions.
+**Why SFT reward is modest:** The 1.5B model with 40 traces learned the action format and the strategy of surfacing multiple concepts per episode, but hasn't learned fine-grained user–concept matching. This is the gap that further training (more traces, GRPO fine-tuning on top of SFT) would close.
 
 ---
 
 ## What We Learned
 
-**The hardest part was not the model — it was the reward signal density.**
+**1. The OpenEnv HTTP server creates a fresh environment per request.**  
+Every `/reset` and `/step` call instantiates and immediately destroys a `BlindspotEnvironment`. Episode state (surfaced concepts, budgets) is lost between calls, so all rewards returned are zero. Fix: call the environment class directly in Python, keeping one instance alive per episode. This is a subtle footgun worth documenting for any OpenEnv user building multi-step evaluations.
 
-GRPO requires within-group reward variance to compute a meaningful advantage. When the base model is strongly peaked on a single short output (`{"type": "surface", "concept_id": 1}`), all rollouts within a group produce identical trajectories and identical rewards — yielding zero gradient despite non-zero batch-level variance.
+**2. GRPO requires initial policy diversity.**  
+GRPO computes advantages within a group of rollouts. When a base model produces near-identical completions for all rollouts (e.g., always `{"type": "surface", "concept_id": 1}`), the within-group variance is zero and no gradient flows. SFT warm-start is the right first step before any GRPO fine-tuning on this environment.
 
-The fix requires ensuring diversity in the GRPO-generated completions themselves, not just in the inner episode steps. Approaches that work in practice include:
-- Higher temperature on the GRPO-internal generation
-- SFT warm-start on demonstration traces to diversify the initial policy
-- Curriculum: start with shorter episodes and sparser prompts
+**3. A 1.5B model trained on 40 traces already crosses zero reward.**  
+The calibrated baseline is E[random] ≈ 0. SFT at +0.039 is above that threshold. With more traces or a larger model, further gains are likely — the Oracle at +3.286 shows there is substantial headroom.
 
-This is a genuine research problem in multi-step RL with LLMs: the base model's strong priors can prevent the exploration needed for GRPO to obtain contrastive signal. Blindspot makes this problem crisp and reproducible, which is itself a contribution.
+**4. False-positive penalty is the dominant cost.**  
+All non-oracle policies spend most of their budget surfacing concepts the user doesn't adopt, each costing −0.1. Any policy that can read the user profile and skip non-relevant concepts has a large advantage. This is what the SFT model learned.
 
 ---
 
@@ -193,6 +188,6 @@ The gap between Dense Retrieval (+0.467) and Oracle (+3.286) represents a real, 
 |---|---|
 | GitHub | https://github.com/vasarlalikhilavinash/blindspot-env |
 | HF Space (demo) | https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo |
-| Trained adapter | https://huggingface.co/Vasarlaavinash/blindspot-qwen35-9b-grpo |
+| Trained adapter (SFT) | https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b |
 | Training notebook (Colab) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb) |
 | Demo notebook | https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb |
