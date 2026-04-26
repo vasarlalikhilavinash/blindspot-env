@@ -1017,23 +1017,19 @@ PERSONA_LABELS = {
     "⚙️ ML Infra Engineer (50-person startup)": "ml_infra_engineer",
 }
 
-def run_real_user(uid, focus_label):
-    focus = "Blindspot RL" if focus_label == "After SFT training ✅" else "Blindspot (pre-training)"
-    return render_html(demo_engine.compare_all(user_id=uid), focus=focus)
+def run_real_user(uid):
+    return render_html(demo_engine.compare_all(user_id=uid))
 
-def run_persona(persona_label, focus_label):
+def run_persona(persona_label):
     key = PERSONA_LABELS.get(persona_label)
     if not key:
         return "<i>Unknown persona</i>"
-    focus = "Blindspot RL" if focus_label == "After SFT training ✅" else "Blindspot (pre-training)"
-    return render_html(demo_engine.compare_all(paragraph=PERSONAS[key], persona_key=key),
-                       focus=focus)
+    return render_html(demo_engine.compare_all(paragraph=PERSONAS[key], persona_key=key))
 
-def run_paragraph(text, focus_label):
+def run_paragraph(text):
     if not text or not text.strip():
         return "<i>Paste a paragraph about your work and click Run.</i>"
-    focus = "Blindspot RL" if focus_label == "After SFT training ✅" else "Blindspot (pre-training)"
-    return render_html(demo_engine.compare_all(paragraph=text), focus=focus)
+    return render_html(demo_engine.compare_all(paragraph=text))
 
 
 _FORCE_LIGHT_JS = """
@@ -1074,15 +1070,9 @@ with gr.Blocks(
                     value=USER_OPTIONS[0][1],
                     scale=4,
                 )
-                focus1 = gr.Radio(
-                    choices=["After SFT training ✅", "Before training (base model)"],
-                    value="After SFT training ✅",
-                    label="🔀 Show results from",
-                    scale=2,
-                )
             btn1 = gr.Button("🔍 Find their blindspots", variant="primary", size="lg")
             out1 = gr.HTML()
-            btn1.click(run_real_user, inputs=[real_user, focus1], outputs=out1)
+            btn1.click(run_real_user, inputs=[real_user], outputs=out1)
 
         # ── TAB 2: Persona ──────────────────────────────────────────────────
         with gr.TabItem("2️⃣ Try a Persona"):
@@ -1094,15 +1084,9 @@ with gr.Blocks(
                     label="🎭 I am a...",
                     scale=4,
                 )
-                focus2 = gr.Radio(
-                    choices=["After SFT training ✅", "Before training (base model)"],
-                    value="After SFT training ✅",
-                    label="🔀 Show results from",
-                    scale=2,
-                )
             btn2 = gr.Button("🔍 Find my blindspots", variant="primary", size="lg")
             out2 = gr.HTML()
-            btn2.click(run_persona, inputs=[persona, focus2], outputs=out2)
+            btn2.click(run_persona, inputs=[persona], outputs=out2)
 
         # ── TAB 3: Your own paragraph ───────────────────────────────────────
         with gr.TabItem("3️⃣ Your Own Background"):
@@ -1115,15 +1099,9 @@ with gr.Blocks(
                     label="📝 Describe your work",
                     scale=4,
                 )
-                focus3 = gr.Radio(
-                    choices=["After SFT training ✅", "Before training (base model)"],
-                    value="After SFT training ✅",
-                    label="🔀 Show results from",
-                    scale=2,
-                )
             btn3 = gr.Button("🔍 Find my blindspots", variant="primary", size="lg")
             out3 = gr.HTML()
-            btn3.click(run_paragraph, inputs=[text, focus3], outputs=out3)
+            btn3.click(run_paragraph, inputs=[text], outputs=out3)
 
         # ── TAB 4: Concept catalog ──────────────────────────────────────────
         with gr.TabItem("4️⃣ Browse Concept Catalog"):
