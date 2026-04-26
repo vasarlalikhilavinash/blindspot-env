@@ -430,11 +430,13 @@ def _post_env(endpoint, payload):
 
 
 def _generate_completion(msgs):
-    inputs = tokenizer.apply_chat_template(
+    # apply_chat_template in transformers 5.x returns str; tokenize separately
+    text = tokenizer.apply_chat_template(
         msgs,
-        return_tensors='pt',
+        tokenize=False,
         add_generation_prompt=True,
-    ).to(model.device)
+    )
+    inputs = tokenizer(text, return_tensors='pt').input_ids.to(model.device)
     with torch.inference_mode():
         out = model.generate(inputs, max_new_tokens=64, do_sample=False, temperature=0.0)
     return tokenizer.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
