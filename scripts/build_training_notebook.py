@@ -281,11 +281,14 @@ if loaded_numpy != installed_numpy:
 
 # torchcodec is bundled in the Colab base image but is incompatible with torch 2.11.
 # Pre-register stub modules so unsloth's import chain cannot crash on it.
+import importlib.util as _ilu
 for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
-    _m = _types.ModuleType(_n)
-    _m.load_torchcodec_shared_libraries = lambda: None
-    sys.modules.setdefault(_n, _m)
-del _n, _m, _types
+    if _n not in sys.modules:
+        _m = _types.ModuleType(_n)
+        _m.__spec__ = _ilu.spec_from_loader(_n, loader=None)
+        _m.load_torchcodec_shared_libraries = lambda: None
+        sys.modules[_n] = _m
+del _n, _m, _ilu, _types
 
 import unsloth
 from unsloth import FastLanguageModel
