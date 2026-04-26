@@ -49,31 +49,24 @@ code(
     """
 %%bash
 set -e
-python -m pip install -q --upgrade --force-reinstall --no-cache-dir unsloth unsloth_zoo
-python -m pip install -q --upgrade 'openenv-core[core]' trl matplotlib seaborn pandas datasets peft accelerate bitsandbytes requests pillow torchvision
-python -m pip install -q --upgrade --pre --no-cache-dir 'transformers>=5.2.0' || true
+python -m pip uninstall -y unsloth unsloth_zoo transformers trl datasets >/dev/null 2>&1 || true
+python -m pip install -q --upgrade pip wheel setuptools packaging
+python -m pip install -q --upgrade --no-cache-dir \
+  'openenv-core[core]' \
+  'transformers==5.5.0' \
+  'trl==0.24.0' \
+  'datasets==4.3.0' \
+  peft accelerate bitsandbytes
+python -m pip install -q --upgrade --no-cache-dir --no-deps \
+  'unsloth_zoo==2026.4.9' \
+  'unsloth==2026.4.8'
 python - <<'PY'
-import subprocess, sys
-try:
-    import transformers
-    from transformers.models.auto.configuration_auto import CONFIG_MAPPING
-    has_qwen35 = 'qwen3_5' in CONFIG_MAPPING
-    print(f'transformers={transformers.__version__} qwen3_5={has_qwen35}')
-except Exception as exc:
-    print(f'transformers check failed: {exc}')
-    has_qwen35 = False
-if not has_qwen35:
-    subprocess.check_call([
-        sys.executable, '-m', 'pip', 'install', '-q', '--upgrade', '--no-cache-dir',
-        'git+https://github.com/huggingface/transformers.git',
-    ])
-PY
-python - <<'PY'
-import transformers
+import torch, transformers, trl, datasets
 from transformers.models.auto.configuration_auto import CONFIG_MAPPING
-print(f'final transformers={transformers.__version__}')
+print(f'torch={torch.__version__} cuda={torch.version.cuda}')
+print(f'transformers={transformers.__version__} trl={trl.__version__} datasets={datasets.__version__}')
 if 'qwen3_5' not in CONFIG_MAPPING:
-    raise SystemExit('Transformers does not expose qwen3_5. Restart runtime and rerun this setup cell.')
+    raise SystemExit('Transformers 5.5.0 loaded, but qwen3_5 is missing. Restart the runtime and rerun this setup cell.')
 print('qwen3_5 support OK')
 PY
 git clone https://github.com/vasarlalikhilavinash/blindspot-env || (cd blindspot-env && git pull)
@@ -269,10 +262,23 @@ md("## 4. GRPO training")
 
 code(
     """
+import importlib.metadata as importlib_metadata
 import os
+
+import numpy as np
 import torch
-from transformers.models.auto.configuration_auto import CONFIG_MAPPING
+
+loaded_numpy = np.__version__
+installed_numpy = importlib_metadata.version('numpy')
+if loaded_numpy != installed_numpy:
+    raise RuntimeError(
+        f'numpy was upgraded during setup (loaded={loaded_numpy}, installed={installed_numpy}). '
+        'Restart the runtime once, then rerun from the top.'
+    )
+
+import unsloth
 from unsloth import FastLanguageModel
+from transformers.models.auto.configuration_auto import CONFIG_MAPPING
 
 BASE_MODEL = os.environ.get('BASE_MODEL', 'unsloth/Qwen3.5-9B')
 FALLBACK_BASE_MODEL = os.environ.get('FALLBACK_BASE_MODEL', 'unsloth/Qwen3.5-4B')
