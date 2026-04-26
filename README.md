@@ -8,7 +8,8 @@ Blindspot is an OpenEnv environment for unknown-unknowns discovery: given a rese
 - Live demo: https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo
 - Trained adapter (SFT): https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b
 - GitHub repo: https://github.com/vasarlalikhilavinash/blindspot-env
-- Training notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb)
+- SFT training notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb)
+- GRPO notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training_GRPO.ipynb)
 - Demo notebook: https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb
 
 ## Why This Matters
@@ -119,7 +120,7 @@ Blinspot trains a LoRA adapter on top of `unsloth/Qwen2.5-1.5B-Instruct` with 4-
 
 **Next step**: RL fine-tuning (e.g., GRPO) on top of this SFT checkpoint — the warm-start provides the policy diversity needed for contrastive gradients.
 
-The main training notebook is `notebooks/02_training.ipynb`. The model card template is in `training/MODEL_CARD.md` and is uploaded as the Hub README by `scripts/push_to_hub.py`.
+The public SFT notebook is `notebooks/02_training.ipynb`, and the public GRPO notebook is `notebooks/02_training_GRPO.ipynb`. The model card template is in `training/MODEL_CARD.md` and is uploaded as the Hub README by `scripts/push_to_hub.py`.
 
 ## OpenEnv Surface
 
@@ -148,7 +149,8 @@ Server state now also exposes a `reasoning_log` with per-step action outcomes, w
 - **Environment manifest:** `openenv.yaml` declares the FastAPI app entry point.
 - **API surface:** `server.app:app` exposes `/reset`, `/step`, `/state`, `/schema`, and `/ws` through `openenv.create_app`.
 - **Typed action/observation/state:** `models.py` uses OpenEnv core types and Pydantic schemas.
-- **Real RL training:** `notebooks/02_training.ipynb` runs TRL SFTTrainer against collected expert traces.
+- **Public SFT training notebook:** `notebooks/02_training.ipynb` runs TRL's `SFTTrainer` against collected expert traces.
+- **Public GRPO notebook:** `notebooks/02_training_GRPO.ipynb` records the RL fine-tuning attempt and failure analysis.
 - **Session-level reward:** SFT policy completions are evaluated via multi-step OpenEnv rollouts, not static dataset scoring.
 - **Held-out evidence:** the notebook reserves `data/user_splits.json` test users and writes `plots/summary_heldout_with_trained.json` after training.
 - **Demo:** the Hugging Face Space gives judges a stable, visual replay of pre-training vs SFT behavior.
@@ -190,6 +192,7 @@ blindspot-env/
 ├── models.py
 ├── notebooks/
 │   ├── 02_training.ipynb
+│   ├── 02_training_GRPO.ipynb
 │   └── 03_demo.ipynb
 ├── scripts/
 │   ├── baseline_eval.py
