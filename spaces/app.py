@@ -313,6 +313,9 @@ def render_human_research_loop(report):
                                     if record["is_trending"] and not record["adopted_by_user"]),
         }
 
+    replay_step_seconds = 1.05
+    replay_start_delay = 0.35
+
     def _render_session_column(session):
         out = []
         out.append(f"<div style='background:white;border:1px solid #eee;border-top:4px solid {session['accent']};"
@@ -321,6 +324,8 @@ def render_human_research_loop(report):
                    f"<div><div style='font-size:16px;font-weight:800;color:{session['accent']};'>{session['name']}</div>"
                    f"<div style='font-size:12px;color:#666;margin-top:4px;'>{html.escape(session['note'])}</div></div>"
                    f"<div style='font-size:22px;font-weight:800;color:{session['accent']};'>{session['score']:+.2f}</div></div>")
+        out.append(f"<div style='font-size:11px;color:#777;margin-top:8px;'>"
+                   f"Autoplay replay: {len(session['timeline'])} actions, revealing one action every {replay_step_seconds:.2f}s.</div>")
         out.append("<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin:12px 0 14px 0;'>")
         metrics = [
             ("Bookmarked", f"{len(session['kept_records'])}"),
@@ -336,15 +341,19 @@ def render_human_research_loop(report):
         out.append("</div>")
         out.append("<div style='font-size:13px;font-weight:700;margin-bottom:8px;'>Decision trail</div>")
         out.append("<div style='position:relative;padding-left:14px;border-left:3px solid #ddd;'>")
-        for event in session['timeline']:
+        for event_idx, event in enumerate(session['timeline']):
             record = event.get('record') or {}
             detail = event.get('detail')
             adopted = bool(record.get('adopted_by_user'))
             trend = record.get('is_trending')
-            out.append("<div style='position:relative;margin:0 0 12px 0;padding:12px 12px 12px 16px;"
-                       "background:#fafafa;border-radius:10px;border:1px solid #eee;'>")
+            reveal_delay = replay_start_delay + event_idx * replay_step_seconds
+            out.append(f"<div class='replay-card' style='position:relative;margin:0 0 12px 0;padding:12px 12px 12px 16px;"
+                       f"background:#fafafa;border-radius:10px;border:1px solid #eee;opacity:0;"
+                       f"animation: replayReveal 0.5s ease forwards, replayPulse 0.9s ease {reveal_delay + 0.42:.2f}s 1;"
+                       f"animation-delay: {reveal_delay:.2f}s, {reveal_delay + 0.42:.2f}s;'>")
             out.append(f"<div style='position:absolute;left:-10px;top:16px;width:14px;height:14px;border-radius:50%;"
                        f"background:{session['accent']};border:3px solid white;box-shadow:0 0 0 1px #ddd;'></div>")
+            out.append(_chip(f"Step {event_idx + 1}", "#f5f5f5", "#555"))
             action_label = {
                 'inspect': 'Open tab',
                 'skip': 'Close / ignore',
@@ -418,6 +427,19 @@ def render_human_research_loop(report):
         topic_rows.append((topic, total, base_saved, rl_saved, base_neglected, rl_neglected))
 
     out = []
+    out.append("<style>"
+               "@keyframes replayReveal {"
+               "  0% { opacity: 0; transform: translateY(14px) scale(0.985); filter: blur(2px); }"
+               "  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }"
+               "}"
+               "@keyframes replayPulse {"
+               "  0%, 100% { box-shadow: 0 0 0 rgba(0,0,0,0); }"
+               "  50% { box-shadow: 0 0 0 3px rgba(34, 170, 102, 0.14); }"
+               "}"
+               "@media (prefers-reduced-motion: reduce) {"
+               "  .replay-card { opacity: 1 !important; animation: none !important; }"
+               "}"
+               "</style>")
     out.append("<div style='margin:28px 0;padding:22px;background:#fffdf7;border-radius:14px;"
                "border:1px solid #e8dcc2;'>")
     out.append("<h2 style='margin-top:0;margin-bottom:6px;font-size:18px;'>"
@@ -425,6 +447,9 @@ def render_human_research_loop(report):
     out.append("<p style='color:#666;font-size:13px;margin-top:0;margin-bottom:18px;'>"
                "Think of this like a Mario RL rollout, but for research. Both agents start from the same board, see the same tempting distractions, "
                "and have the same budgets. The only difference is what they decide to bookmark. That makes the behavioral change from GRPO visible instead of abstract.</p>")
+    out.append(f"<div style='margin-bottom:18px;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;color:#555;'>"
+               f"▶️ Autoplay is on. Both columns reveal the same action index together every {replay_step_seconds:.2f}s,"
+               " so the audience can watch the two policies diverge step by step.</div>")
 
     out.append("<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;margin-bottom:18px;'>")
     stat_cards = [
@@ -471,7 +496,8 @@ def render_human_research_loop(report):
     out.append("<h3 style='margin-bottom:10px;font-size:15px;'>🧩 Base model plays the same session vs RL policy plays the same session</h3>")
     out.append("<p style='font-size:13px;color:#666;margin-top:-4px;margin-bottom:14px;'>"
                "Both columns start from the same board and even waste attention on the same distraction tabs. "
-               "The behavior difference comes from what each model decides to bookmark and what it leaves neglected.</p>")
+               "The behavior difference comes from what each model decides to bookmark and what it leaves neglected."
+               " The cards below autoplay in sync like a replay.</p>")
     out.append("<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;'>")
     out.append(_render_session_column(base_session))
     out.append(_render_session_column(rl_session))
