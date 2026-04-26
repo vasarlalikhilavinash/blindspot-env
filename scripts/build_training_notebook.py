@@ -434,6 +434,10 @@ import torch
 REWARD_LOG = []
 ROLLOUT_STEP_LIMIT = 8
 
+# Unwrap multimodal Qwen2_5_VLProcessor -> inner text tokenizer to avoid load_image crash
+from transformers import ProcessorMixin as _ProcessorMixin
+_TXT_TOK = tokenizer.tokenizer if isinstance(tokenizer, _ProcessorMixin) else tokenizer
+
 
 def _post_env(endpoint, payload):
     resp = requests.post(f'{ENV_URL}/{endpoint}', json=payload, timeout=30)
@@ -445,15 +449,15 @@ def _post_env(endpoint, payload):
 
 def _generate_completion(msgs):
     # apply_chat_template in transformers 5.x returns str; tokenize separately
-    text = tokenizer.apply_chat_template(
+    text = _TXT_TOK.apply_chat_template(
         msgs,
         tokenize=False,
         add_generation_prompt=True,
     )
-    inputs = tokenizer(text, return_tensors='pt').input_ids.to(model.device)
+    inputs = _TXT_TOK(text, return_tensors='pt').input_ids.to(model.device)
     with torch.inference_mode():
         out = model.generate(inputs, max_new_tokens=64, do_sample=False, temperature=0.0)
-    return tokenizer.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
+    return _TXT_TOK.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
 
 
 def run_episode(user_id, seed, first_completion=None, first_action=None, max_steps=ROLLOUT_STEP_LIMIT):
@@ -531,17 +535,15 @@ def reward_fn(prompts, completions, user_id=None, seed=None, **kwargs):
 
 code(
     """
-from trl import GRPOConfig, GRPOTrainer as _BaseGRPOTrainer
+from trl import GRPOConfig, GRPOTrainer
+from transformers import ProcessorMixin
 
-# TRL 0.24.0 incorrectly flags Qwen3.5 as a vision model (via tokenizer isinstance check).
-# Subclass to permanently suppress the vision path regardless of what TRL detects.
-class _TextOnlyGRPOTrainer(_BaseGRPOTrainer):
-    @property
-    def is_vision_model(self):
-        return False
-    @is_vision_model.setter
-    def is_vision_model(self, value):
-        pass  # silently ignore — always text-only
+# CRITICAL: Unsloth returns a multimodal Qwen2_5_VLProcessor for Qwen3.5, not a plain tokenizer.
+# When TRL calls processing_class(text=prompts_text, return_tensors='pt'), the processor tries
+# to load images from the text and crashes with UnidentifiedImageError. Pass the inner text
+# tokenizer instead so the entire vision codepath is bypassed.
+text_tokenizer = tokenizer.tokenizer if isinstance(tokenizer, ProcessorMixin) else tokenizer
+print(f'processing_class type: {type(text_tokenizer).__name__}  (was {type(tokenizer).__name__})')
 
 cfg = GRPOConfig(
     output_dir='blindspot-env/training/checkpoints/grpo',
@@ -558,9 +560,9 @@ cfg = GRPOConfig(
     report_to='none',
 )
 
-trainer = _TextOnlyGRPOTrainer(
+trainer = GRPOTrainer(
     model=model,
-    processing_class=tokenizer,
+    processing_class=text_tokenizer,
     reward_funcs=[reward_fn],
     args=cfg,
     train_dataset=ds,
