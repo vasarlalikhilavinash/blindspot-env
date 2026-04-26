@@ -1036,33 +1036,12 @@ def run_paragraph(text, focus_label):
     return render_html(demo_engine.compare_all(paragraph=text), focus=focus)
 
 
-LIGHT_CSS = """
-:root { color-scheme: light !important; }
-body, .gradio-container, .main, .wrap, .app {
-    background: #f7f8fa !important;
-    color: #111 !important;
-}
-.dark, [data-testid], .gr-box, .gr-panel, .prose,
-.svelte-1ed2p3z, .svelte-phx3hq {
-    background: #ffffff !important;
-    color: #111 !important;
-}
-.gr-output, .output-html, .gr-html, [class*="output"] {
-    background: #ffffff !important;
-    color: #111 !important;
-}
-textarea, input, .gr-input { background: #fff !important; color: #111 !important; }
-.tab-nav button { color: #333 !important; }
-.tab-nav button.selected { color: #4f46e5 !important; border-bottom-color: #4f46e5 !important; }
-"""
-
 with gr.Blocks(
     title="Blindspot — Unknown-Unknowns Discovery",
     theme=gr.themes.Default(
         primary_hue=gr.themes.colors.indigo,
-        neutral_hue=gr.themes.colors.slate,
+        neutral_hue=gr.themes.colors.gray,
     ),
-    css=LIGHT_CSS,
 ) as ui:
     gr.Markdown(INTRO)
 
