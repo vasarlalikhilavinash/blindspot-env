@@ -1,4 +1,4 @@
-# Blindspot: Finding the Research Ideas You Didn't Know to Look For
+# Blindspot: The Unknown Unknowns in Your Research
 
 **Team:** Vasarla Avinash  
 **Track:** Theme #3.1 — World Modeling (Professional Tasks)  
@@ -165,7 +165,12 @@ And beyond training, it turned out to be a good stress test. Blindspot reliably 
 
 The live demo is here: **https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo**.
 
-The easiest way to use it is to pick one of the real researchers from the dropdown and run the comparison. The app shows what the base model surfaced, what the SFT model surfaced, and whether those concepts were later adopted.
+Start with **1. Real Researcher**. It is the strongest version of the demo: you see the base model, the SFT model, and what that researcher actually adopted later.
+
+- **2. Try a Persona** is the quick tour if you want the idea in under a minute.
+- **3. Your Own Background** is the fun one: paste a short paragraph and Blindspot maps you to the closest researcher in the dataset.
+
+Tab 1 is the proof. Tab 2 is the shortcut. Tab 3 is the personal version.
 
 ---
 
