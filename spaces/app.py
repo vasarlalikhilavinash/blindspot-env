@@ -442,7 +442,7 @@ def render_human_research_loop(report):
                "</style>")
     out.append("<div style='margin:28px 0;padding:22px;background:#fffdf7;border-radius:14px;"
                "border:1px solid #e8dcc2;'>")
-    out.append("<h2 style='margin-top:0;margin-bottom:6px;font-size:18px;'>"
+    out.append("<h2 style='color:#111;margin-top:0;margin-bottom:6px;font-size:18px;'>"
                "🎮 Same session, two agents — base model vs RL policy</h2>")
     out.append("<p style='color:#333;font-size:13px;margin-top:0;margin-bottom:18px;'>"
                "Think of this like a Mario RL rollout, but for research. Both agents start from the same board, see the same tempting distractions, "
@@ -493,7 +493,7 @@ def render_human_research_loop(report):
     out.append("</table></div>")
     out.append("</div>")
 
-    out.append("<h3 style='margin-bottom:10px;font-size:15px;'>🧩 Base model plays the same session vs RL policy plays the same session</h3>")
+    out.append("<h3 style='color:#111;margin-bottom:10px;font-size:15px;'>🧩 Base model plays the same session vs RL policy plays the same session</h3>")
     out.append("<p style='font-size:13px;color:#333;margin-top:-4px;margin-bottom:14px;'>"
                "Both columns start from the same board and even waste attention on the same distraction tabs. "
                "The behavior difference comes from what each model decides to bookmark and what it leaves neglected."
@@ -503,7 +503,7 @@ def render_human_research_loop(report):
     out.append(_render_session_column(rl_session))
     out.append("</div>")
 
-    out.append("<h3 style='margin-top:22px;margin-bottom:10px;font-size:15px;'>🗂️ What each agent covered vs neglected</h3>")
+    out.append("<h3 style='color:#111;margin-top:22px;margin-bottom:10px;font-size:15px;'>🗂️ What each agent covered vs neglected</h3>")
     out.append("<div style='display:grid;grid-template-columns:1fr 1fr;gap:14px;'>")
     for session in [base_session, rl_session]:
         out.append(f"<div style='background:white;border:1px solid #eee;border-top:4px solid {session['accent']};border-radius:12px;padding:12px;'>")
@@ -546,7 +546,7 @@ def render_rl_visual(report):
     out = []
     out.append("<div style='margin:28px 0;padding:22px;background:#f8f9fa;"
                "border-radius:14px;border:1px solid #dde;'>")
-    out.append("<h2 style='margin-top:0;margin-bottom:4px;font-size:18px;'>"
+    out.append("<h2 style='color:#111;margin-top:0;margin-bottom:4px;font-size:18px;'>"
                "🔬 After many episodes like that, what did SFT training learn?</h2>")
     out.append("<p style='color:#333;font-size:13px;margin-bottom:24px;'>"
                "The section above showed the same session played by the base model and the RL policy. "
@@ -567,7 +567,7 @@ def render_rl_visual(report):
     # ─────────────────────────────────────────────────────────────────
     # PANEL 1: Side-by-side before/after diff
     # ─────────────────────────────────────────────────────────────────
-    out.append("<h3 style='margin-bottom:10px;font-size:15px;'>"
+    out.append("<h3 style='color:#111;margin-bottom:10px;font-size:15px;'>"
                "1️⃣ &nbsp;What changed after SFT training?</h3>")
     out.append("<p style='color:#333;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "Green card = researcher actually adopted this concept. "
@@ -627,7 +627,7 @@ def render_rl_visual(report):
     # ─────────────────────────────────────────────────────────────────
     # PANEL 2: Per-concept reward trace (RL policy)
     # ─────────────────────────────────────────────────────────────────
-    out.append("<h3 style='margin-bottom:8px;font-size:15px;'>"
+    out.append("<h3 style='color:#111;margin-bottom:8px;font-size:15px;'>"
                "2️⃣ &nbsp;RL reward earned — concept by concept</h3>")
     out.append("<p style='color:#333;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "This is the exact reward signal the model was trained on. "
@@ -694,7 +694,7 @@ def render_rl_visual(report):
     # ─────────────────────────────────────────────────────────────────
     # PANEL 3: Full policy hit matrix
     # ─────────────────────────────────────────────────────────────────
-    out.append("<h3 style='margin-bottom:8px;font-size:15px;'>"
+    out.append("<h3 style='color:#111;margin-bottom:8px;font-size:15px;'>"
                "3️⃣ &nbsp;Full adoption matrix — who found what?</h3>")
     out.append("<p style='color:#333;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "Every concept this researcher <em>actually adopted</em> (rows). "
@@ -805,7 +805,7 @@ def render_html(report, focus="Blindspot RL"):
 
     # Reward bar chart with human labels
     max_r = max(abs(v['reward']['total']) for v in policies.values()) or 1
-    out.append("<h3 style='margin-bottom:6px;'>📊 How each strategy scored</h3>")
+    out.append("<h3 style='color:#111;margin-bottom:6px;'>📊 How each strategy scored</h3>")
     out.append("<p style='color:#333;font-size:13px;margin-top:0;'>Higher = found more concepts this researcher actually adopted + understood. "
                "Random ≈ 0 confirms the reward signal is calibrated.</p>")
     out.append("<table style='width:100%;border-collapse:collapse;'>")
@@ -826,7 +826,7 @@ def render_html(report, focus="Blindspot RL"):
                    f"<td style='color:#555;font-size:11px;padding:7px 6px;'>⚡{latency:.0f}ms</td></tr>")
     out.append("</table>")
 
-    out.append("<h3 style='margin-top:28px;margin-bottom:6px;'>🔍 What was surfaced — and did it help?</h3>")
+    out.append("<h3 style='color:#111;margin-top:28px;margin-bottom:6px;'>🔍 What was surfaced — and did it help?</h3>")
     out.append("<p style='color:#333;font-size:13px;margin-top:0;'>"
                "Each concept card shows: did the researcher adopt it? did it improve understanding? "
                "Green border = adopted ✅ · Red border = not adopted ❌</p>")
@@ -882,7 +882,7 @@ def render_html(report, focus="Blindspot RL"):
         out.append("</details>")
 
     if report.get('chatgpt_baseline'):
-        out.append("<h3 style='margin-top:28px;'>💬 What a generic LLM would say instead</h3>")
+        out.append("<h3 style='color:#111;margin-top:28px;'>💬 What a generic LLM would say instead</h3>")
         out.append("<p style='color:#333;font-size:13px;'>For comparison — a generic ChatGPT prompt with no knowledge of this person's catalog or adoption history:</p>")
         out.append(f"<div style='background:#fff3e0;padding:14px;border-radius:8px;border-left:4px solid #ff9800;'>"
                    f"{html.escape(report['chatgpt_baseline'])}</div>")
