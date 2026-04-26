@@ -24,10 +24,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-import torch
-from unsloth import FastLanguageModel  # type: ignore
-from transformers.models.auto.configuration_auto import CONFIG_MAPPING  # type: ignore
-
 from scripts.blindspot_demo import BlindspotDemo
 
 ADAPTER_PATH = os.environ.get("ADAPTER_PATH", "training/checkpoints/grpo")
@@ -60,6 +56,10 @@ PERSONAS = {
 
 
 def main():
+    import torch
+    from unsloth import FastLanguageModel  # type: ignore
+    from transformers.models.auto.configuration_auto import CONFIG_MAPPING  # type: ignore
+
     if "qwen3_5" not in CONFIG_MAPPING:
         raise RuntimeError(
             "Qwen3.5 requires Transformers v5. Install transformers>=5.2.0 "
