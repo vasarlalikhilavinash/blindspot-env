@@ -132,6 +132,8 @@ Loss converges from 1.10 → 1.09 over 3 epochs (15 logged steps). The flat curv
 | Trending | −0.355 | ±0.905 |
 | **SFT — Qwen2.5-1.5B (ours)** | **+0.039** | ±0.453 |
 
+**SFT is the only policy with positive mean reward.**
+
 **SFT outperforms both baselines:**
 - vs Random: **+0.380** improvement
 - vs Trending: **+0.394** improvement
