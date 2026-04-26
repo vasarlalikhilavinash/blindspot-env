@@ -279,15 +279,19 @@ if loaded_numpy != installed_numpy:
         'Restart the runtime once, then rerun from the top.'
     )
 
-# torchcodec is bundled in the Colab base image but is incompatible with torch 2.11.
-# Pre-register stub modules so unsloth's import chain cannot crash on it.
+# torchcodec is baked into the Colab base image as a broken package (incompatible with torch 2.11).
+# It is imported at kernel startup with __spec__=None which makes importlib.util.find_spec crash.
+# Always overwrite whatever is in sys.modules so __spec__ is never None.
 import importlib.util as _ilu
+import types as _types
 for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
-    if _n not in sys.modules:
+    _m = sys.modules.get(_n)
+    if _m is None:
         _m = _types.ModuleType(_n)
-        _m.__spec__ = _ilu.spec_from_loader(_n, loader=None)
         _m.load_torchcodec_shared_libraries = lambda: None
         sys.modules[_n] = _m
+    if getattr(_m, '__spec__', None) is None:
+        _m.__spec__ = _ilu.spec_from_loader(_n, loader=None)
 del _n, _m, _ilu, _types
 
 import unsloth
