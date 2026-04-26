@@ -361,9 +361,22 @@ except (RuntimeError, OSError) as exc:
     print(f'Falling back to: {BASE_MODEL}')
     model, tokenizer = load_base_model(BASE_MODEL)
 
+# Attach LoRA adapters so GRPO has trainable parameters
+model = FastLanguageModel.get_peft_model(
+    model,
+    r=16,
+    target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj',
+                    'gate_proj', 'up_proj', 'down_proj'],
+    lora_alpha=16,
+    lora_dropout=0,
+    bias='none',
+    use_gradient_checkpointing='unsloth',
+    random_state=42,
+)
+
 if os.path.isdir('blindspot-env/training/checkpoints/sft'):
     model.load_adapter('blindspot-env/training/checkpoints/sft')
-    print('✓ attached SFT warm-start adapter')
+    print('attached SFT adapter')
 
 FastLanguageModel.for_training(model)
 
