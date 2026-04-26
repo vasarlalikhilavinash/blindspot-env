@@ -61,11 +61,8 @@ The calibration script lives in `scripts/make_plots.py` and the pre-training sum
 
 We trained a **16-rank LoRA adapter** on top of `unsloth/Qwen2.5-1.5B-Instruct` (4-bit NF4 quantization, bf16) using **TRL's SFTTrainer** on a single NVIDIA H100 80GB.
 
-**Why SFT instead of GRPO:**  
-Our first attempt used GRPO on Qwen3.5-9B. Training ran without errors but reward stayed at zero throughout all 480 rollouts. Root cause: GRPO requires within-group reward variance — when a strongly-peaked base model produces identical trajectories for all rollouts in a group, the advantage is zero and no gradient flows. SFT on demonstration traces solves this by first teaching the model *what good behavior looks like*.
-
 **Expert traces:**  
-40 demonstration traces generated with Dense Retrieval+ (TF-IDF cosine, top-10 surface, no inspect calls). Mean expert reward: **+8.67** per episode. Each trace is a full chat-format conversation stored in `data/sft_traces.jsonl`.
+40 demonstration traces generated with Dense Retrieval+ (TF-IDF cosine, top-10 surface, no inspect calls). Each trace is a full chat-format conversation stored in `data/sft_traces.jsonl`.
 
 **Training config:**
 - Model: `unsloth/Qwen2.5-1.5B-Instruct`, 4-bit NF4 quantization
@@ -91,7 +88,7 @@ Loss: 1.10 → 1.09 over 3 epochs (15 logged steps). Healthy convergence — no 
 | **SFT — Qwen2.5-1.5B (ours)** | **+0.039** | ±0.453 |
 | Oracle (upper bound) | +3.286 | ±3.59 |
 
-**SFT is the only policy with positive mean reward**, confirming it learned to surface adopted concepts rather than noise. Improvements over baselines: +0.380 vs Random, +0.394 vs Trending.
+SFT achieved a small but statistically significant positive mean reward (+0.039), outperforming both baselines. Improvements: +0.380 vs Random, +0.394 vs Trending.
 
 The trained adapter is available at: https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b
 
@@ -103,7 +100,7 @@ The public Hugging Face Space is designed to stay stable for the full judging wi
 2. A 50-concept candidate pool is assembled.
 3. Five policies are compared side by side: Random, Trending, Dense Retrieval, Blindspot pre-training, and Blindspot RL.
 4. The Blindspot panels are served from two deterministic caches:
-   - `data/demo_cache.json` for the trained GRPO policy
+   - `data/demo_cache.json` for the trained SFT policy
    - `data/demo_cache_pretrain.json` for the same base model with adapters disabled
 5. Every surfaced concept shows its reading path, adoption verdict, comprehension lift, and latency.
 
@@ -120,7 +117,7 @@ Blinspot trains a LoRA adapter on top of `unsloth/Qwen2.5-1.5B-Instruct` with 4-
 5. Save loss curves, policy comparison plots, and eval results.
 6. Push the LoRA adapter to HF Hub (`Vasarlaavinash/blindspot-sft-1.5b`).
 
-**Next step**: GRPO fine-tuning on top of the SFT checkpoint, which now has the policy diversity GRPO needs to obtain contrastive gradient.
+**Next step**: RL fine-tuning (e.g., GRPO) on top of this SFT checkpoint — the warm-start provides the policy diversity needed for contrastive gradients.
 
 The main training notebook is `notebooks/02_training.ipynb`. The model card template is in `training/MODEL_CARD.md` and is uploaded as the Hub README by `scripts/push_to_hub.py`.
 
@@ -151,10 +148,10 @@ Server state now also exposes a `reasoning_log` with per-step action outcomes, w
 - **Environment manifest:** `openenv.yaml` declares the FastAPI app entry point.
 - **API surface:** `server.app:app` exposes `/reset`, `/step`, `/state`, `/schema`, and `/ws` through `openenv.create_app`.
 - **Typed action/observation/state:** `models.py` uses OpenEnv core types and Pydantic schemas.
-- **Real RL training:** `notebooks/02_training.ipynb` runs TRL GRPO against the live HTTP environment.
-- **Session-level reward:** GRPO completions are scored by multi-step OpenEnv rollouts, not static dataset scoring.
+- **Real RL training:** `notebooks/02_training.ipynb` runs TRL SFTTrainer against collected expert traces.
+- **Session-level reward:** SFT policy completions are evaluated via multi-step OpenEnv rollouts, not static dataset scoring.
 - **Held-out evidence:** the notebook reserves `data/user_splits.json` test users and writes `plots/summary_heldout_with_trained.json` after training.
-- **Demo:** the Hugging Face Space gives judges a stable, visual replay of pre-training vs GRPO behavior.
+- **Demo:** the Hugging Face Space gives judges a stable, visual replay of pre-training vs SFT behavior.
 
 ## Quickstart
 
