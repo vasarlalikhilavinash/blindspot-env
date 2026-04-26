@@ -375,6 +375,11 @@ if torch.cuda.is_available():
 
 code(
     """
+# Build prompt dataset by sampling only train-split (user, seed) pairs from the env.
+import sys, os
+_bd = next(p for p in ['/content/blindspot-env', 'blindspot-env'] if os.path.isdir(p))
+if _bd not in sys.path:
+    sys.path.insert(0, _bd)
 import json
 import random
 import requests
