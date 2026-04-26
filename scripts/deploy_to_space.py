@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SPACE_ID = os.environ.get("HF_SPACE_ID", "vasarlalikhilavinash/blindspot-demo")
+SPACE_ID = os.environ.get("HF_SPACE_ID", "Vasarlaavinash/blindspot-demo")
 TOKEN = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACEHUB_API_TOKEN")
 if not TOKEN:
     sys.exit("HF_TOKEN env var not set")

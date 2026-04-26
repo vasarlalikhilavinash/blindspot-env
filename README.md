@@ -5,8 +5,8 @@ Blindspot is an OpenEnv environment for unknown-unknowns discovery: given a rese
 ## 🏆 Submission Notes
 
 - **Blog post**: [Blog.md](Blog.md) ← required writeup
-- Live demo: https://huggingface.co/spaces/vasarlalikhilavinash/blindspot-demo
-- Trained adapter: https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo
+- Live demo: https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo
+- Trained adapter: https://huggingface.co/Vasarlaavinash/blindspot-qwen35-9b-grpo
 - GitHub repo: https://github.com/vasarlalikhilavinash/blindspot-env
 - Training notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb)
 - Demo notebook: https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb

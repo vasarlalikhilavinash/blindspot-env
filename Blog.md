@@ -115,16 +115,38 @@ The reward function calls the live OpenEnv HTTP server (`/reset`, `/step`) for e
 
 ## Results
 
-Training ran end-to-end without errors. The training loss curve and reward decomposition over rollouts are saved at:
+Training ran end-to-end without errors (120 steps × 4 rollouts = 480 reward queries on a live H100).
 
-- `plots/training_reward_curve.png`
-- `plots/training_component_curves.png`
+### Training curve
 
-Post-training evaluation runs 5 seeds × 17 users using the trained adapter:
+![GRPO training reward — 480 rollouts](plots/training_reward_curve.png)
 
-- Results saved to `plots/comparison_with_trained.png`
-- Per-user breakdown saved to `plots/per_user_reward.png`
-- Component breakdown saved to `plots/decomposition_with_trained.png`
+The reward hugs zero throughout all 480 rollouts. First-10% mean: −0.002, last-10% mean: −0.003, gain: −0.001. Training loss was 0.000 at every logged step.
+
+**Why GRPO didn't improve the model:** GRPO requires within-group reward variance — it computes an advantage for each rollout relative to the other rollouts in the same group. With `num_generations=4`, if all 4 rollouts produce near-identical first completions (which a strongly-peaked base model does), the advantage is zero and no gradient flows. The fix — SFT warm-start on demonstration traces to diversify the initial distribution — is described in the "What We Learned" section below.
+
+### Policy comparison
+
+![Blindspot: trained policy vs baselines](plots/comparison_with_trained.png)
+
+| Policy | Mean reward (all users) | Mean reward (held-out) |
+|---|---:|---:|
+| Random | +0.088 ± 1.40 | — |
+| Trending | +0.212 ± 0.51 | — |
+| Dense Retrieval | +0.467 ± 1.20 | — |
+| **Dense Retrieval+ (no inspect)** | **+0.547** | **+2.275** |
+| GRPO (trained) | +0.000 ± 0.00 | +0.000 ± 0.00 |
+| Oracle (upper bound) | +3.286 ± 3.59 | — |
+
+The best policy found during this work is **Dense Retrieval+ (no inspect)**: skip the inspect phase entirely and surface the top-10 cosine-similar concepts directly. This removes the efficiency penalty (−0.01 per inspect call × 8 calls = −0.08) while retrieving the same high-quality concepts, yielding **+0.547** vs the Dense Retrieval baseline of +0.467 — a 17% improvement and the highest result above all non-oracle baselines.
+
+Held-out evaluation (4 users × 5 seeds = 20 episodes) confirms: Dense Retrieval+ scores **+2.275** vs Dense Retrieval's +2.195 on the held-out split.
+
+### Reward decomposition
+
+![Reward decomposition: what each policy earns vs loses](plots/decomposition_with_trained.png)
+
+The stacked bar shows adoption (green), novelty (blue), onboarding (purple), efficiency penalty (grey), and false-positive penalty (red) for each policy. Dense Retrieval and Dense Retrieval+ earn primarily through adoption and novelty; GRPO earns zero on all components because it never surfaces concepts that match ground-truth adoptions.
 
 ---
 
@@ -170,7 +192,7 @@ The gap between Dense Retrieval (+0.467) and Oracle (+3.286) represents a real, 
 | Resource | URL |
 |---|---|
 | GitHub | https://github.com/vasarlalikhilavinash/blindspot-env |
-| HF Space (demo) | https://huggingface.co/spaces/vasarlalikhilavinash/blindspot-demo |
-| Trained adapter | https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo |
+| HF Space (demo) | https://huggingface.co/spaces/Vasarlaavinash/blindspot-demo |
+| Trained adapter | https://huggingface.co/Vasarlaavinash/blindspot-qwen35-9b-grpo |
 | Training notebook (Colab) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb) |
 | Demo notebook | https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb |
