@@ -280,21 +280,26 @@ if loaded_numpy != installed_numpy:
     )
 
 # torchcodec is baked into the Colab base image as a broken package (incompatible with torch 2.11).
-# It is imported at kernel startup with __spec__=None which makes importlib.util.find_spec crash.
-# unsloth_zoo also calls importlib.metadata.version('torchcodec') and crashes if metadata is missing.
-# Fix both: patch sys.modules stubs AND intercept metadata lookups.
-import importlib.util as _ilu
+# Strategy: (1) create a fake dist-info on disk so importlib.metadata.version() resolves without
+# any function patching (no patching = no recursion), (2) stub sys.modules so the broken .so is
+# never dlopen'd. Both blocks are fully idempotent - safe to re-run any number of times.
+import importlib as _il
 import importlib.metadata as _imeta
+import importlib.util as _ilu
+import pathlib as _pl
+import tempfile as _tf
 import types as _types
 
-_orig_meta_version = _imeta.version
-def _patched_meta_version(name, _orig=_orig_meta_version):
-    if name == 'torchcodec':
-        return '0.0.0'
-    return _orig(name)
-_patched_meta_version._is_torchcodec_patch = True
-if not getattr(_imeta.version, '_is_torchcodec_patch', False):
-    _imeta.version = _patched_meta_version
+try:
+    _imeta.version('torchcodec')
+except _imeta.PackageNotFoundError:
+    _fake_base = _pl.Path(_tf.mkdtemp())
+    _di = _fake_base / 'torchcodec-0.0.0.dist-info'
+    _di.mkdir()
+    (_di / 'METADATA').write_text('Metadata-Version: 2.1\\nName: torchcodec\\nVersion: 0.0.0\\n')
+    (_di / 'RECORD').write_text('')
+    sys.path.insert(0, str(_fake_base))
+    _il.invalidate_caches()
 
 for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
     _m = sys.modules.get(_n)
@@ -304,7 +309,7 @@ for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
         sys.modules[_n] = _m
     if getattr(_m, '__spec__', None) is None:
         _m.__spec__ = _ilu.spec_from_loader(_n, loader=None)
-del _n, _m, _ilu, _imeta, _types, _orig_meta_version
+del _n, _m, _il, _imeta, _ilu, _pl, _tf, _types
 
 import unsloth
 from unsloth import FastLanguageModel
