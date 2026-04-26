@@ -49,7 +49,7 @@ code(
     """
 %%bash
 set -e
-python -m pip uninstall -y unsloth unsloth_zoo transformers trl datasets >/dev/null 2>&1 || true
+python -m pip uninstall -y unsloth unsloth_zoo transformers trl datasets torchcodec >/dev/null 2>&1 || true
 python -m pip install -q --upgrade pip wheel setuptools packaging
 python -m pip install -q --upgrade --no-cache-dir \
   'openenv-core[core]' \
