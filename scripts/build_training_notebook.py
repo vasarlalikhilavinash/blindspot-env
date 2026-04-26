@@ -288,10 +288,10 @@ import importlib.metadata as _imeta
 import types as _types
 
 _orig_meta_version = _imeta.version
-def _patched_meta_version(name):
+def _patched_meta_version(name, _orig=_orig_meta_version):
     if name == 'torchcodec':
         return '0.0.0'
-    return _orig_meta_version(name)
+    return _orig(name)
 _imeta.version = _patched_meta_version
 
 for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
