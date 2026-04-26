@@ -1063,11 +1063,11 @@ the AI learned to beat every baseline — including the "just show trending" app
 
 ---
 
-**👇 Start with Tab 1 → Pick a researcher → See what the AI finds for them**
+**👇 Start with Tab 1: pick a researcher and compare the results**
 """
 
 STEP1_GUIDE = """
-### Step 1 — Pick a real ML researcher
+### Step 1 — Pick a researcher
 
 These are 17 actual researchers in our database (we tracked what concepts they adopted over time).
 
@@ -1080,25 +1080,42 @@ These are 17 actual researchers in our database (we tracked what concepts they a
 """
 
 STEP2_GUIDE = """
-### Step 2 — Try a researcher archetype
+### Step 2 — Pick a persona
 
 Don't have a specific researcher? Pick a role you relate to.
 
 Each persona is a pre-written description (e.g. "I'm a diffusion models PhD student...").
 The AI finds the closest real researcher in our database and shows what it would surface for them.
 
-> 💡 **Try "LLM Agents Researcher" — then toggle Before/After to see the RL improvement**
+> 💡 **Try "LLM Agents Researcher" for the quickest tour**
 """
 
 STEP3_GUIDE = """
-### Step 3 — Try with your own background
+### Step 3 — Paste your background
 
 Paste a short description of your work (LinkedIn bio, research summary, anything).
 
 The AI will find the closest researcher in our database and show you what concepts
 it would surface for someone like you.
 
-> 💡 **This shows how the system would work for a new user it has never seen before**
+> 💡 **Best for seeing how Blindspot feels on your own work**
+"""
+
+DEMO_CSS = """
+.bs-tabs [role='tablist'] {
+    gap: 4px !important;
+    flex-wrap: wrap !important;
+}
+
+.bs-tabs button[role='tab'] {
+    font-size: 15px !important;
+    padding: 8px 12px !important;
+    min-height: 40px !important;
+}
+
+.bs-tabs button[role='tab'] span {
+    white-space: nowrap !important;
+}
 """
 
 
@@ -1145,14 +1162,15 @@ with gr.Blocks(
         primary_hue=gr.themes.colors.indigo,
         neutral_hue=gr.themes.colors.gray,
     ),
+    css=DEMO_CSS,
     js=_FORCE_LIGHT_JS,
 ) as ui:
     gr.Markdown(INTRO)
 
-    with gr.Tabs():
+    with gr.Tabs(elem_classes="bs-tabs"):
 
         # ── TAB 1: Real researcher ──────────────────────────────────────────
-        with gr.TabItem("1️⃣ Real Researcher (start here)"):
+        with gr.TabItem("1️⃣ Researcher"):
             gr.Markdown(STEP1_GUIDE)
             with gr.Row():
                 real_user = gr.Dropdown(
@@ -1166,7 +1184,7 @@ with gr.Blocks(
             btn1.click(run_real_user, inputs=[real_user], outputs=out1)
 
         # ── TAB 2: Persona ──────────────────────────────────────────────────
-        with gr.TabItem("2️⃣ Try a Persona"):
+        with gr.TabItem("2️⃣ Persona"):
             gr.Markdown(STEP2_GUIDE)
             with gr.Row():
                 persona = gr.Radio(
@@ -1180,7 +1198,7 @@ with gr.Blocks(
             btn2.click(run_persona, inputs=[persona], outputs=out2)
 
         # ── TAB 3: Your own paragraph ───────────────────────────────────────
-        with gr.TabItem("3️⃣ Your Own Background"):
+        with gr.TabItem("3️⃣ Your Background"):
             gr.Markdown(STEP3_GUIDE)
             with gr.Row():
                 text = gr.Textbox(
@@ -1195,7 +1213,7 @@ with gr.Blocks(
             btn3.click(run_paragraph, inputs=[text], outputs=out3)
 
         # ── TAB 4: Concept catalog ──────────────────────────────────────────
-        with gr.TabItem("4️⃣ Browse Concept Catalog"):
+        with gr.TabItem("4️⃣ Catalog"):
             gr.Markdown("""
 ### The 1,168 concepts Blindspot picks from
 
@@ -1214,7 +1232,7 @@ You'd need weeks to browse these manually. The AI scans all of them in 3ms.
             btn4.click(render_catalog, inputs=[ft, so], outputs=out4)
 
         # ── TAB 5: How it works ─────────────────────────────────────────────
-        with gr.TabItem("5️⃣ How It Works"):
+    with gr.TabItem("5️⃣ How it works"):
             gr.Markdown("""
 ### The full picture
 
