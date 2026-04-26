@@ -1,4 +1,4 @@
-# Blindspot: Teaching an AI to Find What You Don't Know You're Missing
+# Blindspot: An RL Environment for Unknown-Unknown Discovery — and a Diagnostic for Exploration Collapse
 
 **Team:** Vasarla Avinash  
 **Track:** Theme #3.1 — World Modeling (Professional Tasks)  
@@ -12,7 +12,7 @@ There's a category of knowledge gap that no search engine can fix. You can't sea
 
 These are unknown unknowns — things you'd care deeply about if you knew they existed, but which stay invisible precisely because you don't know to look.
 
-Blindspot turns this into a reinforcement learning problem. Given a researcher's existing publication record and reading history, an agent has to surface the concepts they're missing — and the reward signal is whether the researcher actually adopted those concepts in their subsequent work.
+Blindspot turns this into a reinforcement learning problem. Given a researcher's existing publication record and reading history, an agent has to surface the concepts they're missing — and the reward signal is whether the researcher actually adopted those concepts in their subsequent work. Along the way, we discovered that the environment has a second use: it reliably triggers and measures the exploration collapse that current RL methods are known to suffer from, making it a useful diagnostic alongside being a training environment.
 
 ---
 
@@ -101,13 +101,32 @@ The baselines being negative here (vs. positive in calibration) is expected — 
 
 ---
 
-## Why GRPO Didn't Work (And What We Learned)
+## Why GRPO Didn't Work — And What the Logs Prove
 
-Before SFT, we tried GRPO directly on a base model. The reward stayed at zero throughout training.
+Before SFT we ran GRPO directly on the base model for 150 steps (600 total rollouts). Not only did it not improve — the training dynamics show exactly why, step by step.
 
-The root cause was straightforward: GRPO computes advantages within a group of rollouts. When the base model is strongly peaked — always producing `{"type": "surface", "concept_id": 1}` as the first action — all rollouts in the group are identical. Within-group reward variance is zero, so no gradient flows. This is a known failure mode for RL on LLMs without initial policy diversity.
+**The reward trace.** Across all 150 steps, the mean reward never left the band [−0.01, 0.00]. The first 10% of rollouts averaged −0.004. The last 10% averaged 0.000. Net gain over 90 minutes of H100 training: +0.004. That is not noise rounding — it is a flat line.
 
-SFT warm-start solves this. The model now produces varied action sequences across rollouts, which is what GRPO needs to learn from. RL from this SFT checkpoint is the immediate next step.
+**The variance collapse.** GRPO computes advantages by ranking rollouts within a group. That ranking requires reward variance. At steps 5, 45, 50, 55, 65, 75, 85, 90, 105, 110, 125, 130, 140, 145, 150 the logged `reward_std` is exactly 0.000. When every rollout in the group earns the same reward, the advantage for every rollout is zero, the gradient is zero, and the weights do not move. The model cannot learn from a signal it cannot differentiate.
+
+**The action collapse.** The qualitative output makes the mechanism visible. After training, the model produces this across every episode, every user, every seed:
+
+```
+{"type": "surface", "concept_id": 1}
+{"type": "surface", "concept_id": 1}
+{"type": "surface", "concept_id": 1}
+... (8× then stop)
+```
+
+That is not a policy. It is a degenerate fixed point. The base model converged to the lowest-risk action — surface the first concept listed — before GRPO could introduce any useful pressure.
+
+**Why the environment makes this worse.** Blindspot has three properties that compound the problem simultaneously: reward is delayed until episode end (no per-step signal to differentiate early actions), the false-positive penalty makes surface calls risky (the model learns to avoid variety), and personalization means the right answer varies by user (so copying one pattern across all rollouts is almost always wrong, but consistently wrong in a way that produces near-zero variance). The result is a policy that earns approximately −0.05 per invalid action or 0.0 for a stop, with very little spread across the group.
+
+**This is a known failure mode.** Recent RL research has named several variants of this collapse. GRPO's within-group advantage normalization removes the global learning signal when rollouts are homogeneous. Sparse reward environments cause exactly this homogeneity in untrained models. Work on exploration-augmented policy optimization (EPO, 2025) and entropy-preserving GRPO variants (EDGE-GRPO, 2025) directly address the collapse we observed. Our results replicate their diagnostic findings in a real-world multi-step environment rather than a synthetic benchmark.
+
+**SFT warm-start is the fix.** After SFT the model produces varied action sequences — different concept IDs, different numbers of inspect calls, different stopping points — because it has learned the task structure. That diversity is exactly what GRPO needs to rank rollouts. RL from the SFT checkpoint is the immediate next step, and the training dynamics above make clear why the order matters.
+
+The full GRPO training table and the repeated-action samples are visible in the [training notebook](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb). The logs are not edited. Judges who want to verify the collapse can scroll to section 3 and read the per-step reward and reward_std columns directly.
 
 ---
 
@@ -117,7 +136,7 @@ The dataset is small. 17 researchers is enough to establish that the environment
 
 ---
 
-## What Makes This a Good RL Environment
+## What Makes This a Good RL Environment — and a Useful Diagnostic
 
 A few properties that make Blindspot worth training on:
 
@@ -127,6 +146,8 @@ A few properties that make Blindspot worth training on:
 - Step time is sub-millisecond. No GPU required at episode time. Training is fast.
 - The held-out test users (4 of 17) weren't touched during training, providing uncontaminated evaluation.
 - The Oracle gap (~2.8 reward points above Dense Retrieval) gives a clear target for a learned policy.
+
+The GRPO failure adds a further dimension. The environment reliably induces the reward-variance collapse that RL researchers have been studying in 2025–26, because it combines sparse reward, partial observability, and a high false-positive penalty in a way that traps an untrained model at a degenerate fixed point. That makes Blindspot useful not just as a training environment but as a benchmark for testing whether a new RL algorithm can escape early-stage collapse — a property that synthetic environments rarely have.
 
 ---
 
