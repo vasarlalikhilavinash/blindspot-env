@@ -75,7 +75,7 @@ Because the Space reads cached policy outputs, it does not need a GPU at request
 
 ## Training Recipe
 
-Blindspot trains a LoRA adapter on top of `unsloth/Qwen3.5-9B` loaded in 4-bit mode by Unsloth.
+Blindspot trains a LoRA adapter on top of `unsloth/Qwen3.5-9B` with bf16 LoRA on A100.
 
 1. Optionally attach an SFT warm-start adapter if `training/checkpoints/sft` exists.
 2. Build GRPO prompts from the 13 training users in `data/user_splits.json`.

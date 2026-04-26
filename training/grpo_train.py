@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """GRPO fine-tune (TRL + Unsloth) for the Blindspot environment.
 
-Designed to run on a single HF A100 (80 GB) — uses Unsloth's 4-bit
-QLoRA + TRL's GRPOTrainer. The reward function calls a *running*
+Designed to run on a single HF A100 (80 GB) — uses Unsloth bf16 LoRA
+and TRL's GRPOTrainer. The reward function calls a *running*
 Blindspot env over HTTP so policy rollouts are pure lookups.
 
 Usage:
@@ -116,13 +116,22 @@ def main():
     from unsloth import FastLanguageModel  # type: ignore
     from trl import GRPOConfig, GRPOTrainer  # type: ignore
     from datasets import Dataset  # type: ignore
+    from transformers.models.auto.configuration_auto import CONFIG_MAPPING  # type: ignore
     import torch
+
+    if "qwen3_5" not in CONFIG_MAPPING:
+        raise RuntimeError(
+            "Qwen3.5 requires Transformers v5. Install transformers>=5.2.0 "
+            "or git+https://github.com/huggingface/transformers.git, then restart Python."
+        )
 
     def load_base_model(model_name: str):
         return FastLanguageModel.from_pretrained(
             model_name=model_name,
             max_seq_length=args.max_prompt_length + args.max_completion_length,
-            load_in_4bit=True,
+            load_in_4bit=False,
+            dtype=torch.bfloat16,
+            fast_inference=False,
         )
 
     try:
@@ -131,6 +140,12 @@ def main():
     except (RuntimeError, OSError) as exc:
         message = str(exc)
         missing_config = "No config file found" in message or "is not a local folder" in message
+        unsupported_arch = "qwen3_5" in message and ("does not support" in message or "not recognize" in message)
+        if unsupported_arch:
+            raise RuntimeError(
+                "Qwen3.5 requires Transformers v5. Install transformers>=5.2.0 "
+                "or git+https://github.com/huggingface/transformers.git, then restart Python."
+            ) from exc
         if not missing_config or args.base_model == args.fallback_base_model:
             raise
         print(f"Base model could not be loaded: {args.base_model}")

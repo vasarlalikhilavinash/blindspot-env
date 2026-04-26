@@ -58,10 +58,18 @@ def run_mlx(args):
 
 def run_transformers(args):
     """LoRA SFT via transformers + peft + trl SFTTrainer."""
+    import torch
     from datasets import Dataset  # type: ignore
     from peft import LoraConfig  # type: ignore
     from transformers import AutoModelForCausalLM, AutoTokenizer  # type: ignore
+    from transformers.models.auto.configuration_auto import CONFIG_MAPPING  # type: ignore
     from trl import SFTConfig, SFTTrainer  # type: ignore
+
+    if "qwen3_5" not in CONFIG_MAPPING:
+        raise RuntimeError(
+            "Qwen3.5 requires Transformers v5. Install transformers>=5.2.0 "
+            "or git+https://github.com/huggingface/transformers.git, then restart Python."
+        )
 
     rows = []
     with DATA.open() as f:
@@ -71,7 +79,11 @@ def run_transformers(args):
     ds = Dataset.from_list(rows)
 
     tok = AutoTokenizer.from_pretrained(args.base_model)
-    model = AutoModelForCausalLM.from_pretrained(args.base_model, device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained(
+        args.base_model,
+        device_map="auto",
+        torch_dtype=torch.bfloat16,
+    )
 
     lora = LoraConfig(
         r=16, lora_alpha=32, lora_dropout=0.05, bias="none", task_type="CAUSAL_LM",

@@ -48,7 +48,34 @@ md("## 1. Setup")
 code(
     """
 %%bash
-pip install -q --upgrade unsloth trl 'openenv-core[core]' vllm matplotlib seaborn pandas datasets peft accelerate bitsandbytes requests
+set -e
+python -m pip install -q --upgrade --force-reinstall --no-cache-dir unsloth unsloth_zoo
+python -m pip install -q --upgrade 'openenv-core[core]' trl matplotlib seaborn pandas datasets peft accelerate bitsandbytes requests pillow torchvision
+python -m pip install -q --upgrade --pre --no-cache-dir 'transformers>=5.2.0' || true
+python - <<'PY'
+import subprocess, sys
+try:
+    import transformers
+    from transformers.models.auto.configuration_auto import CONFIG_MAPPING
+    has_qwen35 = 'qwen3_5' in CONFIG_MAPPING
+    print(f'transformers={transformers.__version__} qwen3_5={has_qwen35}')
+except Exception as exc:
+    print(f'transformers check failed: {exc}')
+    has_qwen35 = False
+if not has_qwen35:
+    subprocess.check_call([
+        sys.executable, '-m', 'pip', 'install', '-q', '--upgrade', '--no-cache-dir',
+        'git+https://github.com/huggingface/transformers.git',
+    ])
+PY
+python - <<'PY'
+import transformers
+from transformers.models.auto.configuration_auto import CONFIG_MAPPING
+print(f'final transformers={transformers.__version__}')
+if 'qwen3_5' not in CONFIG_MAPPING:
+    raise SystemExit('Transformers does not expose qwen3_5. Restart runtime and rerun this setup cell.')
+print('qwen3_5 support OK')
+PY
 git clone https://github.com/vasarlalikhilavinash/blindspot-env || (cd blindspot-env && git pull)
 cd blindspot-env
 for f in \
@@ -244,18 +271,24 @@ code(
     """
 import os
 import torch
+from transformers.models.auto.configuration_auto import CONFIG_MAPPING
 from unsloth import FastLanguageModel
 
 BASE_MODEL = os.environ.get('BASE_MODEL', 'unsloth/Qwen3.5-9B')
 FALLBACK_BASE_MODEL = os.environ.get('FALLBACK_BASE_MODEL', 'unsloth/Qwen3.5-4B')
 MAX_SEQ_LENGTH = 4096 + 128
 
+if 'qwen3_5' not in CONFIG_MAPPING:
+    raise RuntimeError('This runtime still has old Transformers without qwen3_5 support. Restart runtime and rerun the setup cell.')
+
 
 def load_base_model(model_name):
     return FastLanguageModel.from_pretrained(
         model_name=model_name,
         max_seq_length=MAX_SEQ_LENGTH,
-        load_in_4bit=True,
+        load_in_4bit=False,
+        dtype=torch.bfloat16,
+        fast_inference=False,
     )
 
 
@@ -265,6 +298,9 @@ try:
 except (RuntimeError, OSError) as exc:
     message = str(exc)
     missing_config = 'No config file found' in message or 'is not a local folder' in message
+    unsupported_arch = 'qwen3_5' in message and ('does not support' in message or 'not recognize' in message)
+    if unsupported_arch:
+        raise RuntimeError('Transformers v5 is required for Qwen3.5. Restart runtime and rerun the setup cell.') from exc
     if not missing_config or BASE_MODEL == FALLBACK_BASE_MODEL:
         raise
     print(f'Base model could not be loaded: {BASE_MODEL}')

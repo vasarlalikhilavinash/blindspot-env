@@ -28,7 +28,7 @@ This makes the task cheap enough for RL while preserving delayed, session-level 
 
 ## Training
 
-The Colab notebook trains a LoRA adapter on `unsloth/Qwen3.5-9B` loaded in 4-bit mode using TRL GRPO against the live OpenEnv HTTP server.
+The Colab notebook trains a bf16 LoRA adapter on `unsloth/Qwen3.5-9B` using TRL GRPO against the live OpenEnv HTTP server.
 
 The current notebook is aligned to the OpenEnv criteria in these ways:
 

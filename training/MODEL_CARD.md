@@ -24,7 +24,7 @@ Fine-tuned LoRA adapter for the [Blindspot OpenEnv environment](https://github.c
 
 | Setting | Value |
 |---|---|
-| Base model | `unsloth/Qwen3.5-9B` loaded in 4-bit mode |
+| Base model | `unsloth/Qwen3.5-9B` with bf16 LoRA |
 | Method | **GRPO** (TRL) via Unsloth |
 | Reward | Adoption + Novelty + Onboarding − False-positive (4-component, gated) |
 | Train users | 13 (held-out test: 4) |
@@ -48,9 +48,14 @@ Measured on the Blindspot env, mean reward across 5 seeds × 17 users:
 ## Use
 
 ```python
+import torch
 from unsloth import FastLanguageModel
+
 model, tok = FastLanguageModel.from_pretrained(
-    "unsloth/Qwen3.5-9B", load_in_4bit=True
+  "unsloth/Qwen3.5-9B",
+  load_in_4bit=False,
+  dtype=torch.bfloat16,
+  fast_inference=False,
 )
 model.load_adapter("vasarlalikhilavinash/blindspot-qwen35-9b-grpo")
 FastLanguageModel.for_inference(model)

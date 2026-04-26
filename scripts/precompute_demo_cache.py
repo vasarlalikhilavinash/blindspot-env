@@ -26,6 +26,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import torch
 from unsloth import FastLanguageModel  # type: ignore
+from transformers.models.auto.configuration_auto import CONFIG_MAPPING  # type: ignore
 
 from scripts.blindspot_demo import BlindspotDemo
 
@@ -59,9 +60,18 @@ PERSONAS = {
 
 
 def main():
+    if "qwen3_5" not in CONFIG_MAPPING:
+        raise RuntimeError(
+            "Qwen3.5 requires Transformers v5. Install transformers>=5.2.0 "
+            "or git+https://github.com/huggingface/transformers.git, then restart Python."
+        )
     print(f"loading {BASE_MODEL} + adapter {ADAPTER_PATH} ...")
     model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=BASE_MODEL, max_seq_length=4096 + 128, load_in_4bit=True
+        model_name=BASE_MODEL,
+        max_seq_length=4096 + 128,
+        load_in_4bit=False,
+        dtype=torch.bfloat16,
+        fast_inference=False,
     )
     has_adapter = Path(ADAPTER_PATH).is_dir()
     if has_adapter:
