@@ -548,7 +548,7 @@ print(f'processing_class type: {type(text_tokenizer).__name__}  (was {type(token
 cfg = GRPOConfig(
     output_dir='blindspot-env/training/checkpoints/grpo',
     learning_rate=5e-6,
-    max_steps=400,
+    max_steps=150,
     num_generations=4,
     per_device_train_batch_size=1,
     gradient_accumulation_steps=4,
@@ -568,6 +568,8 @@ trainer = GRPOTrainer(
     train_dataset=ds,
 )
 
+import os; os.environ['PYTORCH_ALLOC_CONF'] = 'expandable_segments:True'
+import torch as _torch; _torch.cuda.empty_cache()
 trainer.train()
 trainer.save_model('blindspot-env/training/checkpoints/grpo')
 print('✓ GRPO training complete')
