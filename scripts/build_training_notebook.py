@@ -51,6 +51,17 @@ code(
 pip install -q --upgrade unsloth trl 'openenv-core[core]' vllm matplotlib seaborn pandas datasets peft accelerate bitsandbytes requests
 git clone https://github.com/vasarlalikhilavinash/blindspot-env || (cd blindspot-env && git pull)
 cd blindspot-env
+for f in \
+    data/user_summaries.json \
+    data/user_splits.json \
+    data/concept_catalog.json \
+    data/concept_pool_per_user.json \
+    data/ground_truth_adoption.json \
+    data/comprehension_scores.json \
+    data/reading_paths.json \
+    data/novelty_flags.json; do
+    test -f "$f" || { echo "Missing required real-data artifact: $f" >&2; exit 1; }
+done
 mkdir -p plots training/checkpoints
 (nohup uvicorn server.app:app --host 0.0.0.0 --port 8000 --log-level warning > /tmp/blindspot.log 2>&1 &) || true
 sleep 6
@@ -290,8 +301,81 @@ print(f'built {len(ds)} GRPO prompts across {len(set(r["user_id"] for r in rows)
 code(
     """
 import requests
+import torch
 
 REWARD_LOG = []
+ROLLOUT_STEP_LIMIT = 8
+
+
+def _post_env(endpoint, payload):
+    resp = requests.post(f'{ENV_URL}/{endpoint}', json=payload, timeout=30)
+    resp.raise_for_status()
+    body = resp.json()
+    obs = body.get('observation', body) or {}
+    return body, obs
+
+
+def _generate_completion(msgs):
+    inputs = tokenizer.apply_chat_template(
+        msgs,
+        return_tensors='pt',
+        add_generation_prompt=True,
+    ).to(model.device)
+    with torch.inference_mode():
+        out = model.generate(inputs, max_new_tokens=64, do_sample=False, temperature=0.0)
+    return tokenizer.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
+
+
+def run_episode(user_id, seed, first_completion=None, first_action=None, max_steps=ROLLOUT_STEP_LIMIT):
+    payload = {}
+    if user_id is not None:
+        payload['user_id'] = user_id
+    if seed is not None:
+        payload['seed'] = seed
+
+    _, obs = _post_env('reset', payload)
+    msgs = [
+        {'role': 'system', 'content': SYSTEM_PROMPT},
+        {'role': 'user', 'content': render_obs(obs)},
+    ]
+
+    action_trace = []
+    completion_trace = []
+    invalid_streak = 0
+    for step_idx in range(max_steps):
+        if step_idx == 0 and first_completion is not None:
+            text = first_completion
+            action = first_action or parse_action(first_completion)
+        else:
+            text = _generate_completion(msgs)
+            action = parse_action(text)
+        if not action or 'type' not in action:
+            if step_idx == 0:
+                return -0.05, {}, [], [text or '']
+            msgs.append({'role': 'assistant', 'content': text or ''})
+            msgs.append({'role': 'user', 'content': 'Reply with EXACTLY one JSON command.'})
+            invalid_streak += 1
+            if invalid_streak >= 2:
+                break
+            continue
+
+        result, obs = _post_env('step', {'action': action})
+        invalid_streak = 0
+        action_trace.append(action)
+        completion_trace.append(text or '')
+        msgs.append({'role': 'assistant', 'content': text or ''})
+        if result.get('done') or obs.get('done'):
+            br = obs.get('reward_breakdown') or {}
+            total = float(br.get('total', result.get('reward', 0.0) or 0.0))
+            return total, br, action_trace, completion_trace
+        msgs.append({'role': 'user', 'content': render_obs(obs)})
+
+    result, obs = _post_env('step', {'action': {'type': 'stop'}})
+    br = obs.get('reward_breakdown') or {}
+    total = float(br.get('total', result.get('reward', 0.0) or 0.0))
+    action_trace.append({'type': 'stop'})
+    completion_trace.append('{"type": "stop"}  # auto-stop after rollout limit')
+    return total, br, action_trace, completion_trace
 
 
 def reward_fn(prompts, completions, user_id=None, seed=None, **kwargs):
@@ -307,18 +391,9 @@ def reward_fn(prompts, completions, user_id=None, seed=None, **kwargs):
             REWARD_LOG.append((-0.05, {}))
             continue
 
-        try:
-            payload = {'user_id': uid, 'seed': sd}
-            requests.post(f'{ENV_URL}/reset', json=payload).raise_for_status()
-            step_resp = requests.post(f'{ENV_URL}/step', json={'action': action}).json()
-            stop_resp = requests.post(f'{ENV_URL}/step', json={'action': {'type': 'stop'}}).json()
-            br = (stop_resp.get('observation', stop_resp) or {}).get('reward_breakdown') or {}
-            total = float(br.get('total', step_resp.get('reward', 0.0) or 0.0))
-            rewards.append(total)
-            REWARD_LOG.append((total, br))
-        except Exception:
-            rewards.append(-0.1)
-            REWARD_LOG.append((-0.1, {}))
+        total, br, _, _ = run_episode(uid, sd, first_completion=text, first_action=action)
+        rewards.append(total)
+        REWARD_LOG.append((total, br))
 
     return rewards
 """
@@ -362,30 +437,28 @@ md("## 5. Held-out evaluation")
 code(
     """
 import pandas as pd
-import requests
 import torch
 
 FastLanguageModel.for_inference(model)
 
 
 def trained_episode(user_id, seed):
-    obs = requests.post(f'{ENV_URL}/reset', json={'user_id': user_id, 'seed': seed}).json()
-    obs = obs.get('observation', obs)
+    _, obs = _post_env('reset', {'user_id': user_id, 'seed': seed})
     msgs = [
         {'role': 'system', 'content': SYSTEM_PROMPT},
         {'role': 'user', 'content': render_obs(obs)},
     ]
-    inputs = tokenizer.apply_chat_template(msgs, return_tensors='pt', add_generation_prompt=True).to(model.device)
-    with torch.inference_mode():
-        out = model.generate(inputs, max_new_tokens=64, do_sample=False, temperature=0.0)
-    completion = tokenizer.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
-    action = parse_action(completion) or {'type': 'stop'}
-
-    requests.post(f'{ENV_URL}/reset', json={'user_id': user_id, 'seed': seed}).raise_for_status()
-    requests.post(f'{ENV_URL}/step', json={'action': action}).raise_for_status()
-    rs = requests.post(f'{ENV_URL}/step', json={'action': {'type': 'stop'}}).json()
-    br = (rs.get('observation', rs) or {}).get('reward_breakdown') or {}
-    return br, action, completion
+    first_completion = _generate_completion(msgs)
+    first_action = parse_action(first_completion)
+    br_total, br, actions, completions = run_episode(
+        user_id,
+        seed,
+        first_completion=first_completion,
+        first_action=first_action,
+    )
+    if 'total' not in br:
+        br['total'] = br_total
+    return br, actions, completions
 
 
 results = []
@@ -393,14 +466,15 @@ all_users = train_users + test_users
 for uid in all_users:
     split_name = 'test' if uid in test_users else 'train'
     for seed in range(5):
-        br, action, completion = trained_episode(uid, seed)
+        br, actions, completions = trained_episode(uid, seed)
         results.append({
             'split': split_name,
             'user': uid,
             'seed': seed,
-            'action_type': action.get('type'),
-            'concept_id': action.get('concept_id'),
-            'completion': completion,
+            'action_trace': ' -> '.join(a.get('type', '?') for a in actions),
+            'first_action_type': actions[0].get('type') if actions else None,
+            'num_steps': len(actions),
+            'completion': '\n\n'.join(completions),
             **br,
         })
 
