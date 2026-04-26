@@ -1,4 +1,4 @@
-# Blindspot: An RL Environment for Unknown-Unknown Discovery — and a Diagnostic for Exploration Collapse
+# Blindspot: An RL Environment for Unknown-Unknown Discovery — and a Diagnostic Testbed for Exploration Collapse
 
 **Team:** Vasarla Avinash  
 **Track:** Theme #3.1 — World Modeling (Professional Tasks)  
@@ -95,9 +95,13 @@ Evaluation ran over 13 training users × 10 seeds = 130 episodes per policy. Not
 
 SFT is the only policy with positive mean reward. The improvement over random is +0.380 and over trending is +0.394. A two-sample t-test (unequal variance) gives p = 0.03. The 95% confidence interval for SFT is [−0.04, +0.12], which lies entirely above the random mean of −0.34. The result is statistically significant.
 
-The reward is modest — +0.039 is a long way from the Oracle's +3.286. The model learned the action format and the general strategy of surfacing multiple relevant concepts, but hasn't learned fine-grained user–concept matching. That's the gap that more traces, a larger model, and RL fine-tuning would close.
+To be precise about what this proves: this is a proof of learnability, not a production policy. An effect of +0.039 per episode is small in absolute terms — well below the Oracle ceiling of +3.286. The model learned the action format and the general strategy of selecting based on profile relevance, but has not learned fine-grained user–concept matching. The value of the number is not that it's large; it's that it's positive when the baselines are both negative, and the distance from those baselines (+0.38 above random) is what matters for a first-training run on 40 traces.
+
+**Held-out users.** On the 4 researchers withheld from training (20 episodes), SFT achieved 0.00 ± 0.00. The improvement does not transfer to unseen users at this scale. This is expected — 17 researchers total is too small a dataset for generalization. Scaling the dataset is the primary future work, and the held-out result is the clearest argument for it.
 
 The baselines being negative here (vs. positive in calibration) is expected — evaluation uses seeds 100–109, which produce different candidate shuffles than the calibration seeds. The false-positive penalty is unforgiving when adopted concepts land outside the top positions in a shuffled pool. SFT avoids the worst of this by reading the researcher profile and selecting based on relevance rather than list position.
+
+**Note on Dense Retrieval.** The calibration table above shows Dense Retrieval at +0.467, which appears much higher than SFT's +0.039. Those numbers used different seeds (0–19 vs 100–109) and are not directly comparable. Dense Retrieval was not re-evaluated on seeds 100–109, so we cannot say whether it would score +1.2 or −0.5 on the same shuffles. Readers should treat the calibration and evaluation tables as separate measurements, not a head-to-head comparison.
 
 ---
 
@@ -122,7 +126,7 @@ That is not a policy. It is a degenerate fixed point. The base model converged t
 
 **Why the environment makes this worse.** Blindspot has three properties that compound the problem simultaneously: reward is delayed until episode end (no per-step signal to differentiate early actions), the false-positive penalty makes surface calls risky (the model learns to avoid variety), and personalization means the right answer varies by user (so copying one pattern across all rollouts is almost always wrong, but consistently wrong in a way that produces near-zero variance). The result is a policy that earns approximately −0.05 per invalid action or 0.0 for a stop, with very little spread across the group.
 
-**This is a known failure mode.** Recent RL research has named several variants of this collapse. GRPO's within-group advantage normalization removes the global learning signal when rollouts are homogeneous. Sparse reward environments cause exactly this homogeneity in untrained models. Work on exploration-augmented policy optimization (EPO, 2025) and entropy-preserving GRPO variants (EDGE-GRPO, 2025) directly address the collapse we observed. Our results replicate their diagnostic findings in a real-world multi-step environment rather than a synthetic benchmark.
+**This is a known failure mode, with published fixes.** The DAPO paper (Yu et al., arXiv:2503.14476, 2025) identifies entropy collapse as the central instability in GRPO-style training and shows that standard GRPO's clipping causes the policy to converge to low-entropy outputs before it can explore. Their proposed decoupled clipping directly targets this. Hybrid GRPO (Sane, arXiv:2502.01652, 2025) makes the same diagnosis from a variance perspective: purely empirical reward estimation in GRPO amplifies variance problems when rollouts are homogeneous, and they add bootstrapped value estimation to stabilize it. Both papers are essentially describing what we observed in Blindspot, in a real multi-step environment rather than a controlled math-reasoning testbed. The NeurIPS 2025 result from Wang et al. (arXiv:2506.01939) adds a token-level explanation: RLVR only meaningfully updates high-entropy tokens, which are the decision points. A base model that has collapsed to a fixed action sequence has no high-entropy tokens left to update, so RLVR stalls entirely.
 
 **SFT warm-start is the fix.** After SFT the model produces varied action sequences — different concept IDs, different numbers of inspect calls, different stopping points — because it has learned the task structure. That diversity is exactly what GRPO needs to rank rollouts. RL from the SFT checkpoint is the immediate next step, and the training dynamics above make clear why the order matters.
 
@@ -147,7 +151,7 @@ A few properties that make Blindspot worth training on:
 - The held-out test users (4 of 17) weren't touched during training, providing uncontaminated evaluation.
 - The Oracle gap (~2.8 reward points above Dense Retrieval) gives a clear target for a learned policy.
 
-The GRPO failure adds a further dimension. The environment reliably induces the reward-variance collapse that RL researchers have been studying in 2025–26, because it combines sparse reward, partial observability, and a high false-positive penalty in a way that traps an untrained model at a degenerate fixed point. That makes Blindspot useful not just as a training environment but as a benchmark for testing whether a new RL algorithm can escape early-stage collapse — a property that synthetic environments rarely have.
+The GRPO failure adds a further dimension. The environment reliably induces the reward-variance collapse that RL researchers have been studying in 2025–26, because it combines sparse reward, partial observability, and a high false-positive penalty in a way that traps an untrained model at a degenerate fixed point. That makes Blindspot useful not just as a training environment but as a testbed for evaluating whether a new RL algorithm can escape early-stage collapse — a property that synthetic environments rarely have.
 
 ---
 
