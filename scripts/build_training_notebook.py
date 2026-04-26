@@ -434,9 +434,19 @@ import torch
 REWARD_LOG = []
 ROLLOUT_STEP_LIMIT = 8
 
-# Unwrap multimodal Qwen2_5_VLProcessor -> inner text tokenizer to avoid load_image crash
-from transformers import ProcessorMixin as _ProcessorMixin
-_TXT_TOK = tokenizer.tokenizer if isinstance(tokenizer, _ProcessorMixin) else tokenizer
+# Override SYSTEM_PROMPT to explicitly guide concept_id selection from CANDIDATES
+SYSTEM_PROMPT = (
+    "You are a research-onboarding assistant. Surface concepts a user will likely adopt.\\n"
+    "Each turn respond with EXACTLY ONE JSON command \u2014 no extra text:\\n"
+    '  {\\"type\\": \\"surface\\", \\"concept_id\\": <id>}  \u2014 recommend a concept to the user\\n'
+    '  {\\"type\\": \\"inspect\\", \\"concept_id\\": <id>}  \u2014 read concept details (uses inspect budget)\\n'
+    '  {\\"type\\": \\"stop\\"}                            \u2014 end the session\\n\\n'
+    "CRITICAL RULES \u2014 violation causes negative reward:\\n"
+    "1. concept_id MUST be one of the integer ids listed under CANDIDATES in the observation\\n"
+    "2. NEVER surface or inspect the same concept_id more than once per session\\n"
+    "3. Choose concepts most relevant to this user's research profile\\n"
+    "4. Surface at least 3 different concepts before stopping"
+)
 
 
 def _post_env(endpoint, payload):
@@ -449,6 +459,11 @@ def _post_env(endpoint, payload):
     return body, obs
 
 
+# Unwrap multimodal Qwen2_5_VLProcessor -> inner text tokenizer to avoid load_image crash
+from transformers import ProcessorMixin as _ProcessorMixin
+_TXT_TOK = tokenizer.tokenizer if isinstance(tokenizer, _ProcessorMixin) else tokenizer
+
+
 def _generate_completion(msgs):
     # apply_chat_template in transformers 5.x returns str; tokenize separately
     text = _TXT_TOK.apply_chat_template(
@@ -458,7 +473,8 @@ def _generate_completion(msgs):
     )
     inputs = _TXT_TOK(text, return_tensors='pt').input_ids.to(model.device)
     with torch.inference_mode():
-        out = model.generate(inputs, max_new_tokens=64, do_sample=False, temperature=0.0)
+        # Use sampling so inner episode steps produce diverse trajectories across rollouts
+        out = model.generate(inputs, max_new_tokens=128, do_sample=True, temperature=0.8)
     return _TXT_TOK.decode(out[0, inputs.shape[1]:], skip_special_tokens=True)
 
 
@@ -470,6 +486,8 @@ def run_episode(user_id, seed, first_completion=None, first_action=None, max_ste
         payload['seed'] = seed
 
     _, obs = _post_env('reset', payload)
+    # Track candidate ids so we can validate surfaced concept_ids
+    candidate_ids = {int(c['concept_id']) for c in obs.get('candidate_concepts', [])}
     msgs = [
         {'role': 'system', 'content': SYSTEM_PROMPT},
         {'role': 'user', 'content': render_obs(obs)},
@@ -478,6 +496,9 @@ def run_episode(user_id, seed, first_completion=None, first_action=None, max_ste
     action_trace = []
     completion_trace = []
     invalid_streak = 0
+    surfaced_set = set()   # track already-surfaced concept_ids this episode
+    extra_penalty = 0.0    # accumulated local penalties (duplicates, invalid ids)
+
     for step_idx in range(max_steps):
         if step_idx == 0 and first_completion is not None:
             text = first_completion
@@ -485,6 +506,7 @@ def run_episode(user_id, seed, first_completion=None, first_action=None, max_ste
         else:
             text = _generate_completion(msgs)
             action = parse_action(text)
+
         if not action or 'type' not in action:
             if step_idx == 0:
                 return -0.05, {}, [], [text or '']
@@ -495,7 +517,40 @@ def run_episode(user_id, seed, first_completion=None, first_action=None, max_ste
                 break
             continue
 
+        # Coerce concept_id to int (guard against string digits)
+        if action.get('concept_id') is not None:
+            try:
+                action['concept_id'] = int(action['concept_id'])
+            except (TypeError, ValueError):
+                pass
+
+        if action.get('type') == 'surface':
+            cid = action.get('concept_id')
+            # Penalise surfacing a concept not in the visible candidate list
+            if cid not in candidate_ids:
+                extra_penalty -= 0.1
+                msgs.append({'role': 'assistant', 'content': text or ''})
+                msgs.append({'role': 'user', 'content': f'ERROR: concept_id={cid} is not in CANDIDATES. Choose an id from the CANDIDATES list.'})
+                invalid_streak += 1
+                if invalid_streak >= 3:
+                    break
+                continue
+            # Penalise duplicate surface
+            if cid in surfaced_set:
+                extra_penalty -= 0.15
+                msgs.append({'role': 'assistant', 'content': text or ''})
+                msgs.append({'role': 'user', 'content': f'ERROR: concept_id={cid} was already surfaced. Choose a DIFFERENT concept_id from CANDIDATES.'})
+                invalid_streak += 1
+                if invalid_streak >= 3:
+                    break
+                continue
+            surfaced_set.add(cid)
+
         result, obs = _post_env('step', {'action': action})
+        # Refresh candidate ids after each step
+        new_cands = obs.get('candidate_concepts', [])
+        if new_cands:
+            candidate_ids = {int(c['concept_id']) for c in new_cands}
         invalid_streak = 0
         action_trace.append(action)
         completion_trace.append(text or '')
@@ -503,7 +558,7 @@ def run_episode(user_id, seed, first_completion=None, first_action=None, max_ste
         if result.get('done') or obs.get('done'):
             br = obs.get('reward_breakdown') or {}
             total = float(br.get('total', result.get('reward', 0.0) or 0.0))
-            return total, br, action_trace, completion_trace
+            return total + extra_penalty, br, action_trace, completion_trace
         msgs.append({'role': 'user', 'content': render_obs(obs)})
 
     result, obs = _post_env('step', {'action': {'type': 'stop'}})
@@ -511,27 +566,24 @@ def run_episode(user_id, seed, first_completion=None, first_action=None, max_ste
     total = float(br.get('total', result.get('reward', 0.0) or 0.0))
     action_trace.append({'type': 'stop'})
     completion_trace.append('{"type": "stop"}  # auto-stop after rollout limit')
-    return total, br, action_trace, completion_trace
+    return total + extra_penalty, br, action_trace, completion_trace
 
 
-def reward_fn(prompts, completions, user_id=None, seed=None, **kwargs):
-    rewards = []
+def reward_fn(prompts, completions, user_id=None, seed=None, **kw):
+    out = []
     uids = user_id if isinstance(user_id, list) else [user_id] * len(completions)
     seeds = seed if isinstance(seed, list) else [seed] * len(completions)
-
-    for prompt_msgs, completion, uid, sd in zip(prompts, completions, uids, seeds):
+    for _prompt_msgs, completion, uid, sd in zip(prompts, completions, uids, seeds):
         text = completion if isinstance(completion, str) else completion[-1].get('content', '')
         action = parse_action(text)
         if not action or 'type' not in action:
-            rewards.append(-0.05)
+            out.append(-0.05)
             REWARD_LOG.append((-0.05, {}))
             continue
-
         total, br, _, _ = run_episode(uid, sd, first_completion=text, first_action=action)
-        rewards.append(total)
+        out.append(total)
         REWARD_LOG.append((total, br))
-
-    return rewards
+    return out
 """
 )
 
@@ -555,7 +607,7 @@ cfg = GRPOConfig(
     per_device_train_batch_size=1,
     gradient_accumulation_steps=4,
     max_prompt_length=2048,
-    max_completion_length=64,
+    max_completion_length=128,
     logging_steps=5,
     save_steps=100,
     bf16=True,

@@ -32,8 +32,16 @@ import requests
 
 ENV_URL = os.environ.get("ENV_URL", "http://localhost:8000").rstrip("/")
 SYSTEM_PROMPT = (
-    "You are an expert research-onboarding assistant. Each turn, respond with "
-    "EXACTLY ONE JSON command: {\"type\": \"inspect\"|\"surface\"|\"stop\", \"concept_id\": <int|null>}."
+    "You are a research-onboarding assistant. Surface concepts a user will likely adopt.\n"
+    "Each turn respond with EXACTLY ONE JSON command — no extra text:\n"
+    "  {\"type\": \"surface\", \"concept_id\": <id>}  — recommend a concept to the user\n"
+    "  {\"type\": \"inspect\", \"concept_id\": <id>}  — read concept details (uses inspect budget)\n"
+    "  {\"type\": \"stop\"}                            — end the session\n\n"
+    "CRITICAL RULES — violation causes negative reward:\n"
+    "1. concept_id MUST be one of the integer ids listed under CANDIDATES in the observation\n"
+    "2. NEVER surface or inspect the same concept_id more than once per session\n"
+    "3. Choose concepts most relevant to this user's research profile\n"
+    "4. Surface at least 3 different concepts before stopping"
 )
 
 _JSON_RE = re.compile(r"\{[^{}]*\}", re.DOTALL)
