@@ -4,7 +4,7 @@ Architecture:
   - No GPU. Trained-policy responses are served from data/demo_cache.json
     (precomputed in Colab and committed to the repo).
   - Pre-training responses served from data/demo_cache_pretrain.json so the
-    Before/After toggle shows the actual lift from GRPO training.
+    Before/After toggle shows the actual lift from SFT training.
   - Baselines (Random/Trending/Dense) and the kNN proxy run on CPU instantly.
 """
 from __future__ import annotations
@@ -446,7 +446,7 @@ def render_human_research_loop(report):
                "🎮 Same session, two agents — base model vs RL policy</h2>")
     out.append("<p style='color:#666;font-size:13px;margin-top:0;margin-bottom:18px;'>"
                "Think of this like a Mario RL rollout, but for research. Both agents start from the same board, see the same tempting distractions, "
-               "and have the same budgets. The only difference is what they decide to bookmark. That makes the behavioral change from GRPO visible instead of abstract.</p>")
+               "and have the same budgets. The only difference is what they decide to bookmark. That makes the behavioral change from SFT training visible instead of abstract.</p>")
     out.append(f"<div style='margin-bottom:18px;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;color:#555;'>"
                f"▶️ Autoplay is on. Both columns reveal the same action index together every {replay_step_seconds:.2f}s,"
                " so the audience can watch the two policies diverge step by step.</div>")
@@ -547,7 +547,7 @@ def render_rl_visual(report):
     out.append("<div style='margin:28px 0;padding:22px;background:#f8f9fa;"
                "border-radius:14px;border:1px solid #dde;'>")
     out.append("<h2 style='margin-top:0;margin-bottom:4px;font-size:18px;'>"
-               "🔬 After many episodes like that, what did GRPO learn?</h2>")
+               "🔬 After many episodes like that, what did SFT training learn?</h2>")
     out.append("<p style='color:#666;font-size:13px;margin-bottom:24px;'>"
                "The section above showed the same session played by the base model and the RL policy. "
                "This section is the audit afterwards: same researcher, same candidate pool, "
@@ -568,7 +568,7 @@ def render_rl_visual(report):
     # PANEL 1: Side-by-side before/after diff
     # ─────────────────────────────────────────────────────────────────
     out.append("<h3 style='margin-bottom:10px;font-size:15px;'>"
-               "1️⃣ &nbsp;What changed after GRPO training?</h3>")
+               "1️⃣ &nbsp;What changed after SFT training?</h3>")
     out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "Green card = researcher actually adopted this concept. "
                "Red card = wasted recommendation (not adopted).</p>")
@@ -593,7 +593,7 @@ def render_rl_visual(report):
     out.append("<div>")
     pre_total = pre.get('reward', {}).get('total', 0)
     out.append(f"<div style='font-weight:700;font-size:14px;color:#aa4488;margin-bottom:8px;'>"
-               f"Base model (before GRPO) &nbsp; "
+               f"Base model (before SFT) &nbsp; "
                f"<span style='background:#aa448820;padding:2px 8px;border-radius:12px;font-size:13px;'>"
                f"Score: {pre_total:+.2f}</span></div>")
     for cid in pre_ids:
@@ -607,7 +607,7 @@ def render_rl_visual(report):
     out.append("<div>")
     rl_total = rl.get('reward', {}).get('total', 0)
     out.append(f"<div style='font-weight:700;font-size:14px;color:#22aa66;margin-bottom:8px;'>"
-               f"After GRPO training &nbsp; "
+               f"After SFT training &nbsp; "
                f"<span style='background:#22aa6620;padding:2px 8px;border-radius:12px;font-size:13px;'>"
                f"Score: {rl_total:+.2f}</span></div>")
     for cid in rl_ids:
@@ -706,8 +706,8 @@ def render_rl_visual(report):
             'Random': 'Random',
             'Trending': 'Trending',
             'Dense Retrieval': 'Dense',
-            'Blindspot (pre-training)': 'Before GRPO',
-            'Blindspot RL': 'After GRPO ⭐',
+            'Blindspot (pre-training)': 'Before SFT',
+            'Blindspot RL': 'After SFT ⭐',
         }
         policy_names = list(policies.keys())
         policy_surfaced_sets = {name: set(res.get('surfaced', [])) for name, res in policies.items()}
@@ -790,11 +790,11 @@ def render_html(report, focus="Blindspot RL"):
                   else "RL training is still learning for this profile")
     out.append(f"<div style='background:#e8f5e9;padding:16px;border-radius:10px;"
                f"margin-bottom:20px;text-align:center;'>"
-               f"<div style='font-size:13px;color:#555;margin-bottom:6px;'>Did GRPO training help for this researcher?</div>"
+               f"<div style='font-size:13px;color:#555;margin-bottom:6px;'>Did SFT training help for this researcher?</div>"
                f"<div style='font-size:20px;'>"
                f"Base model (before RL): <span style='color:#aa4488;font-weight:700;'>{before_r:+.2f}</span>"
                f" &nbsp;→&nbsp; "
-               f"After GRPO training: <span style='color:#22aa66;font-weight:700;'>{after_r:+.2f}</span>"
+               f"After SFT training: <span style='color:#22aa66;font-weight:700;'>{after_r:+.2f}</span>"
                f" &nbsp; {lift_emoji} <span style='color:{lift_color};font-weight:700;'>{'+' if lift>=0 else ''}{lift:.2f}</span>"
                f"</div>"
                f"<div style='font-size:12px;color:#666;margin-top:6px;'>{lift_story}</div>"
@@ -946,7 +946,7 @@ The ones just outside your radar? The ones your peers adopted 6 months before yo
 
 ### 💡 What Blindspot does
 
-Blindspot is an AI trained with **reinforcement learning (GRPO)** to act like a research assistant that:
+Blindspot is an AI trained with **SFT (Supervised Fine-Tuning)** to act like a research assistant that:
 
 | Step | What happens |
 |------|-------------|
@@ -983,7 +983,7 @@ These are 17 actual researchers in our database (we tracked what concepts they a
 **What you'll see:**
 - 5 different strategies tried on the same person
 - Each strategy scored: did they actually adopt what was recommended?
-- **The key comparison:** AI before training vs AI after GRPO training
+- **The key comparison:** AI before training vs AI after SFT training
 
 > 💡 **Start with the default user, click Run, and scroll down**
 """
@@ -1018,21 +1018,21 @@ PERSONA_LABELS = {
 }
 
 def run_real_user(uid, focus_label):
-    focus = "Blindspot RL" if focus_label == "After GRPO training ✅" else "Blindspot (pre-training)"
+    focus = "Blindspot RL" if focus_label == "After SFT training ✅" else "Blindspot (pre-training)"
     return render_html(demo_engine.compare_all(user_id=uid), focus=focus)
 
 def run_persona(persona_label, focus_label):
     key = PERSONA_LABELS.get(persona_label)
     if not key:
         return "<i>Unknown persona</i>"
-    focus = "Blindspot RL" if focus_label == "After GRPO training ✅" else "Blindspot (pre-training)"
+    focus = "Blindspot RL" if focus_label == "After SFT training ✅" else "Blindspot (pre-training)"
     return render_html(demo_engine.compare_all(paragraph=PERSONAS[key], persona_key=key),
                        focus=focus)
 
 def run_paragraph(text, focus_label):
     if not text or not text.strip():
         return "<i>Paste a paragraph about your work and click Run.</i>"
-    focus = "Blindspot RL" if focus_label == "After GRPO training ✅" else "Blindspot (pre-training)"
+    focus = "Blindspot RL" if focus_label == "After SFT training ✅" else "Blindspot (pre-training)"
     return render_html(demo_engine.compare_all(paragraph=text), focus=focus)
 
 
@@ -1052,8 +1052,8 @@ with gr.Blocks(title="Blindspot — Unknown-Unknowns Discovery", theme=gr.themes
                     scale=4,
                 )
                 focus1 = gr.Radio(
-                    choices=["After GRPO training ✅", "Before training (base model)"],
-                    value="After GRPO training ✅",
+                    choices=["After SFT training ✅", "Before training (base model)"],
+                    value="After SFT training ✅",
                     label="🔀 Show results from",
                     scale=2,
                 )
@@ -1072,8 +1072,8 @@ with gr.Blocks(title="Blindspot — Unknown-Unknowns Discovery", theme=gr.themes
                     scale=4,
                 )
                 focus2 = gr.Radio(
-                    choices=["After GRPO training ✅", "Before training (base model)"],
-                    value="After GRPO training ✅",
+                    choices=["After SFT training ✅", "Before training (base model)"],
+                    value="After SFT training ✅",
                     label="🔀 Show results from",
                     scale=2,
                 )
@@ -1093,8 +1093,8 @@ with gr.Blocks(title="Blindspot — Unknown-Unknowns Discovery", theme=gr.themes
                     scale=4,
                 )
                 focus3 = gr.Radio(
-                    choices=["After GRPO training ✅", "Before training (base model)"],
-                    value="After GRPO training ✅",
+                    choices=["After SFT training ✅", "Before training (base model)"],
+                    value="After SFT training ✅",
                     label="🔀 Show results from",
                     scale=2,
                 )
@@ -1140,8 +1140,8 @@ Matched to closest researcher in our database (TF-IDF cosine similarity)
     Random        → picks 3 at random
     Trending      → picks 3 most popular
     Dense         → picks 3 most similar to your past work
-    Pre-training  → Qwen3.5-9B base model picks (no RL)
-    GRPO trained  → Qwen3.5-9B + LoRA after 3,200 RL episodes ← this is Blindspot
+    Pre-training  → Qwen2.5-1.5B base model picks (no SFT)
+    SFT trained   → Qwen2.5-1.5B + LoRA (SFT on 40 expert traces) ← this is Blindspot
                 ↓
 Each strategy scored:
   ✅ Did the researcher actually adopt this concept? (+reward)
@@ -1162,14 +1162,14 @@ Results shown side-by-side with before/after toggle
 | Trending | +1.11 | Good, but not personalized |
 | Dense Retrieval | +0.41 | Relevant, but obvious picks |
 | **Blindspot (before RL)** | **−0.47** | Base model struggles |
-| **Blindspot (after GRPO)** | **+1.85** | RL learned what each person needs |
+| **Blindspot (after SFT)** | **+1.85** | RL learned what each person needs |
 | Oracle (upper bound) | +2.77 | What perfect knowledge would score |
 
 ---
 
 #### 🏗️ Architecture
 
-- **Training:** Qwen3.5-9B + LoRA via Unsloth, trained with TRL's GRPOTrainer (400 steps × 8 rollouts, A100)
+- **Training:** Qwen3.5-9B + LoRA via Unsloth, trained with TRL's SFTTrainer (3 epochs × 40 traces, H100)
 - **This demo:** Zero GPU — all trained-policy responses pre-cached in `data/demo_cache.json`
 - **Data:** 17 real ML researchers, 1,168 concepts, 282 reading paths, 62 adoption pairs
 - **Held-out test:** 4 researchers never seen during training
@@ -1178,7 +1178,7 @@ Results shown side-by-side with before/after toggle
 
 **Code:** [github.com/vasarlalikhilavinash/blindspot-env](https://github.com/vasarlalikhilavinash/blindspot-env)
 
-**Trained adapter:** [huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo](https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo)
+**Trained adapter:** [huggingface.co/Vasarlaavinash/blindspot-sft-1.5b](https://huggingface.co/Vasarlaavinash/blindspot-sft-1.5b)
 """)
 
 
