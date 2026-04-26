@@ -117,7 +117,7 @@ def render_human_research_loop(report):
             "<div style='margin:28px 0;padding:18px;background:#fff8e1;border-radius:12px;"
             "border:1px solid #f0d58c;'>"
             "<b>Human research loop unavailable.</b><br>"
-            f"<span style='font-size:12px;color:#666;'>{html.escape(str(exc))}</span></div>"
+            f"<span style='font-size:12px;color:#333;'>{html.escape(str(exc))}</span></div>"
         )
 
     uid = report['profile'].get('matched_user_id')
@@ -203,10 +203,10 @@ def render_human_research_loop(report):
         if extra_label:
             chips.append(_chip(extra_label, "#f5f5f5", "#555"))
         return (
-            f"<div style='margin:8px 0;padding:10px 12px;background:white;border-left:4px solid {accent};"
+            f"<div style='margin:8px 0;padding:10px 12px;background:white;color:#111;border-left:4px solid {accent};"
             f"border-radius:0 7px 7px 0;box-shadow:0 1px 2px rgba(0,0,0,0.04);'>"
             f"<div style='font-size:13px;font-weight:700;'>{html.escape(record['title'][:54])}</div>"
-            f"<div style='font-size:12px;color:#666;margin-top:4px;'>{html.escape(record['one_liner'][:120])}</div>"
+            f"<div style='font-size:12px;color:#333;margin-top:4px;'>{html.escape(record['one_liner'][:120])}</div>"
             f"<div style='margin-top:6px;'>{''.join(chips)}</div>"
             f"</div>"
         )
@@ -318,13 +318,13 @@ def render_human_research_loop(report):
 
     def _render_session_column(session):
         out = []
-        out.append(f"<div style='background:white;border:1px solid #eee;border-top:4px solid {session['accent']};"
+        out.append(f"<div style='background:white;color:#111;border:1px solid #ddd;border-top:4px solid {session['accent']};"
                    f"border-radius:12px;padding:14px;'>")
         out.append(f"<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;'>"
                    f"<div><div style='font-size:16px;font-weight:800;color:{session['accent']};'>{session['name']}</div>"
-                   f"<div style='font-size:12px;color:#666;margin-top:4px;'>{html.escape(session['note'])}</div></div>"
+                   f"<div style='font-size:12px;color:#333;margin-top:4px;'>{html.escape(session['note'])}</div></div>"
                    f"<div style='font-size:22px;font-weight:800;color:{session['accent']};'>{session['score']:+.2f}</div></div>")
-        out.append(f"<div style='font-size:11px;color:#777;margin-top:8px;'>"
+        out.append(f"<div style='font-size:11px;color:#444;margin-top:8px;'>"
                    f"Autoplay replay: {len(session['timeline'])} actions, revealing one action every {replay_step_seconds:.2f}s.</div>")
         out.append("<div style='display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;margin:12px 0 14px 0;'>")
         metrics = [
@@ -335,7 +335,7 @@ def render_human_research_loop(report):
         ]
         for title, value in metrics:
             out.append(f"<div style='background:{session['tint']};border-radius:8px;padding:8px 10px;'>"
-                       f"<div style='font-size:11px;color:#666;'>{title}</div>"
+                       f"<div style='font-size:11px;color:#333;'>{title}</div>"
                        f"<div style='font-size:20px;font-weight:800;color:{session['accent']};'>{value}</div>"
                        f"</div>")
         out.append("</div>")
@@ -348,7 +348,7 @@ def render_human_research_loop(report):
             trend = record.get('is_trending')
             reveal_delay = replay_start_delay + event_idx * replay_step_seconds
             out.append(f"<div class='replay-card' style='position:relative;margin:0 0 12px 0;padding:12px 12px 12px 16px;"
-                       f"background:#fafafa;border-radius:10px;border:1px solid #eee;opacity:0;"
+                       f"background:#fafafa;border-radius:10px;border:1px solid #ddd;color:#111;opacity:0;"
                        f"animation: replayReveal 0.5s ease forwards, replayPulse 0.9s ease {reveal_delay + 0.42:.2f}s 1;"
                        f"animation-delay: {reveal_delay:.2f}s, {reveal_delay + 0.42:.2f}s;'>")
             out.append(f"<div style='position:absolute;left:-10px;top:16px;width:14px;height:14px;border-radius:50%;"
@@ -362,9 +362,9 @@ def render_human_research_loop(report):
             }[event['kind']]
             out.append(_chip(action_label, session['tint'], session['accent']))
             out.append(f"<div style='font-size:14px;font-weight:700;margin-top:7px;'>{html.escape(event['title'])}</div>")
-            out.append(f"<div style='font-size:12px;color:#555;margin-top:5px;'><b>Decision:</b> {html.escape(event['human_note'])}</div>")
+            out.append(f"<div style='font-size:12px;color:#222;margin-top:5px;'><b>Decision:</b> {html.escape(event['human_note'])}</div>")
             if event.get('env_note'):
-                out.append(f"<div style='font-size:11px;color:#777;margin-top:4px;'><b>Env:</b> {html.escape(event['env_note'])}</div>")
+                out.append(f"<div style='font-size:11px;color:#444;margin-top:4px;'><b>Env:</b> {html.escape(event['env_note'])}</div>")
             if record:
                 chips = []
                 chips.append(_chip(record.get('topic', 'Other'), '#f5f5f5', '#444'))
@@ -378,20 +378,20 @@ def render_human_research_loop(report):
             if detail is not None:
                 abstract = getattr(detail, 'abstract_summary', '')
                 growth_signal = getattr(detail, 'growth_signal', 0.0)
-                out.append(f"<div style='margin-top:7px;padding:8px 10px;background:white;border-radius:8px;font-size:11px;color:#666;'>"
+                out.append(f"<div style='margin-top:7px;padding:8px 10px;background:white;color:#111;border-radius:8px;font-size:11px;color:#333;'>"
                            f"<b>What it saw:</b> {html.escape(abstract[:140])}"
                            f"<div style='margin-top:4px;'>Growth signal: {growth_signal:.2f}</div></div>")
             reward_color = '#22aa66' if event['reward'] > 0 else ('#c62828' if event['reward'] < 0 else '#666')
             out.append(f"<div style='font-size:11px;color:{reward_color};font-weight:700;margin-top:7px;'>"
                        f"step reward {event['reward']:+.2f}</div>")
-            out.append(f"<div style='font-size:11px;color:#888;margin-top:3px;'>"
+            out.append(f"<div style='font-size:11px;color:#555;margin-top:3px;'>"
                        f"Inspect left: {event['inspect_budget_remaining']} · "
                        f"Shortlist left: {event['surface_budget_remaining']} · "
                        f"Saved so far: {event['surfaced_count']}</div>")
             if event.get('breakdown'):
                 breakdown = event['breakdown']
                 out.append(f"<div style='margin-top:8px;padding:8px 10px;background:{session['tint']};border-radius:8px;'>"
-                           f"<div style='font-size:11px;color:#555;line-height:1.6;'>"
+                           f"<div style='font-size:11px;color:#222;line-height:1.6;'>"
                            f"Adoption <b>{breakdown['adoption']:+.2f}</b> · "
                            f"Novelty <b>{breakdown['novelty']:+.2f}</b> · "
                            f"Understanding <b>{breakdown['onboarding']:+.2f}</b> · "
@@ -444,10 +444,10 @@ def render_human_research_loop(report):
                "border:1px solid #e8dcc2;'>")
     out.append("<h2 style='margin-top:0;margin-bottom:6px;font-size:18px;'>"
                "🎮 Same session, two agents — base model vs RL policy</h2>")
-    out.append("<p style='color:#666;font-size:13px;margin-top:0;margin-bottom:18px;'>"
+    out.append("<p style='color:#333;font-size:13px;margin-top:0;margin-bottom:18px;'>"
                "Think of this like a Mario RL rollout, but for research. Both agents start from the same board, see the same tempting distractions, "
                "and have the same budgets. The only difference is what they decide to bookmark. That makes the behavioral change from SFT training visible instead of abstract.</p>")
-    out.append(f"<div style='margin-bottom:18px;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;color:#555;'>"
+    out.append(f"<div style='margin-bottom:18px;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;font-size:12px;color:#222;'>"
                f"▶️ Autoplay is on. Both columns reveal the same action index together every {replay_step_seconds:.2f}s,"
                " so the audience can watch the two policies diverge step by step.</div>")
 
@@ -460,17 +460,17 @@ def render_human_research_loop(report):
     ]
     for title, value, subtitle in stat_cards:
         out.append(f"<div style='background:white;border:1px solid #eee;border-radius:10px;padding:14px;'>"
-                   f"<div style='font-size:12px;color:#888;margin-bottom:6px;'>{title}</div>"
+                   f"<div style='font-size:12px;color:#555;margin-bottom:6px;'>{title}</div>"
                    f"<div style='font-size:28px;font-weight:800;line-height:1;'>{value}</div>"
-                   f"<div style='font-size:12px;color:#666;margin-top:8px;'>{subtitle}</div>"
+                   f"<div style='font-size:12px;color:#333;margin-top:8px;'>{subtitle}</div>"
                    f"</div>")
     out.append("</div>")
 
     out.append("<div style='display:grid;grid-template-columns:1.1fr 0.9fr;gap:14px;margin-bottom:18px;'>")
     out.append("<div style='background:white;border:1px solid #eee;border-radius:10px;padding:14px;'>")
     out.append(f"<div style='font-size:14px;font-weight:700;margin-bottom:8px;'>Starting board for matched researcher <code>{html.escape(uid)}</code></div>")
-    out.append(f"<div style='font-size:12px;color:#666;margin-bottom:10px;'>First few tabs in the pool: {', '.join(start_titles)}</div>")
-    out.append("<div style='font-size:12px;color:#555;'>")
+    out.append(f"<div style='font-size:12px;color:#333;margin-bottom:10px;'>First few tabs in the pool: {', '.join(start_titles)}</div>")
+    out.append("<div style='font-size:12px;color:#222;'>")
     for topic, total in topic_counts.most_common(8):
         out.append(_chip(f"{topic}: {total}", "#f5f5f5", "#444"))
     out.append("</div></div>")
@@ -494,7 +494,7 @@ def render_human_research_loop(report):
     out.append("</div>")
 
     out.append("<h3 style='margin-bottom:10px;font-size:15px;'>🧩 Base model plays the same session vs RL policy plays the same session</h3>")
-    out.append("<p style='font-size:13px;color:#666;margin-top:-4px;margin-bottom:14px;'>"
+    out.append("<p style='font-size:13px;color:#333;margin-top:-4px;margin-bottom:14px;'>"
                "Both columns start from the same board and even waste attention on the same distraction tabs. "
                "The behavior difference comes from what each model decides to bookmark and what it leaves neglected."
                " The cards below autoplay in sync like a replay.</p>")
@@ -508,16 +508,16 @@ def render_human_research_loop(report):
     for session in [base_session, rl_session]:
         out.append(f"<div style='background:white;border:1px solid #eee;border-top:4px solid {session['accent']};border-radius:12px;padding:12px;'>")
         out.append(f"<div style='font-size:14px;font-weight:800;color:{session['accent']};margin-bottom:8px;'>{session['name']}</div>")
-        out.append("<div style='font-size:12px;color:#666;margin-bottom:8px;'>Bookmarked in this session</div>")
+        out.append("<div style='font-size:12px;color:#333;margin-bottom:8px;'>Bookmarked in this session</div>")
         if session['kept_records']:
             for record in session['kept_records'][:3]:
                 out.append(_mini_topic_card(record, session['accent'], session['tint'], 'saved'))
         else:
             out.append("<div style='font-size:12px;color:#999;padding:6px 0;'>No concepts bookmarked.</div>")
-        out.append("<div style='font-size:12px;color:#666;margin:12px 0 8px 0;'>Opened then ignored</div>")
+        out.append("<div style='font-size:12px;color:#333;margin:12px 0 8px 0;'>Opened then ignored</div>")
         for record in session['skipped_records'][:2]:
             out.append(_mini_topic_card(record, '#ef6c00', '#fff3e0', 'closed'))
-        out.append("<div style='font-size:12px;color:#666;margin:12px 0 8px 0;'>Neglected but later mattered</div>")
+        out.append("<div style='font-size:12px;color:#333;margin:12px 0 8px 0;'>Neglected but later mattered</div>")
         if session['neglected_records']:
             for record in session['neglected_records'][:3]:
                 out.append(_mini_topic_card(record, '#c62828', '#ffebee', 'missed blindspot'))
@@ -548,7 +548,7 @@ def render_rl_visual(report):
                "border-radius:14px;border:1px solid #dde;'>")
     out.append("<h2 style='margin-top:0;margin-bottom:4px;font-size:18px;'>"
                "🔬 After many episodes like that, what did SFT training learn?</h2>")
-    out.append("<p style='color:#666;font-size:13px;margin-bottom:24px;'>"
+    out.append("<p style='color:#333;font-size:13px;margin-bottom:24px;'>"
                "The section above showed the same session played by the base model and the RL policy. "
                "This section is the audit afterwards: same researcher, same candidate pool, "
                "but now comparing the final outputs and rewards side by side.</p>")
@@ -569,7 +569,7 @@ def render_rl_visual(report):
     # ─────────────────────────────────────────────────────────────────
     out.append("<h3 style='margin-bottom:10px;font-size:15px;'>"
                "1️⃣ &nbsp;What changed after SFT training?</h3>")
-    out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
+    out.append("<p style='color:#333;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "Green card = researcher actually adopted this concept. "
                "Red card = wasted recommendation (not adopted).</p>")
     out.append("<div style='display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;'>")
@@ -586,7 +586,7 @@ def render_rl_visual(report):
         return (f"<div style='margin:5px 0;padding:10px 12px;background:{bg};"
                 f"border-left:4px solid {border};border-radius:0 7px 7px 0;'>"
                 f"<div style='font-size:13px;font-weight:600;'>{icon} {html.escape(card['title'][:48])}</div>"
-                f"<div style='font-size:11px;color:#777;margin-top:3px;'>{trend}{tag_html}</div>"
+                f"<div style='font-size:11px;color:#444;margin-top:3px;'>{trend}{tag_html}</div>"
                 f"</div>")
 
     # Before column
@@ -629,7 +629,7 @@ def render_rl_visual(report):
     # ─────────────────────────────────────────────────────────────────
     out.append("<h3 style='margin-bottom:8px;font-size:15px;'>"
                "2️⃣ &nbsp;RL reward earned — concept by concept</h3>")
-    out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
+    out.append("<p style='color:#333;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "This is the exact reward signal the model was trained on. "
                "Every bar = one concept the RL model surfaced. "
                "Green = the researcher adopted it (the model got paid). "
@@ -667,8 +667,8 @@ def render_rl_visual(report):
                    f"background:{bar_color};border-radius:3px;vertical-align:middle;'></div>"
                    f"<span style='font-size:13px;color:{bar_color};font-weight:700;"
                    f"margin-left:6px;'>{r_total:+.1f}</span></div>")
-        out.append(f"<div style='font-size:12px;color:#666;'>{adopted_txt} "
-                   f"<span style='color:#aaa;'>({component_str})</span></div>")
+        out.append(f"<div style='font-size:12px;color:#333;'>{adopted_txt} "
+                   f"<span style='color:#555;'>({component_str})</span></div>")
         out.append("</div>")
 
     # Missed adopted concepts — things the researcher adopted but RL didn't surface
@@ -684,7 +684,7 @@ def render_rl_visual(report):
         out.append("<div style='font-size:13px;font-weight:600;color:#e65100;margin-bottom:6px;'>"
                    "🔴 These were in the pool, adopted by the researcher, but RL missed them:</div>")
         for cid, title in rl_missed_adopted.items():
-            out.append(f"<div style='font-size:12px;color:#666;'>• {html.escape(title[:60])}</div>")
+            out.append(f"<div style='font-size:12px;color:#333;'>• {html.escape(title[:60])}</div>")
         out.append("<div style='font-size:11px;color:#999;margin-top:6px;'>"
                    "These are the true unknown-unknowns the model failed to surface — "
                    "room for the next training iteration to improve.</div>")
@@ -696,7 +696,7 @@ def render_rl_visual(report):
     # ─────────────────────────────────────────────────────────────────
     out.append("<h3 style='margin-bottom:8px;font-size:15px;'>"
                "3️⃣ &nbsp;Full adoption matrix — who found what?</h3>")
-    out.append("<p style='color:#666;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
+    out.append("<p style='color:#333;font-size:13px;margin-top:-4px;margin-bottom:14px;'>"
                "Every concept this researcher <em>actually adopted</em> (rows). "
                "Whether each strategy surfaced it (columns). "
                "✅ = found the blindspot · blank = missed it.</p>")
@@ -753,7 +753,7 @@ def render_rl_visual(report):
 # ──────────────────────────── HTML render ────────────────────────────
 def render_html(report, focus="Blindspot RL"):
     p = report['profile']
-    out = ["<div style='font-family:-apple-system,sans-serif;max-width:1100px;'>"]
+    out = ["<div style='font-family:-apple-system,sans-serif;max-width:1100px;color:#111;background:#fff;padding:8px;border-radius:8px;'>"]
 
     mode = p.get('mode', 'paragraph-match')
     mode_text = {
@@ -771,7 +771,7 @@ def render_html(report, focus="Blindspot RL"):
     if p.get('shared_keywords'):
         kws = ', '.join(f"<code>{html.escape(k)}</code>" for k in p['shared_keywords'][:8])
         out.append(f"<small>Profile matched on: {kws}</small><br>")
-    out.append(f"<small style='color:#555;margin-top:4px;display:block;'>"
+    out.append(f"<small style='color:#222;margin-top:4px;display:block;'>"
                f"Researcher summary: {html.escape(p['matched_summary'][:240])}…</small></div>")
 
     policies = report['policies']
@@ -790,14 +790,14 @@ def render_html(report, focus="Blindspot RL"):
                   else "RL training is still learning for this profile")
     out.append(f"<div style='background:#e8f5e9;padding:16px;border-radius:10px;"
                f"margin-bottom:20px;text-align:center;'>"
-               f"<div style='font-size:13px;color:#555;margin-bottom:6px;'>Did SFT training help for this researcher?</div>"
+               f"<div style='font-size:13px;color:#222;margin-bottom:6px;'>Did SFT training help for this researcher?</div>"
                f"<div style='font-size:20px;'>"
                f"Base model (before RL): <span style='color:#aa4488;font-weight:700;'>{before_r:+.2f}</span>"
                f" &nbsp;→&nbsp; "
                f"After SFT training: <span style='color:#22aa66;font-weight:700;'>{after_r:+.2f}</span>"
                f" &nbsp; {lift_emoji} <span style='color:{lift_color};font-weight:700;'>{'+' if lift>=0 else ''}{lift:.2f}</span>"
                f"</div>"
-               f"<div style='font-size:12px;color:#666;margin-top:6px;'>{lift_story}</div>"
+               f"<div style='font-size:12px;color:#333;margin-top:6px;'>{lift_story}</div>"
                f"</div>")
 
     # RL visual panels: diff, reward trace, adoption matrix
@@ -806,7 +806,7 @@ def render_html(report, focus="Blindspot RL"):
     # Reward bar chart with human labels
     max_r = max(abs(v['reward']['total']) for v in policies.values()) or 1
     out.append("<h3 style='margin-bottom:6px;'>📊 How each strategy scored</h3>")
-    out.append("<p style='color:#666;font-size:13px;margin-top:0;'>Higher = found more concepts this researcher actually adopted + understood. "
+    out.append("<p style='color:#333;font-size:13px;margin-top:0;'>Higher = found more concepts this researcher actually adopted + understood. "
                "Random ≈ 0 confirms the reward signal is calibrated.</p>")
     out.append("<table style='width:100%;border-collapse:collapse;'>")
     for name, res in policies.items():
@@ -823,22 +823,22 @@ def render_html(report, focus="Blindspot RL"):
                    f"<td style='width:300px;padding:7px 0;'>"
                    f"<div style='display:inline-block;width:{bar_w}px;height:16px;background:{color};border-radius:3px;'></div>"
                    f"</td>"
-                   f"<td style='color:#aaa;font-size:11px;padding:7px 6px;'>⚡{latency:.0f}ms</td></tr>")
+                   f"<td style='color:#555;font-size:11px;padding:7px 6px;'>⚡{latency:.0f}ms</td></tr>")
     out.append("</table>")
 
     out.append("<h3 style='margin-top:28px;margin-bottom:6px;'>🔍 What was surfaced — and did it help?</h3>")
-    out.append("<p style='color:#666;font-size:13px;margin-top:0;'>"
+    out.append("<p style='color:#333;font-size:13px;margin-top:0;'>"
                "Each concept card shows: did the researcher adopt it? did it improve understanding? "
                "Green border = adopted ✅ · Red border = not adopted ❌</p>")
     for name, res in policies.items():
         is_open = (name == focus)
         cache_note = ''
         if res['meta'].get('used_cache'):
-            cache_note = ' <span style="font-size:11px;color:#888;">💾 pre-cached response</span>'
+            cache_note = ' <span style="font-size:11px;color:#555;">💾 pre-cached response</span>'
         elif res['meta'].get('used_trained_model'):
-            cache_note = ' <span style="font-size:11px;color:#888;">🤖 live model</span>'
+            cache_note = ' <span style="font-size:11px;color:#555;">🤖 live model</span>'
         if res['meta'].get('used_nearest_neighbor'):
-            cache_note += f" <span style='font-size:11px;color:#888;'>🔁 nearest match: {res['meta']['used_nearest_neighbor']}</span>"
+            cache_note += f" <span style='font-size:11px;color:#555;'>🔁 nearest match: {res['meta']['used_nearest_neighbor']}</span>"
 
         r = res['reward']
         palette_color = PALETTE.get(name, '#666')
@@ -848,21 +848,21 @@ def render_html(report, focus="Blindspot RL"):
         out.append(f"<summary style='cursor:pointer;font-size:14px;'>"
                    f"<b>{name}</b>{cache_note} — "
                    f"Score: <b style='color:{palette_color};'>{r['total']:+.2f}</b> "
-                   f"<span style='color:#888;font-size:12px;'>"
+                   f"<span style='color:#555;font-size:12px;'>"
                    f"(adopted {r['adoption']:+.2f} · novel {r['novelty']:+.2f} · "
                    f"understood {r['onboarding']:+.2f} · wasted {r['false_positive']:+.2f})"
                    f"</span></summary>")
-        out.append(f"<p style='color:#555;font-size:13px;font-style:italic;'>{html.escape(res['description'])}</p>")
+        out.append(f"<p style='color:#222;font-size:13px;font-style:italic;'>{html.escape(res['description'])}</p>")
         for card in res['cards']:
             color = '#22aa66' if card['adopted_by_user'] else '#cc3333'
             adopted_label = "✅ This researcher actually adopted this concept" if card['adopted_by_user'] else "❌ Not adopted by this researcher"
-            out.append(f"<div style='margin:10px 0;padding:12px 14px;background:white;"
+            out.append(f"<div style='margin:10px 0;padding:12px 14px;background:white;color:#111;"
                        f"border-left:4px solid {color};border-radius:0 6px 6px 0;box-shadow:0 1px 3px rgba(0,0,0,0.06);'>")
             tag = '🔥 Trending' if card['is_trending'] else '💎 Under the radar'
-            out.append(f"<div style='font-weight:700;font-size:14px;margin-bottom:4px;'>"
+            out.append(f"<div style='font-weight:700;font-size:14px;margin-bottom:4px;color:#111;'>"
                        f"{html.escape(card['title'])} "
-                       f"<span style='font-size:11px;font-weight:400;color:#888;'>[{card['concept_id']}]</span></div>")
-            out.append(f"<div style='font-size:13px;color:#555;margin-bottom:6px;'>{html.escape(card['one_liner'][:160])}</div>")
+                       f"<span style='font-size:11px;font-weight:400;color:#555;'>[{card['concept_id']}]</span></div>")
+            out.append(f"<div style='font-size:13px;color:#222;margin-bottom:6px;'>{html.escape(card['one_liner'][:160])}</div>")
             tags = [tag, adopted_label]
             if card['comprehension_lift'] > 0:
                 tags.append(f"📈 Understanding improved by {card['comprehension_lift']:+.2f} after reading")
@@ -883,10 +883,10 @@ def render_html(report, focus="Blindspot RL"):
 
     if report.get('chatgpt_baseline'):
         out.append("<h3 style='margin-top:28px;'>💬 What a generic LLM would say instead</h3>")
-        out.append("<p style='color:#666;font-size:13px;'>For comparison — a generic ChatGPT prompt with no knowledge of this person's catalog or adoption history:</p>")
+        out.append("<p style='color:#333;font-size:13px;'>For comparison — a generic ChatGPT prompt with no knowledge of this person's catalog or adoption history:</p>")
         out.append(f"<div style='background:#fff3e0;padding:14px;border-radius:8px;border-left:4px solid #ff9800;'>"
                    f"{html.escape(report['chatgpt_baseline'])}</div>")
-        out.append("<p style='font-size:12px;color:#888;margin-top:6px;'>"
+        out.append("<p style='font-size:12px;color:#555;margin-top:6px;'>"
                    "↑ Generic advice. Blindspot instead picks from a specific 1,168-concept catalog "
                    "and validates every recommendation against real adoption + comprehension data.</p>")
 
