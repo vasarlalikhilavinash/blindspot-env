@@ -56,6 +56,7 @@ python -m pip install -q --upgrade --no-cache-dir \
   'transformers==5.5.0' \
   'trl==0.24.0' \
   'datasets==4.3.0' \
+  'numpy<2.1' \
   peft accelerate bitsandbytes
 python -m pip install -q --upgrade --no-cache-dir --no-deps \
   'unsloth_zoo==2026.4.9' \
