@@ -265,6 +265,8 @@ code(
     """
 import importlib.metadata as importlib_metadata
 import os
+import sys
+import types as _types
 
 import numpy as np
 import torch
@@ -276,6 +278,14 @@ if loaded_numpy != installed_numpy:
         f'numpy was upgraded during setup (loaded={loaded_numpy}, installed={installed_numpy}). '
         'Restart the runtime once, then rerun from the top.'
     )
+
+# torchcodec is bundled in the Colab base image but is incompatible with torch 2.11.
+# Pre-register stub modules so unsloth's import chain cannot crash on it.
+for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
+    _m = _types.ModuleType(_n)
+    _m.load_torchcodec_shared_libraries = lambda: None
+    sys.modules.setdefault(_n, _m)
+del _n, _m, _types
 
 import unsloth
 from unsloth import FastLanguageModel
