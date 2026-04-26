@@ -1,0 +1,11 @@
+{
+  "name": "GRPO (trained)",
+  "eval_slice": "held_out",
+  "total": 0.0,
+  "std": 0.0,
+  "adoption": 0.0,
+  "novelty": 0.0,
+  "onboarding": 0.0,
+  "efficiency": 0.0,
+  "false_positive": 0.0
+}

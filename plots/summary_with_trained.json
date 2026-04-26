@@ -1,0 +1,53 @@
+[
+  {
+    "name": "Random",
+    "total": 0.08844117647058833,
+    "adoption": 0.8811764705882353,
+    "novelty": 0.09705882352941177,
+    "onboarding": 0.01961764705882353,
+    "efficiency": 0.0,
+    "false_positive": -0.9094117647058823,
+    "std": 1.4038434602961825
+  },
+  {
+    "name": "Trending",
+    "total": 0.21176470588235305,
+    "adoption": 1.0941176470588236,
+    "novelty": 0.0,
+    "onboarding": 0.0,
+    "efficiency": 0.0,
+    "false_positive": -0.8823529411764705,
+    "std": 0.5101135190300785
+  },
+  {
+    "name": "Dense Retrieval",
+    "total": 0.46705882352941186,
+    "adoption": 1.3529411764705883,
+    "novelty": 0.058823529411764705,
+    "onboarding": 0.0,
+    "efficiency": -0.08,
+    "false_positive": -0.8647058823529411,
+    "std": 1.2011422803250273
+  },
+  {
+    "name": "GRPO (trained)",
+    "eval_slice": "all_users",
+    "total": 0.0,
+    "std": 0.0,
+    "adoption": 0.0,
+    "novelty": 0.0,
+    "onboarding": 0.0,
+    "efficiency": 0.0,
+    "false_positive": 0.0
+  },
+  {
+    "name": "Oracle (upper bound)",
+    "total": 3.2863529411764705,
+    "adoption": 3.5058823529411764,
+    "novelty": 0.35294117647058826,
+    "onboarding": 0.06870588235294119,
+    "efficiency": 0.0,
+    "false_positive": -0.6411764705882352,
+    "std": 3.5879381090948934
+  }
+]
