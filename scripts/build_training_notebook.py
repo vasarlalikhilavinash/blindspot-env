@@ -556,6 +556,12 @@ trainer = GRPOTrainer(
     train_dataset=ds,
 )
 
+# TRL 0.24.0 incorrectly detects Qwen3.5 as a vision model and calls load_image on text prompts.
+# Force text-only path.
+if getattr(trainer, 'is_vision_model', False):
+    trainer.is_vision_model = False
+    print('Patched: forced trainer.is_vision_model = False')
+
 trainer.train()
 trainer.save_model('blindspot-env/training/checkpoints/grpo')
 print('✓ GRPO training complete')
