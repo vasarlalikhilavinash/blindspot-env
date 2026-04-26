@@ -439,9 +439,14 @@ def render_human_research_loop(report):
                "@media (prefers-reduced-motion: reduce) {"
                "  .replay-card { opacity: 1 !important; animation: none !important; }"
                "}"
+               ".bsout,.bsout div,.bsout p,.bsout span,.bsout td,.bsout th,.bsout tr,"
+               ".bsout li,.bsout b,.bsout small,.bsout summary,.bsout details,"
+               ".bsout pre,.bsout h1,.bsout h2,.bsout h3,.bsout h4,.bsout code,"
+               ".bsout table,.bsout ol,.bsout ul,.bsout a { color: #111 !important; }"
+               ".bsout { background: #fff !important; }"
                "</style>")
-    out.append("<div style='margin:28px 0;padding:22px;background:#fffdf7;border-radius:14px;"
-               "border:1px solid #e8dcc2;'>")
+    out.append("<div class='bsout' style='margin:28px 0;padding:22px;background:#fffdf7;border-radius:14px;"
+               "border:1px solid #e8dcc2;color:#111;'>")
     out.append("<h2 style='color:#111;margin-top:0;margin-bottom:6px;font-size:18px;'>"
                "🎮 Same session, two agents — base model vs RL policy</h2>")
     out.append("<p style='color:#333;font-size:13px;margin-top:0;margin-bottom:18px;'>"
@@ -461,7 +466,7 @@ def render_human_research_loop(report):
     for title, value, subtitle in stat_cards:
         out.append(f"<div style='background:white;border:1px solid #eee;border-radius:10px;padding:14px;'>"
                    f"<div style='font-size:12px;color:#555;margin-bottom:6px;'>{title}</div>"
-                   f"<div style='font-size:28px;font-weight:800;line-height:1;'>{value}</div>"
+                   f"<div style='font-size:28px;font-weight:800;line-height:1;color:#111;'>{value}</div>"
                    f"<div style='font-size:12px;color:#333;margin-top:8px;'>{subtitle}</div>"
                    f"</div>")
     out.append("</div>")
@@ -544,8 +549,8 @@ def render_rl_visual(report):
         return ""
 
     out = []
-    out.append("<div style='margin:28px 0;padding:22px;background:#f8f9fa;"
-               "border-radius:14px;border:1px solid #dde;'>")
+    out.append("<div class='bsout' style='margin:28px 0;padding:22px;background:#f8f9fa;"
+               "border-radius:14px;border:1px solid #dde;color:#111;'>")
     out.append("<h2 style='color:#111;margin-top:0;margin-bottom:4px;font-size:18px;'>"
                "🔬 After many episodes like that, what did SFT training learn?</h2>")
     out.append("<p style='color:#333;font-size:13px;margin-bottom:24px;'>"
@@ -753,7 +758,12 @@ def render_rl_visual(report):
 # ──────────────────────────── HTML render ────────────────────────────
 def render_html(report, focus="Blindspot RL"):
     p = report['profile']
-    out = ["<div style='font-family:-apple-system,sans-serif;max-width:1100px;color:#111;background:#fff;padding:8px;border-radius:8px;'>"]
+    out = ["<style>.bsout,.bsout div,.bsout p,.bsout span,.bsout td,.bsout th,.bsout tr,"
+           ".bsout li,.bsout b,.bsout small,.bsout summary,.bsout details,"
+           ".bsout pre,.bsout h1,.bsout h2,.bsout h3,.bsout h4,.bsout code,"
+           ".bsout table,.bsout ol,.bsout ul,.bsout a { color: #111 !important; }"
+           ".bsout { background: #fff !important; }</style>",
+           "<div class='bsout' style='font-family:-apple-system,sans-serif;max-width:1100px;color:#111;background:#fff;padding:8px;border-radius:8px;'>"]
 
     mode = p.get('mode', 'paragraph-match')
     mode_text = {
