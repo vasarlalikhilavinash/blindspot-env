@@ -281,9 +281,19 @@ if loaded_numpy != installed_numpy:
 
 # torchcodec is baked into the Colab base image as a broken package (incompatible with torch 2.11).
 # It is imported at kernel startup with __spec__=None which makes importlib.util.find_spec crash.
-# Always overwrite whatever is in sys.modules so __spec__ is never None.
+# unsloth_zoo also calls importlib.metadata.version('torchcodec') and crashes if metadata is missing.
+# Fix both: patch sys.modules stubs AND intercept metadata lookups.
 import importlib.util as _ilu
+import importlib.metadata as _imeta
 import types as _types
+
+_orig_meta_version = _imeta.version
+def _patched_meta_version(name):
+    if name == 'torchcodec':
+        return '0.0.0'
+    return _orig_meta_version(name)
+_imeta.version = _patched_meta_version
+
 for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
     _m = sys.modules.get(_n)
     if _m is None:
@@ -292,7 +302,7 @@ for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
         sys.modules[_n] = _m
     if getattr(_m, '__spec__', None) is None:
         _m.__spec__ = _ilu.spec_from_loader(_n, loader=None)
-del _n, _m, _ilu, _types
+del _n, _m, _ilu, _imeta, _types, _orig_meta_version
 
 import unsloth
 from unsloth import FastLanguageModel
