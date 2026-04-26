@@ -234,7 +234,7 @@ code(
     """
 %%bash
 cd blindspot-env
-python training/sft_train.py --backend transformers --base-model unsloth/Qwen3.5-9B-bnb-4bit --epochs 1 --batch-size 1
+python training/sft_train.py --backend transformers --base-model unsloth/Qwen2.5-7B-Instruct-bnb-4bit --epochs 1 --batch-size 1
 """
 )
 
@@ -242,15 +242,36 @@ md("## 4. GRPO training")
 
 code(
     """
-from unsloth import FastLanguageModel
 import os
 import torch
+from unsloth import FastLanguageModel
 
-model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name='unsloth/Qwen3.5-9B-bnb-4bit',
-    max_seq_length=4096 + 128,
-    load_in_4bit=True,
-)
+BASE_MODEL = os.environ.get('BASE_MODEL', 'unsloth/Qwen2.5-7B-Instruct-bnb-4bit')
+FALLBACK_BASE_MODEL = 'unsloth/Qwen3-8B-bnb-4bit'
+MAX_SEQ_LENGTH = 4096 + 128
+
+
+def load_base_model(model_name):
+    return FastLanguageModel.from_pretrained(
+        model_name=model_name,
+        max_seq_length=MAX_SEQ_LENGTH,
+        load_in_4bit=True,
+    )
+
+
+try:
+    model, tokenizer = load_base_model(BASE_MODEL)
+    print(f'Loaded base model: {BASE_MODEL}')
+except (RuntimeError, OSError) as exc:
+    message = str(exc)
+    missing_config = 'No config file found' in message or 'is not a local folder' in message
+    if not missing_config or BASE_MODEL == FALLBACK_BASE_MODEL:
+        raise
+    print(f'Base model could not be loaded: {BASE_MODEL}')
+    print(f'First error line: {message.splitlines()[0]}')
+    BASE_MODEL = FALLBACK_BASE_MODEL
+    print(f'Falling back to: {BASE_MODEL}')
+    model, tokenizer = load_base_model(BASE_MODEL)
 
 if os.path.isdir('blindspot-env/training/checkpoints/sft'):
     model.load_adapter('blindspot-env/training/checkpoints/sft')

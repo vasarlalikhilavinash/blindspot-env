@@ -10,7 +10,7 @@ Usage:
     uvicorn server.app:app --host 0.0.0.0 --port 8000
 
     # 2. Run training:
-    python training/grpo_train.py --base-model unsloth/Qwen3.5-9B-bnb-4bit
+    python training/grpo_train.py --base-model unsloth/Qwen2.5-7B-Instruct-bnb-4bit
 
 The same script powers `notebooks/02_training.ipynb` (Colab-runnable).
 """
@@ -99,7 +99,7 @@ def rollout(generator, prompt_msgs, max_steps=30) -> float:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--base-model", default="unsloth/Qwen3.5-9B-bnb-4bit")
+    ap.add_argument("--base-model", default="unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
     ap.add_argument("--sft-adapter", default="training/checkpoints/sft")
     ap.add_argument("--output", default="training/checkpoints/grpo")
     ap.add_argument("--max-steps", type=int, default=400)
@@ -108,21 +108,106 @@ def main():
     ap.add_argument("--learning-rate", type=float, default=5e-6)
     ap.add_argument("--max-prompt-length", type=int, default=4096)
     ap.add_argument("--max-completion-length", type=int, default=64)
+    ap.add_argument("--rollout-step-limit", type=int, default=8)
+    ap.add_argument("--fallback-base-model", default="unsloth/Qwen3-8B-bnb-4bit")
     args = ap.parse_args()
 
     # Heavy imports here so --help works without GPU
     from unsloth import FastLanguageModel  # type: ignore
     from trl import GRPOConfig, GRPOTrainer  # type: ignore
     from datasets import Dataset  # type: ignore
+    import torch
 
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=args.base_model,
-        max_seq_length=args.max_prompt_length + args.max_completion_length,
-        load_in_4bit=True,
-    )
+    def load_base_model(model_name: str):
+        return FastLanguageModel.from_pretrained(
+            model_name=model_name,
+            max_seq_length=args.max_prompt_length + args.max_completion_length,
+            load_in_4bit=True,
+        )
+
+    try:
+        model, tokenizer = load_base_model(args.base_model)
+        print(f"Loaded base model: {args.base_model}")
+    except (RuntimeError, OSError) as exc:
+        message = str(exc)
+        missing_config = "No config file found" in message or "is not a local folder" in message
+        if not missing_config or args.base_model == args.fallback_base_model:
+            raise
+        print(f"Base model could not be loaded: {args.base_model}")
+        print(f"First error line: {message.splitlines()[0]}")
+        args.base_model = args.fallback_base_model
+        print(f"Falling back to: {args.base_model}")
+        model, tokenizer = load_base_model(args.base_model)
+
     if args.sft_adapter and Path(args.sft_adapter).exists():
         model.load_adapter(args.sft_adapter)
     FastLanguageModel.for_training(model)
+
+    def post_env(endpoint: str, payload: dict):
+        resp = requests.post(f"{ENV_URL}/{endpoint}", json=payload, timeout=30)
+        resp.raise_for_status()
+        body = resp.json()
+        obs = body.get("observation", body) or {}
+        return body, obs
+
+    def generate_completion(messages) -> str:
+        inputs = tokenizer.apply_chat_template(
+            messages,
+            return_tensors="pt",
+            add_generation_prompt=True,
+        ).to(model.device)
+        with torch.inference_mode():
+            output = model.generate(
+                inputs,
+                max_new_tokens=args.max_completion_length,
+                do_sample=False,
+                temperature=0.0,
+            )
+        return tokenizer.decode(output[0, inputs.shape[1]:], skip_special_tokens=True)
+
+    def run_episode(user_id, seed, first_completion=None, first_action=None):
+        payload = {}
+        if user_id is not None:
+            payload["user_id"] = user_id
+        if seed is not None:
+            payload["seed"] = seed
+
+        _, obs = post_env("reset", payload)
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": render_obs(obs)},
+        ]
+
+        invalid_streak = 0
+        for step_idx in range(args.rollout_step_limit):
+            if step_idx == 0 and first_completion is not None:
+                text = first_completion
+                action = first_action or parse_action(first_completion)
+            else:
+                text = generate_completion(messages)
+                action = parse_action(text)
+
+            if not action or "type" not in action:
+                if step_idx == 0:
+                    return -0.05
+                messages.append({"role": "assistant", "content": text or ""})
+                messages.append({"role": "user", "content": "Reply with EXACTLY one JSON command."})
+                invalid_streak += 1
+                if invalid_streak >= 2:
+                    break
+                continue
+
+            result, obs = post_env("step", {"action": action})
+            invalid_streak = 0
+            messages.append({"role": "assistant", "content": text or ""})
+            if result.get("done") or obs.get("done"):
+                breakdown = obs.get("reward_breakdown") or {}
+                return float(breakdown.get("total", result.get("reward", 0.0) or 0.0))
+            messages.append({"role": "user", "content": render_obs(obs)})
+
+        result, obs = post_env("step", {"action": {"type": "stop"}})
+        breakdown = obs.get("reward_breakdown") or {}
+        return float(breakdown.get("total", result.get("reward", 0.0) or 0.0))
 
     # Build a tiny "prompt" dataset — each row is a fresh reset; the
     # reward function below resets the env to the SAME user_id+seed
@@ -137,8 +222,18 @@ def main():
     user_pool = (r0.json().get("observation", r0.json()) or {}).get("user_id_pool", [])
     if not user_pool:
         raise RuntimeError("Env returned empty user_id_pool")
+
+    split_path = REPO_ROOT / "data" / "user_splits.json"
+    if split_path.exists():
+        split = json.loads(split_path.read_text())
+        train_users = [uid for uid in split.get("train", []) if uid in user_pool]
+    else:
+        train_users = list(user_pool)
+    if not train_users:
+        raise RuntimeError("No training users available for prompt sampling")
+
     for i in range(n_prompts):
-        uid = _rng.choice(user_pool)
+        uid = _rng.choice(train_users)
         seed = _rng.randrange(1_000_000)
         r = requests.post(f"{ENV_URL}/reset", json={"user_id": uid, "seed": seed}); r.raise_for_status()
         obs = r.json().get("observation", r.json())
@@ -154,9 +249,12 @@ def main():
 
     # -------------------- reward function --------------------
     def reward_fn(prompts, completions, user_id=None, seed=None, **kwargs) -> List[float]:
-        """Each completion = one action. We reset the env with the SAME
-        user_id+seed used to build the prompt, take the agent's action,
-        then auto-stop to compute the final breakdown."""
+        """Score each GRPO completion by continuing a short OpenEnv episode.
+
+        The first completion is the candidate action from GRPO. After that,
+        the current policy keeps interacting through reset/step until stop,
+        done, or the rollout limit. This matches the session-level task.
+        """
         rewards = []
         uids = user_id if isinstance(user_id, list) else [user_id] * len(completions)
         seeds = seed if isinstance(seed, list) else [seed] * len(completions)
@@ -167,16 +265,7 @@ def main():
                 rewards.append(-0.05)
                 continue
             try:
-                payload = {}
-                if uid is not None: payload["user_id"] = uid
-                if sd  is not None: payload["seed"]    = sd
-                rr = requests.post(f"{ENV_URL}/reset", json=payload, timeout=10); rr.raise_for_status()
-                r2 = requests.post(f"{ENV_URL}/step", json={"action": action}, timeout=10); r2.raise_for_status()
-                step_reward = float(r2.json().get("reward", 0.0) or 0.0)
-                rs = requests.post(f"{ENV_URL}/step", json={"action": {"type": "stop"}}, timeout=10).json()
-                br = (rs.get("observation", rs) or {}).get("reward_breakdown") or {}
-                total = float(br.get("total", step_reward))
-                rewards.append(total)
+                rewards.append(run_episode(uid, sd, first_completion=text, first_action=action))
             except Exception:
                 rewards.append(-0.1)
         return rewards

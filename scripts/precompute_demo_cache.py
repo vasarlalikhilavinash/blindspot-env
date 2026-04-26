@@ -30,7 +30,7 @@ from unsloth import FastLanguageModel  # type: ignore
 from scripts.blindspot_demo import BlindspotDemo
 
 ADAPTER_PATH = os.environ.get("ADAPTER_PATH", "training/checkpoints/grpo")
-BASE_MODEL = os.environ.get("BASE_MODEL", "unsloth/Qwen3.5-9B-bnb-4bit")
+BASE_MODEL = os.environ.get("BASE_MODEL", "unsloth/Qwen2.5-7B-Instruct-bnb-4bit")
 OUT_TRAINED  = REPO_ROOT / "data" / "demo_cache.json"
 OUT_PRETRAIN = REPO_ROOT / "data" / "demo_cache_pretrain.json"
 

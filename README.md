@@ -5,10 +5,11 @@ Blindspot is an OpenEnv environment for unknown-unknowns discovery: given a rese
 ## 🏆 Submission Notes
 
 - Live demo: https://huggingface.co/spaces/vasarlalikhilavinash/blindspot-demo
-- Trained adapter: https://huggingface.co/vasarlalikhilavinash/blindspot-qwen35-9b-grpo
+- Trained adapter: https://huggingface.co/vasarlalikhilavinash/blindspot-qwen25-7b-grpo
 - GitHub repo: https://github.com/vasarlalikhilavinash/blindspot-env
 - Training notebook: [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/02_training.ipynb)
 - Demo notebook: https://colab.research.google.com/github/vasarlalikhilavinash/blindspot-env/blob/main/notebooks/03_demo.ipynb
+- Submission walkthrough: [docs/submission_walkthrough.md](docs/submission_walkthrough.md)
 - Loom walkthrough: pending upload
 
 ## Why This Matters
@@ -74,13 +75,15 @@ Because the Space reads cached policy outputs, it does not need a GPU at request
 
 ## Training Recipe
 
-Blindspot trains a LoRA adapter on top of `unsloth/Qwen3.5-9B-bnb-4bit`.
+Blindspot trains a LoRA adapter on top of `unsloth/Qwen2.5-7B-Instruct-bnb-4bit`.
 
-1. Generate an SFT warm-start from oracle traces on the 13 training users.
-2. Run GRPO with 8 generations per prompt against the live OpenEnv server.
-3. Evaluate on the 4 held-out users and on the full 17-user set.
-4. Precompute demo caches for both pre-training and post-training variants.
-5. Push the adapter to the Hub and deploy the Space.
+1. Optionally attach an SFT warm-start adapter if `training/checkpoints/sft` exists.
+2. Build GRPO prompts from the 13 training users in `data/user_splits.json`.
+3. Run GRPO with 8 generations per prompt against the live OpenEnv server; each reward rolls out a short multi-step episode through `/reset` and `/step`.
+4. Evaluate on the 4 held-out users and on the full 17-user set.
+5. Save reward curves, reward-component plots, all-user summaries, and held-out summaries.
+6. Precompute demo caches for both pre-training and post-training variants.
+7. Push the adapter to the Hub and deploy the Space.
 
 The main training notebook is `notebooks/02_training.ipynb`. The model card template is in `training/MODEL_CARD.md` and is uploaded as the Hub README by `scripts/push_to_hub.py`.
 
@@ -105,6 +108,16 @@ Observation highlights:
 - `reward_breakdown` on episode end
 
 Server state now also exposes a `reasoning_log` with per-step action outcomes, which helps explain trajectories during debugging and review.
+
+## OpenEnv Criteria Checklist
+
+- **Environment manifest:** `openenv.yaml` declares the FastAPI app entry point.
+- **API surface:** `server.app:app` exposes `/reset`, `/step`, `/state`, `/schema`, and `/ws` through `openenv.create_app`.
+- **Typed action/observation/state:** `models.py` uses OpenEnv core types and Pydantic schemas.
+- **Real RL training:** `notebooks/02_training.ipynb` runs TRL GRPO against the live HTTP environment.
+- **Session-level reward:** GRPO completions are scored by multi-step OpenEnv rollouts, not static dataset scoring.
+- **Held-out evidence:** the notebook reserves `data/user_splits.json` test users and writes `plots/summary_heldout_with_trained.json` after training.
+- **Demo:** the Hugging Face Space gives judges a stable, visual replay of pre-training vs GRPO behavior.
 
 ## Quickstart
 

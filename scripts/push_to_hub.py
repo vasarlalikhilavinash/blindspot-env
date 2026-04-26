@@ -4,7 +4,7 @@
 Usage (in Colab, after training):
     HF_TOKEN=hf_xxx python scripts/push_to_hub.py
 
-Or set HF_REPO_ID env var (default: "vasarlalikhilavinash/blindspot-qwen35-9b-grpo").
+Or set HF_REPO_ID env var (default: "vasarlalikhilavinash/blindspot-qwen25-7b-grpo").
 """
 from __future__ import annotations
 import os
@@ -13,7 +13,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ADAPTER = REPO_ROOT / os.environ.get("ADAPTER_PATH", "training/checkpoints/grpo")
-REPO_ID = os.environ.get("HF_REPO_ID", "vasarlalikhilavinash/blindspot-qwen35-9b-grpo")
+REPO_ID = os.environ.get("HF_REPO_ID", "vasarlalikhilavinash/blindspot-qwen25-7b-grpo")
 TOKEN = os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACEHUB_API_TOKEN")
 
 if not ADAPTER.is_dir():
