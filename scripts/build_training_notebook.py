@@ -301,14 +301,25 @@ except _imeta.PackageNotFoundError:
     sys.path.insert(0, str(_fake_base))
     _il.invalidate_caches()
 
-for _n in ('torchcodec', 'torchcodec._core', 'torchcodec._core.ops'):
+for _n in (
+    'torchcodec',
+    'torchcodec._core',
+    'torchcodec._core.ops',
+    'torchcodec.decoders',
+):
     _m = sys.modules.get(_n)
     if _m is None:
         _m = _types.ModuleType(_n)
-        _m.load_torchcodec_shared_libraries = lambda: None
         sys.modules[_n] = _m
     if getattr(_m, '__spec__', None) is None:
         _m.__spec__ = _ilu.spec_from_loader(_n, loader=None)
+    _m.__path__ = []  # mark as package so submodule imports don't raise TypeError
+
+# Dummy classes datasets imports from torchcodec.decoders
+sys.modules['torchcodec.decoders'].AudioDecoder = type('AudioDecoder', (), {})
+sys.modules['torchcodec.decoders'].VideoDecoder = type('VideoDecoder', (), {})
+sys.modules['torchcodec'].load_torchcodec_shared_libraries = lambda: None
+
 del _n, _m, _il, _imeta, _ilu, _pl, _tf, _types
 
 import unsloth
