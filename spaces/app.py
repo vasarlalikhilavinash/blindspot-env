@@ -1036,12 +1036,29 @@ def run_paragraph(text, focus_label):
     return render_html(demo_engine.compare_all(paragraph=text), focus=focus)
 
 
+_FORCE_LIGHT_JS = """
+function() {
+    var html = document.documentElement;
+    html.classList.remove('dark');
+    html.style.colorScheme = 'light';
+    try { localStorage.setItem('theme', 'light'); } catch(e) {}
+    var observer = new MutationObserver(function() {
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark');
+            html.style.colorScheme = 'light';
+        }
+    });
+    observer.observe(html, { attributes: true, attributeFilter: ['class'] });
+}
+"""
+
 with gr.Blocks(
     title="Blindspot — Unknown-Unknowns Discovery",
     theme=gr.themes.Default(
         primary_hue=gr.themes.colors.indigo,
         neutral_hue=gr.themes.colors.gray,
     ),
+    js=_FORCE_LIGHT_JS,
 ) as ui:
     gr.Markdown(INTRO)
 
