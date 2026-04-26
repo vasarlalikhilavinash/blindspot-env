@@ -441,6 +441,8 @@ _TXT_TOK = tokenizer.tokenizer if isinstance(tokenizer, _ProcessorMixin) else to
 
 def _post_env(endpoint, payload):
     resp = requests.post(f'{ENV_URL}/{endpoint}', json=payload, timeout=30)
+    if resp.status_code == 422:
+        return {'reward': -0.1, 'done': True}, {'done': True, 'reward_breakdown': {'total': -0.1}}
     resp.raise_for_status()
     body = resp.json()
     obs = body.get('observation', body) or {}
