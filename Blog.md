@@ -1,6 +1,6 @@
 # Blindspot: A Real-User Benchmark for Unknown-Unknowns Discovery (SFT Beats Baselines)
 
-**Team**: vasarlalikhilavinash  
+**Team**: Vasarla Avinash  
 **Track**: Theme #3.1 — Professional Tasks / World Modeling  
 **OpenEnv Hackathon India 2026**
 
@@ -21,6 +21,8 @@ Blindspot is an RL environment that forces an agent to solve this exact problem:
 ## The Environment
 
 Blindspot implements the full OpenEnv interface against a dataset of **17 real ML researchers**, **1,168 candidate concepts**, **282 reading paths**, and **62 ground-truth adoption pairs** measured from post-timestamp research artifacts.
+
+![Dataset distributions](plots/data_distributions.png)
 
 ### What the Agent Sees
 
@@ -100,11 +102,13 @@ Our first attempt used GRPO on Qwen3.5-9B. Training ran without errors but rewar
 **Expert traces:**  
 We generated **40 demonstration traces** using **Dense Retrieval+** — our best heuristic (TF-IDF cosine similarity, no inspect calls, surface top-10). Mean reward of the expert: **+8.67** per episode. Each trace is stored as a full chat-format conversation: system prompt → user observation → assistant action sequence. 40 traces is intentionally lean — it demonstrates that a small, high-quality demonstration set is sufficient to cross the zero-reward threshold.
 
+![Expert trace distribution](plots/sft_trace_distribution.png)
+
 **Training config:**
 - Model: `unsloth/Qwen2.5-1.5B-Instruct`, 4-bit NF4 quantization
 - LoRA: rank=16, alpha=16, target all attention + MLP projection layers
 - 3 epochs, batch size 8, learning rate 2e-5, bf16
-- Loss: 1.10 → 1.09 (converging, healthy)
+- Loss: 1.108 → 1.080 (steps 5/10/15: 1.1078 / 1.0940 / 1.0800)
 - 13 training users; 4 users held out for evaluation
 
 **Training infrastructure:**  
@@ -118,9 +122,9 @@ Evaluation: 13 training users × 10 seeds = **130 episodes per policy**.
 
 ### SFT training curve
 
-![SFT training loss](plots/training_loss_curve.png)
+![SFT training loss](plots/sft_loss.png)
 
-Loss converges from 1.10 → 1.09 over 3 epochs (15 logged steps). The flat curve is a signal, not a weakness: the model learned the action format and surfacing strategy within the first epoch, leaving little room for further loss reduction on 40 traces. No overfitting.
+Loss converges from 1.108 → 1.080 over 3 epochs (15 total steps, logged every 5). The flat curve is a signal, not a weakness: the model learned the action format and surfacing strategy within the first epoch, leaving little room for further loss reduction on 40 traces. No overfitting.
 
 ### Policy comparison
 

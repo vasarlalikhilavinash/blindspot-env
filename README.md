@@ -71,6 +71,7 @@ Our first attempt used GRPO on Qwen3.5-9B. Training ran without errors but rewar
 - Model: `unsloth/Qwen2.5-1.5B-Instruct`, 4-bit NF4 quantization
 - LoRA: rank=16, alpha=16, target all attention + MLP projection layers
 - 3 epochs, batch size 8, learning rate 2e-5, bf16
+- Loss: 1.108 → 1.080 (steps 5/10/15: 1.1078 / 1.0940 / 1.0800)
 - 13 training users; 4 users held out for evaluation
 
 **Training loss curve:**
